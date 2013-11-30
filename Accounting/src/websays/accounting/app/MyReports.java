@@ -5,7 +5,9 @@
  */
 package websays.accounting.app;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Date;
 
 import org.apache.log4j.Level;
@@ -31,6 +33,7 @@ public class MyReports {
   public static void main(String[] args) throws Exception {
     boolean connectToDB = false;
     File dumpDataFile = null, dumpMetrics = null;
+    BufferedWriter writer = null;
     
     if (args.length > 0) {
       dumpDataFile = new File(args[0]);
@@ -61,11 +64,18 @@ public class MyReports {
     app.displayContracts(date, AccountFilter.contracted);
     app.displayContracts(date, AccountFilter.project);
     
+    if (dumpMetrics != null) {
+      writer = new BufferedWriter(new FileWriter(dumpMetrics));
+      app.setMetricsOutput(writer);
+    }
     Reporting.title("METRICS (contracted, then projects, then total");
     app.displayMetrics(2013, 1, 11, AccountFilter.contracted);
     app.displayMetrics(2013, 1, 11, AccountFilter.project);
     app.displayMetrics(2013, 1, 11, AccountFilter.contractedORproject);
     
+    if (writer != null) {
+      writer.close();
+    }
   }
   
   public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile) throws Exception {

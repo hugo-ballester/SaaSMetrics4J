@@ -5,6 +5,8 @@
  */
 package websays.accounting;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +21,8 @@ public class Reporting {
   
   static Boolean connectToDB = true;
   Contracts contracts;
+  
+  public Writer metricsWSB;
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
@@ -125,16 +129,31 @@ public class Reporting {
   }
   
   public void displayMetrics(int year, int monthStart, int months, AccountFilter filter) throws ParseException, SQLException {
-    System.out.println("displayAll   : " + filter.toString() + "\n");
-    System.out.println("     \t" + Metrics.headersTop());
-    System.out.println("month\t" + Metrics.headers());
+    StringBuffer sb = new StringBuffer();
+    sb.append("displayAll   : " + filter.toString() + "\n");
+    sb.append("     \t" + Metrics.headersTop() + "\n");
+    sb.append("month\t" + Metrics.headers() + "\n");
     double oldmrr = 0, oldchurn = 0;
     for (int i = monthStart; i <= (monthStart + months - 1); i++) {
       Metrics m = Metrics.compute(year, i, filter, contracts, oldmrr, oldchurn);
-      System.out.println("" + year + "/" + i + "\t" + m);
+      sb.append("" + year + "/" + i + "\t" + m + "\n");
       oldmrr = m.mrr;
       oldchurn = m.churn;
     }
+    sb.append("\n");
+    try {
+      if (metricsWSB != null) {
+        metricsWSB.write(sb.toString());
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    System.out.print(sb.toString());
     
+  }
+  
+  public void setMetricsOutput(Writer writer) {
+    metricsWSB = writer;
   }
 }

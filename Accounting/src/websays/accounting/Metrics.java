@@ -87,7 +87,7 @@ public class Metrics {
   }
   
   public static String headersTop() {
-    return String.format("%s\t%s\t%s\t%s\t%s\t%s", "[ CONTRACTS", "]", "[ MRR\t\t\t\t\t\t\t", "]", "[ Profiles\t", "]");
+    return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "[", "CONT.", "]", "[", "MRR\t\t\t\t\t\t", "]", "[", "Prof.\t", "]");
   }
   
   static double checkmrr = 0;

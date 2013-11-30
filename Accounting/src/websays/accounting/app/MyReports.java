@@ -35,14 +35,16 @@ public class MyReports {
     File dumpDataFile = null, dumpMetrics = null;
     BufferedWriter writer = null;
     
-    if (args.length > 0) {
-      dumpDataFile = new File(args[0]);
-    }
+    File pricingFile = new File(args[0]);
+    
     if (args.length > 1) {
-      dumpMetrics = new File(args[1]);
+      dumpDataFile = new File(args[1]);
+    }
+    if (args.length > 2) {
+      dumpMetrics = new File(args[2]);
     }
     
-    Contracts contracts = loadAccounts(connectToDB, dumpDataFile);
+    Contracts contracts = loadAccounts(connectToDB, dumpDataFile, pricingFile);
     Reporting app = new Reporting(contracts);
     
     Date date = DateUtilsWebsays.dateEndOfMonth(new Date());
@@ -78,13 +80,13 @@ public class MyReports {
     }
   }
   
-  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile) throws Exception {
+  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, File pricingFile) throws Exception {
     Contracts contracts;
     if (connectToDB) {
       Queries.initContext("stage");
       ContractDAO adao = new ContractDAO();
       contracts = adao.getAccounts(null, true);
-      contracts.loadPrizeNames(new File("/Users/hugoz/HUGO/DOCS/Websays_PRIVADO_HUGO/prizes.txt"));
+      contracts.loadPrizeNames(pricingFile);
       contracts.linkPrizes();
       if (dumpDataFile != null) { // save for future use without Internet connection.
         contracts.save(dumpDataFile);

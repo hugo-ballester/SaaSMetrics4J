@@ -17,4 +17,6 @@ After fighting with excel for a year or so I ended up developing a simple Java l
 
 I hope this library can be of help for other geeks out there trying to keep control of their companies exponential growth ;)
 
+(To understand and use the code start at websays.accounting.app.MyReports.java)
+
 Hugo Zaragoza, www.hugo-zaragoza-net.

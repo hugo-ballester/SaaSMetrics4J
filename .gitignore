@@ -6,3 +6,4 @@ Accounting/bin/
 *.txt~
 
 *.properties~
+SaaSMetrics4J.properties

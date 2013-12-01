@@ -5,6 +5,7 @@
  */
 package websays.accounting.connectors;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,10 +16,7 @@ import java.util.Date;
 import utils.Utils;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
-import websays.accounting.Contract.Type;
 import websays.accounting.Contracts.AccountFilter;
-import connectors.DatabaseManager;
-import connectors.DatabaseManager.DB;
 
 public class ContractDAO extends MySQLDAO {
   
@@ -26,7 +24,7 @@ public class ContractDAO extends MySQLDAO {
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   protected Connection getConnection() throws SQLException {
-    return DatabaseManager.getConnection(DB.accounting);
+    return DatabaseManager.getConnection();
   }
   
   public int getNumberOfProfiles(int contractId) throws SQLException {
@@ -57,8 +55,8 @@ public class ContractDAO extends MySQLDAO {
   public Contracts getAccounts(AccountFilter filter, boolean getNumberOfProfiles) throws SQLException {
     Contracts accs = new Contracts();
     String st = "SELECT " + COLUMNS_READ + " FROM " + tableName;
-    if (filter == AccountFilter.contracted) {
-      st += " WHERE type='contract' ";
+    if (filter != null) {
+      st += " WHERE " + filter.whereBoolean();
     }
     st += " ORDER BY client.name, contract.name";
     PreparedStatement p = null;
@@ -156,4 +154,23 @@ public class ContractDAO extends MySQLDAO {
     }
     return key;
   }
+  
+  // TODO: replace Queries.initContext by a stand-alone option
+  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, File pricingFile) throws Exception {
+    Contracts contracts;
+    if (connectToDB) {
+      ContractDAO adao = new ContractDAO();
+      contracts = adao.getAccounts(AccountFilter.contractedORproject, true);
+      contracts.loadPrizeNames(pricingFile);
+      contracts.linkPrizes();
+      if (dumpDataFile != null) { // save for future use without Internet connection.
+        contracts.save(dumpDataFile);
+      }
+    } else {
+      // load last saved
+      contracts = Contracts.load(dumpDataFile);
+    }
+    return contracts;
+  }
+  
 }

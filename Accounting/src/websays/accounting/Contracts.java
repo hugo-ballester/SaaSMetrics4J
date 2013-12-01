@@ -31,11 +31,27 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class Contracts extends ArrayList<Contract> {
   
-  public enum AccountFilter {
-    contracted, project, contractedORproject, starting, ending, changed
-  };
+  private static final long serialVersionUID = 1L;
   
   static Logger logger = Logger.getLogger(Contracts.class);
+  
+  public enum AccountFilter {
+    contracted, project, contractedORproject, starting, ending, changed;
+    
+    public String whereBoolean() {
+      if (this == contracted)
+        return "type='contracted'";
+      else if (this == project)
+        return "type='project'";
+      else if (this == contractedORproject)
+        return "type='project' OR type='contracted'";
+      else {
+        logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
+        return "";
+      }
+    }
+    
+  };
   
   SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   HashMap<String,Pricing> prizings = new HashMap<String,Pricing>();
@@ -230,4 +246,5 @@ public class Contracts extends ArrayList<Contract> {
     }
     return ret;
   }
+  
 }

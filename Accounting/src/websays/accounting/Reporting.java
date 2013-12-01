@@ -24,7 +24,7 @@ public class Reporting {
   
   public Writer metricsWSB;
   
-  static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   public Reporting(Contracts contracts) {
     this.contracts = contracts;

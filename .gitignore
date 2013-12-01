@@ -4,3 +4,5 @@ Accounting/bin/
 *.md~
 
 *.txt~
+
+*.properties~

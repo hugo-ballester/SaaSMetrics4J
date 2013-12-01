@@ -7,13 +7,14 @@ package websays.accounting.app;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.Date;
+import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import scripts.hugo.Queries;
 import utils.DateUtilsWebsays;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
@@ -21,6 +22,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Metrics;
 import websays.accounting.Reporting;
 import websays.accounting.connectors.ContractDAO;
+import websays.accounting.connectors.DatabaseManager;
 
 public class MyReports {
   
@@ -31,20 +33,38 @@ public class MyReports {
   }
   
   public static void main(String[] args) throws Exception {
-    boolean connectToDB = false;
-    File dumpDataFile = null, dumpMetrics = null;
+    String dumpDataFile, dumpMetrics, pricingFile;
     BufferedWriter writer = null;
     
-    File pricingFile = new File(args[0]);
-    
-    if (args.length > 1) {
-      dumpDataFile = new File(args[1]);
-    }
-    if (args.length > 2) {
-      dumpMetrics = new File(args[2]);
+    if (args.length < 1 || args.length > 2) {
+      System.out.println("ARGUMENTS: file.properties [false (to run without DB connection)]");
+      System.exit(0);
     }
     
-    Contracts contracts = loadAccounts(connectToDB, dumpDataFile, pricingFile);
+    File propFile = new File(args[0]);
+    if (!propFile.exists()) {
+      System.out.println("Cannot find property file: " + args[0]);
+      System.exit(0);
+    }
+    
+    boolean connectToDB = !(args.length > 1 && args[1].equals("false"));
+    
+    Properties p = new Properties();
+    FileInputStream in = new FileInputStream(propFile);
+    p.load(in);
+    in.close();
+    
+    pricingFile = p.getProperty("pricingFile", null);
+    dumpDataFile = p.getProperty("dumpDBFile", null);
+    dumpMetrics = p.getProperty("dumpMetricsFile", null);
+    
+    if (connectToDB) {
+      DatabaseManager.initDatabaseManager(p.getProperty("host"), Integer.parseInt(p.getProperty("port")), p.getProperty("user"),
+          p.getProperty("pass"), p.getProperty("db"), true);
+    }
+    
+    Contracts contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
+        pricingFile != null ? new File(pricingFile) : null);
     Reporting app = new Reporting(contracts);
     
     Date date = DateUtilsWebsays.dateEndOfMonth(new Date());
@@ -77,25 +97,18 @@ public class MyReports {
     
     if (writer != null) {
       writer.close();
+      System.out.println("WROTE: " + dumpMetrics);
     }
-  }
-  
-  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, File pricingFile) throws Exception {
-    Contracts contracts;
-    if (connectToDB) {
-      Queries.initContext("stage");
-      ContractDAO adao = new ContractDAO();
-      contracts = adao.getAccounts(null, true);
-      contracts.loadPrizeNames(pricingFile);
-      contracts.linkPrizes();
-      if (dumpDataFile != null) { // save for future use without Internet connection.
-        contracts.save(dumpDataFile);
-      }
-    } else {
-      // load last saved
-      contracts = Contracts.load(dumpDataFile);
+    
+    Reporting.title("");
+    Reporting.title("Contract Changes Month By Month");
+    for (int i = 1; i <= 12; i++) {
+      date = Reporting.sdf.parse("01/" + i + "/2013");
+      Reporting.title("MONTH: " + Reporting.sdf.format(date));
+      app.displayContracts(date, AccountFilter.starting);
+      app.displayContracts(date, AccountFilter.ending);
+      app.displayContracts(date, AccountFilter.changed);
     }
-    return contracts;
+    
   }
-  
 }

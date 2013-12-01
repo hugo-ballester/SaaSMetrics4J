@@ -1,0 +1,9 @@
+# SaaSMetrics4J : pricing file sample
+#
+# You can defining pricing schemas varying over time here.
+# For fixed or recurrent revenues you don't need pricing schemas.
+#
+#NAME	date1	mrr	date2	mrr	...
+Contract1	1/1/2013 	1487	1/5/2013	2116
+Contract2	1/1/2013	300
+

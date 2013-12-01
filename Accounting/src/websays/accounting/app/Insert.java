@@ -13,18 +13,17 @@ import java.util.List;
 
 import profile.Profile;
 import profile.ProfileDAO;
-import scripts.hugo.Queries;
 import websays.accounting.Contract;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts;
 import websays.accounting.Metrics;
 import websays.accounting.connectors.ContractDAO;
 
-@Deprecated
-public class Insert {
+public class Insert extends BasicCommandLineApp {
   
   public static void main(String[] args) throws Exception {
-    Queries.initContext("stage");
+    init(args);
+    
     ProfileDAO pdao = new ProfileDAO();
     ContractDAO cdao = new ContractDAO();
     List<Profile> lisP = pdao.getAllProfiles(true, null);

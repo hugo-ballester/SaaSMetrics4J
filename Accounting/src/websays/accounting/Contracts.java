@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import utils.DateUtilsWebsays;
 import utils.Utils;
 import websays.accounting.Contract.Type;
 
@@ -36,15 +37,15 @@ public class Contracts extends ArrayList<Contract> {
   static Logger logger = Logger.getLogger(Contracts.class);
   
   public enum AccountFilter {
-    contracted, project, contractedORproject, starting, ending, changed;
+    contract, project, contractedORproject, starting, ending, changed;
     
     public String whereBoolean() {
-      if (this == contracted)
-        return "type='contracted'";
+      if (this == contract)
+        return "type='contract'";
       else if (this == project)
         return "type='project'";
       else if (this == contractedORproject)
-        return "type='project' OR type='contracted'";
+        return "type='project' OR type='contract'";
       else {
         logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
         return "";
@@ -67,22 +68,64 @@ public class Contracts extends ArrayList<Contract> {
     return sb.toString();
   }
   
-  public Contracts getActive(int year, int month, AccountFilter filter) throws ParseException {
+  public Contracts getActive(int year, int month, AccountFilter filter, boolean metricDate) throws ParseException {
     Date date = Metrics.df.parse("1/" + month + "/" + year);
-    return getActive(date, filter);
+    return getActive(date, filter, metricDate);
   }
   
-  public Contracts getActive(Date date, AccountFilter filter) {
+  public Contracts getEndingThisMonth(Date date, boolean metricDate) {
+    Contracts ret = new Contracts();
+    for (Contract a : this) {
+      Date d = a.endContract;
+      if (metricDate) {
+        d = a.endBill;
+      }
+      if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
+        continue;
+      }
+      ret.add(a);
+    }
+    return ret;
+  }
+  
+  public Contracts getStartingThisMonth(Date date, boolean metricDate) {
+    Contracts ret = new Contracts();
+    for (Contract a : this) {
+      Date d = a.startContract;
+      if (metricDate) {
+        d = a.startBill;
+      }
+      if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
+        continue;
+      }
+      ret.add(a);
+    }
+    return ret;
+  }
+  
+  /**
+   * @param date
+   * @param filter
+   * @param metricDate
+   *          : use approximated (rounded) date for metrics instead of real contract date.
+   * @return
+   */
+  public Contracts getActive(Date date, AccountFilter filter, boolean metricDate) {
     Contracts ret = new Contracts();
     
+    if (filter.equals(AccountFilter.ending))
+      return getEndingThisMonth(date, metricDate);
+    else if (filter.equals(AccountFilter.starting))
+      return getStartingThisMonth(date, metricDate);
+    
     for (Contract a : this) {
-      if (!a.isActive(date)) {
+      if (!a.isActive(date, metricDate)) {
         continue;
       }
       
       if (filter != null)
         
-        if (filter == AccountFilter.contracted) {
+        if (filter == AccountFilter.contract) {
           if (a.type != Type.contract) {
             continue;
           }
@@ -94,16 +137,8 @@ public class Contracts extends ArrayList<Contract> {
           if (a.type != Type.project && a.type != Type.contract) {
             continue;
           }
-        } else if (filter == AccountFilter.starting) {
-          if (!a.isFirstMonth(date)) {
-            continue;
-          }
-        } else if (filter == AccountFilter.ending) {
-          if (!a.isLastMonth(date)) {
-            continue;
-          }
         } else if (filter == AccountFilter.changed) {
-          if (a.isFirstMonth(date) || a.mrrChange(date) == 0.) {
+          if (a.isFirstMonth(date, metricDate) || a.mrrChange(date) == 0.) {
             continue;
           }
         } else {

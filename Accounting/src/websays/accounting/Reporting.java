@@ -40,9 +40,9 @@ public class Reporting {
     System.out.print(msg);
   }
   
-  public void displayContracts(Date d, AccountFilter filter) {
+  public void displayContracts(Date d, AccountFilter filter, boolean metricDate) {
     System.out.println("CONTRACTS  (" + filter.toString() + ") at " + Metrics.df.format(d) + "\n");
-    Contracts cs = contracts.getActive(d, filter);
+    Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0;
     int totC = 0;
@@ -76,7 +76,7 @@ public class Reporting {
     
     System.out.println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + Metrics.df.format(date) + "\n");
     
-    Contracts lis = contracts.getActive(date, filter);
+    Contracts lis = contracts.getActive(date, filter, true);
     lis.sort(SortType.client);
     
     String lastN = null;

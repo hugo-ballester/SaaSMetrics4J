@@ -162,7 +162,7 @@ public class Contract {
         p += fixPrize / billedMonths;
       } else {
         // add fixed prize at the first month of the project
-        if (fixPrize != null && isFirstMonth(d)) {
+        if (fixPrize != null && isFirstMonth(d, true)) {
           p += fixPrize;
         }
       }
@@ -171,27 +171,49 @@ public class Contract {
     return p;
   }
   
-  public boolean isActive(Date d) {
-    if (d.before(startBill) || (endBill != null && (endBill.before(d) || endBill.equals(d))))
-      return false;
-    else
-      return true;
+  public boolean isActive(Date d, boolean metricDate) {
+    if (metricDate) {
+      if (d.before(startBill) || (endBill != null && (endBill.before(d) || endBill.equals(d))))
+        return false;
+      else
+        return true;
+    } else {
+      if (d.before(startContract) || (endContract != null && (endContract.before(d) || endContract.equals(d))))
+        return false;
+      else
+        return true;
+      
+    }
     
   }
   
-  public boolean isFirstMonth(Date d) {
-    if (startBill != null && isSameMonth(d, startBill))
-      return true;
-    else
-      return false;
+  public boolean isFirstMonth(Date d, boolean metricDate) {
+    if (metricDate) {
+      if (startBill != null && isSameMonth(d, startBill))
+        return true;
+      else
+        return false;
+    } else {
+      if (startContract != null && isSameMonth(d, startContract))
+        return true;
+      else
+        return false;
+    }
     
   }
   
-  public boolean isLastMonth(Date d) {
-    if (endBill != null && isSameMonth(d, endBill))
-      return true;
-    else
-      return false;
+  public boolean isLastMonth(Date d, boolean metricDate) {
+    if (metricDate) {
+      if (endBill != null && isSameMonth(d, endBill))
+        return true;
+      else
+        return false;
+    } else {
+      if (endContract != null && isSameMonth(d, endContract))
+        return true;
+      else
+        return false;
+    }
   }
   
   private boolean isSameMonth(Date d, Date d2) {

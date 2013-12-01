@@ -50,7 +50,7 @@ public class Metrics {
     m.oldMrr = oldMrr;
     m.oldChurn = oldChurn;
     
-    Contracts accsFiltered = accounts.getActive(year, month, filter);
+    Contracts accsFiltered = accounts.getActive(year, month, filter, true);
     accsFiltered.sort(websays.accounting.Contracts.SortType.contract);
     
     for (Contract a : accsFiltered) {
@@ -60,7 +60,7 @@ public class Metrics {
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += a.expansion(start);
       
-      if (a.isLastMonth(start)) {
+      if (a.isLastMonth(start, true)) {
         m.endAccs++;
         m.churn += mrr;
       }

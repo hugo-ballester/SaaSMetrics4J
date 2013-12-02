@@ -123,30 +123,37 @@ public class Contract {
         : "-") + "\t" + (monthlyPrize != null ? monthlyPrize : "-") + "\t" + (fixPrize != null ? fixPrize : "-"));
   }
   
-  public double mrrChange(Date d) {
+  public double mrrChange(Date d, boolean metricDate) {
     Date newD = DateUtilsWebsays.dateEndOfMonth(d, 0);
     Date oldD = DateUtilsWebsays.dateEndOfMonth(d, -1);
-    double change = mrr(newD) - mrr(oldD);
+    double change = mrr(newD, metricDate) - mrr(oldD, metricDate);
     return change;
   }
   
   public double expansion(Date d) {
+    boolean metricDate = true;
+    
     // if contract ended last month, return 0;
     Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
-    if (isLastMonth(prevMonth, true))
+    if (isLastMonth(prevMonth, metricDate))
       return 0;
     // if contract started this month, return 0;
-    if (isFirstMonth(d, true))
+    if (isFirstMonth(d, metricDate))
       return 0;
     else
-      return mrrChange(d);
+      return mrrChange(d, metricDate);
   }
   
-  public double mrr(Date d) {
+  public double mrr(Date d, boolean metricDate) {
     if (d.before(startBill))
       return 0.;
-    if (endBill != null && endBill.before(d))
-      return 0;
+    if (metricDate) {
+      if (endBill != null && endBill.before(d))
+        return 0;
+    } else {
+      if (endContract != null && endContract.before(d))
+        return 0;
+    }
     
     double p = 0.;
     

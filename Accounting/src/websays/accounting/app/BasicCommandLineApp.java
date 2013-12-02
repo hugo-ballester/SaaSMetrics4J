@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -23,7 +24,8 @@ import websays.accounting.connectors.DatabaseManager;
 public class BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
-  static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+  public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+  public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);

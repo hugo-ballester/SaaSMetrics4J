@@ -13,7 +13,6 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import utils.DateUtilsWebsays;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
@@ -32,14 +31,15 @@ public class MyReports extends BasicCommandLineApp {
   public static void main(String[] args) throws Exception {
     init(args);
     
-    Date date = DateUtilsWebsays.dateEndOfMonth(new Date(), -1);
-    // date = sdf.parse("1/4/2013");
+    int year = 2013;
+    int month = 11;
     
     BufferedWriter writer = null;
     
     Contracts contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
         pricingFile != null ? new File(pricingFile) : null);
     Reporting app = new Reporting(contracts);
+    Date date = df.parse("1/" + month + "/" + year);
     
     // title("DEBUG Contract");
     // app.displayMetrics(2013, 1, 12, "Damm");

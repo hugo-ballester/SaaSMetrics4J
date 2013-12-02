@@ -47,11 +47,15 @@ public class Reporting {
     int totC = 0;
     for (Contract c : cs) {
       String endS = "";
-      if (c.endBill != null) {
-        endS = sdf.format(c.endBill);
-      }
-      System.out.println(String.format("%4d %-20s %-20s %.0f\t%s\t%s", c.getId(), c.name, c.client_name, c.mrr(d), c.type, endS));
-      totM += c.mrr(d);
+      if (c.endContract != null)
+        if (metricDate) {
+          endS = sdf.format(c.endBill);
+        } else {
+          endS = sdf.format(c.endContract);
+        }
+      double mrr = c.mrr(d, metricDate);
+      System.out.println(String.format("%4d %-20s %-20s %.0f\t%s\t%s", c.getId(), c.name, c.client_name, mrr, c.type, endS));
+      totM += mrr;
       totC++;
     }
     System.out.println(String.format("%4d %-20s %-20s %.0f", totC, "TOTAL", "", totM));
@@ -85,7 +89,7 @@ public class Reporting {
     
     for (int i = 0; i < lis.size(); i++) {
       Contract c = lis.get(i);
-      double mrr = c.mrr(date);
+      double mrr = c.mrr(date, true);
       
       if (lastN == null) {
         lastN = c.client_name;

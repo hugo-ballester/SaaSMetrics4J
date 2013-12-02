@@ -43,6 +43,8 @@ public class Metrics {
   public static Metrics compute(int year, int month, AccountFilter filter, Contracts accounts, double oldMrr, double oldChurn)
       throws ParseException, SQLException {
     
+    boolean metricDate = true;
+    
     ContractDAO cdao = new ContractDAO();
     
     Date start = df.parse("1/" + month + "/" + year);
@@ -54,13 +56,13 @@ public class Metrics {
     accsFiltered.sort(websays.accounting.Contracts.SortType.contract);
     
     for (Contract a : accsFiltered) {
-      double mrr = a.mrr(start);
+      double mrr = a.mrr(start, metricDate);
       m.accounts++;
       m.mrrSt.add(mrr);
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += a.expansion(start);
       
-      if (a.isLastMonth(start, true)) {
+      if (a.isLastMonth(start, metricDate)) {
         m.endAccs++;
         m.churn += mrr;
       }

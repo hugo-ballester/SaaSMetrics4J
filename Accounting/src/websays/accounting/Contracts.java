@@ -141,7 +141,7 @@ public class Contracts extends ArrayList<Contract> {
             continue;
           }
         } else if (filter == AccountFilter.changed) {
-          if (a.isFirstMonth(date, metricDate) || a.mrrChange(date) == 0.) {
+          if (a.isFirstMonth(date, metricDate) || a.mrrChange(date, metricDate) == 0.) {
             continue;
           }
         } else {

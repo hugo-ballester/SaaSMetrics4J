@@ -5,8 +5,11 @@
  */
 package websays.accounting.app;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -14,11 +17,13 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.Contract;
 import websays.accounting.Metrics;
+import websays.accounting.Reporting;
 import websays.accounting.connectors.DatabaseManager;
 
 public class BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
+  static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
@@ -66,4 +71,14 @@ public class BasicCommandLineApp {
     }
     
   }
+  
+  public static String ask(String string) throws IOException {
+    System.out.print(string);
+    return br.readLine();
+  }
+  
+  public static void title(String s) {
+    Reporting.title(s);
+  }
+  
 }

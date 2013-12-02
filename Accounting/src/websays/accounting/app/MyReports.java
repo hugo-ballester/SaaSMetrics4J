@@ -5,10 +5,6 @@
  */
 package websays.accounting.app;
 
-import static websays.accounting.app.BasicCommandLineApp.dumpDataFile;
-import static websays.accounting.app.BasicCommandLineApp.dumpMetrics;
-import static websays.accounting.app.BasicCommandLineApp.pricingFile;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -49,15 +45,15 @@ public class MyReports extends BasicCommandLineApp {
     // app.displayMetrics(2013, 1, 12, "Damm");
     // System.exit(-1);
     
-    Reporting.title("Total MRR per Client, then list of contracts with MRR");
+    title("Total MRR per Client, then list of contracts with MRR");
     app.displayClientMRR(date, AccountFilter.contractedORproject);
     
-    Reporting.title("Staring, Ending & Changing contracts:");
+    title("Staring, Ending & Changing contracts:");
     app.displayContracts(date, AccountFilter.starting, false);
     app.displayContracts(date, AccountFilter.ending, false);
     app.displayContracts(date, AccountFilter.changed, false);
     
-    Reporting.title("All active contracts:");
+    title("All active contracts:");
     app.displayContracts(date, AccountFilter.contract, false);
     app.displayContracts(date, AccountFilter.project, false);
     
@@ -65,7 +61,7 @@ public class MyReports extends BasicCommandLineApp {
       writer = new BufferedWriter(new FileWriter(dumpMetrics));
       app.setMetricsOutput(writer);
     }
-    Reporting.title("METRICS (contracted, then projects, then total");
+    title("METRICS (contracted, then projects, then total");
     app.displayMetrics(2013, 1, 11, AccountFilter.contract);
     app.displayMetrics(2013, 1, 11, AccountFilter.project);
     app.displayMetrics(2013, 1, 11, AccountFilter.contractedORproject);
@@ -75,11 +71,11 @@ public class MyReports extends BasicCommandLineApp {
       System.out.println("WROTE: " + dumpMetrics);
     }
     
-    Reporting.title("");
-    Reporting.title("Contract Changes Month By Month");
+    title("");
+    title("Contract Changes Month By Month");
     for (int i = 1; i <= 12; i++) {
       date = Reporting.sdf.parse("01/" + i + "/2013");
-      Reporting.title("MONTH: " + Reporting.sdf.format(date));
+      title("MONTH: " + Reporting.sdf.format(date));
       app.displayContracts(date, AccountFilter.starting, true);
       app.displayContracts(date, AccountFilter.ending, true);
       app.displayContracts(date, AccountFilter.changed, true);

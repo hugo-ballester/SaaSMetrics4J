@@ -12,7 +12,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
@@ -111,15 +110,14 @@ public class Reporting {
     
   }
   
-  private void displayMetrics(int year, int monthStart, int months, String contractName) throws ParseException, SQLException {
-    System.out.println("displayAll   : " + contractName + "\n");
+  public void displayMetrics(int year, int monthStart, int months) throws ParseException, SQLException {
+    System.out.println("displayMetrics");
     System.out.println("     \t" + Metrics.headersTop());
     System.out.println("month\t" + Metrics.headers());
     double oldmrr = 0, oldchurn = 0;
-    Contracts cs = contracts.getView(Pattern.compile(Pattern.quote(contractName)));
     
     for (int i = monthStart; i <= monthStart + months - 1; i++) {
-      Metrics m = Metrics.compute(year, i, null, cs, oldmrr, oldchurn);
+      Metrics m = Metrics.compute(year, i, null, contracts, oldmrr, oldchurn);
       System.out.println("" + year + "/" + i + "\t" + m.toString());
       oldmrr = m.mrr;
       oldchurn = m.churn;

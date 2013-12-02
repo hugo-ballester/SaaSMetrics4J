@@ -25,11 +25,11 @@ public class BasicCommandLineApp {
     Logger.getLogger(Metrics.class).setLevel(Level.INFO);
     
   }
-  static boolean connectToDB;
-  static Properties props = new Properties();
-  static String pricingFile;
-  static String dumpDataFile;
-  static String dumpMetrics;
+  public static boolean connectToDB;
+  public static Properties props = new Properties();
+  public static String pricingFile;
+  public static String dumpDataFile;
+  public static String dumpMetrics;
   
   public static void init(String[] args) {
     

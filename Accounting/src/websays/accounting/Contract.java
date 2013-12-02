@@ -116,9 +116,11 @@ public class Contract {
   public String toString() {
     String startS = startContract == null ? "-" : df.format(startContract);
     String endS = endContract == null ? "-" : df.format(endContract);
+    String startmS = startBill == null ? "-" : df.format(startBill);
+    String endmS = endBill == null ? "-" : df.format(endBill);
     
-    return String.format("%-20s %-12s %s", name, client_id, startS + "\t" + endS + "\t" + (prizing != null ? prizing.name : "-") + "\t"
-        + (monthlyPrize != null ? monthlyPrize : "-") + "\t" + (fixPrize != null ? fixPrize : "-"));
+    return String.format("%-20s %-12s %s %s (%s %s) %s", name, client_id, startS, endS, startmS, endmS, (prizing != null ? prizing.name
+        : "-") + "\t" + (monthlyPrize != null ? monthlyPrize : "-") + "\t" + (fixPrize != null ? fixPrize : "-"));
   }
   
   public double mrrChange(Date d) {
@@ -129,7 +131,12 @@ public class Contract {
   }
   
   public double expansion(Date d) {
-    if (newThisMonth(d))
+    // if contract ended last month, return 0;
+    Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
+    if (isLastMonth(prevMonth, true))
+      return 0;
+    // if contract started this month, return 0;
+    if (isFirstMonth(d, true))
       return 0;
     else
       return mrrChange(d);

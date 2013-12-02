@@ -111,6 +111,9 @@ public class Contracts extends ArrayList<Contract> {
    * @return
    */
   public Contracts getActive(Date date, AccountFilter filter, boolean metricDate) {
+    if (filter == null)
+      return (Contracts) clone();
+    
     Contracts ret = new Contracts();
     
     if (filter.equals(AccountFilter.ending))
@@ -270,9 +273,13 @@ public class Contracts extends ArrayList<Contract> {
     
   }
   
-  public Contracts getView(Pattern match) {
+  public Contracts getView(String string) {
+    return getView(Pattern.compile(Pattern.quote(string)));
+  }
+  
+  public Contracts getView(Pattern string) {
     Contracts ret = new Contracts();
-    Matcher m = match.matcher("");
+    Matcher m = string.matcher("");
     for (Contract c : this) {
       m.reset(c.name);
       if (m.find()) {

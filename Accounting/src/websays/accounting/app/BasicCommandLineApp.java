@@ -26,7 +26,7 @@ public class BasicCommandLineApp {
     
   }
   static boolean connectToDB;
-  static Properties props;
+  static Properties props = new Properties();
   static String pricingFile;
   static String dumpDataFile;
   static String dumpMetrics;

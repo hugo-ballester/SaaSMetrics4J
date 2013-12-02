@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import utils.Utils;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
@@ -43,7 +42,7 @@ public class ContractDAO extends MySQLDAO {
       int ret = r.getInt(1);
       return ret;
     } catch (Exception e) {
-      System.err.println("ERROR ON QUERY: " + p.toString() + "\n" + Utils.stackTraceAsString(e));
+      logger.error(e);
       return -1;
     } finally {
       super.close(r);

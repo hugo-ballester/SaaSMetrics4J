@@ -5,10 +5,14 @@
  */
 package websays.accounting;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,9 +26,8 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import utils.DateUtilsWebsays;
-import utils.Utils;
 import websays.accounting.Contract.Type;
+import websays.core.utils.DateUtilsWebsays;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -176,7 +179,7 @@ public class Contracts extends ArrayList<Contract> {
     
     String[] p = null;
     try {
-      p = Utils.file_read(prizeFile).split("\n");
+      p = file_read(prizeFile).split("\n");
     } catch (Exception e) {
       System.err.println("COULD NOT LOAD prizeNames from file: " + prizeFile == null ? "null" : prizeFile.getAbsoluteFile());
       return;
@@ -287,6 +290,17 @@ public class Contracts extends ArrayList<Contract> {
       }
     }
     return ret;
+  }
+  
+  static String file_read(File filename) throws IOException {
+    Reader in = new InputStreamReader(new FileInputStream(filename), "UTF8");
+    BufferedReader i = new BufferedReader(in);
+    StringBuffer b = new StringBuffer();
+    while (i.ready()) {
+      b.append(i.readLine() + "\n");
+    }
+    i.close();
+    return b.toString();
   }
   
 }

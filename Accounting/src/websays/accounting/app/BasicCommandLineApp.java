@@ -13,8 +13,11 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
 
 import websays.accounting.Contract;
 import websays.accounting.Metrics;
@@ -32,6 +35,7 @@ public class BasicCommandLineApp {
     Logger.getLogger(Metrics.class).setLevel(Level.INFO);
     
   }
+  
   public static boolean connectToDB;
   public static Properties props = new Properties();
   public static String pricingFile;
@@ -39,6 +43,12 @@ public class BasicCommandLineApp {
   public static String dumpMetrics;
   
   public static void init(String[] args) {
+    // init log4j
+    Logger r = Logger.getRootLogger();
+    Appender myAppender;
+    r.setLevel(Level.INFO);
+    myAppender = new ConsoleAppender(new SimpleLayout());
+    r.addAppender(myAppender);
     
     if (args.length < 1 || args.length > 2) {
       System.out.println("ARGUMENTS: file.properties [false (to run without DB connection)]");

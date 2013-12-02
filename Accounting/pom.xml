@@ -17,6 +17,19 @@
     </plugins>
   </build>
   <dependencies>
+    
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+		<version>3.0</version>
+	</dependency>
+   
+    	<dependency>
+	    <groupId>mysql</groupId>
+	    <artifactId>mysql-connector-java</artifactId>
+	    <version>5.0.8</version>
+	</dependency>
+  
   	<dependency>
   		<groupId>log4j</groupId>
   		<artifactId>log4j</artifactId>

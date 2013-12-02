@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import utils.DateUtilsWebsays;
+import websays.core.utils.DateUtilsWebsays;
 
 public class Contract {
   

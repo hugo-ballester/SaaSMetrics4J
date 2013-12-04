@@ -5,9 +5,7 @@
  */
 package websays.accounting.app;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.Date;
 
 import org.apache.log4j.Level;
@@ -20,7 +18,7 @@ import websays.accounting.Metrics;
 import websays.accounting.Reporting;
 import websays.accounting.connectors.ContractDAO;
 
-public class MyReports extends BasicCommandLineApp {
+public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
@@ -34,8 +32,6 @@ public class MyReports extends BasicCommandLineApp {
     int year = 2013;
     int month = 11;
     
-    BufferedWriter writer = null;
-    
     Contracts contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
         pricingFile != null ? new File(pricingFile) : null);
     Reporting app = new Reporting(contracts);
@@ -46,7 +42,7 @@ public class MyReports extends BasicCommandLineApp {
     // System.exit(-1);
     
     title("Total MRR per Client, then list of contracts with MRR");
-    app.displayClientMRR(date, AccountFilter.contractedORproject);
+    app.displayClientMRR(date, AccountFilter.contractedORproject, false);
     
     title("Staring, Ending & Changing contracts:");
     app.displayContracts(date, AccountFilter.starting, false);
@@ -56,30 +52,6 @@ public class MyReports extends BasicCommandLineApp {
     title("All active contracts:");
     app.displayContracts(date, AccountFilter.contract, false);
     app.displayContracts(date, AccountFilter.project, false);
-    
-    if (dumpMetrics != null) {
-      writer = new BufferedWriter(new FileWriter(dumpMetrics));
-      app.setMetricsOutput(writer);
-    }
-    title("METRICS (contracted, then projects, then total");
-    app.displayMetrics(2013, 1, 11, AccountFilter.contract);
-    app.displayMetrics(2013, 1, 11, AccountFilter.project);
-    app.displayMetrics(2013, 1, 11, AccountFilter.contractedORproject);
-    
-    if (writer != null) {
-      writer.close();
-      System.out.println("WROTE: " + dumpMetrics);
-    }
-    
-    title("");
-    title("Contract Changes Month By Month");
-    for (int i = 1; i <= 12; i++) {
-      date = Reporting.sdf.parse("01/" + i + "/2013");
-      title("MONTH: " + Reporting.sdf.format(date));
-      app.displayContracts(date, AccountFilter.starting, true);
-      app.displayContracts(date, AccountFilter.ending, true);
-      app.displayContracts(date, AccountFilter.changed, true);
-    }
     
   }
 }

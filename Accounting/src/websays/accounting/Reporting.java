@@ -75,11 +75,11 @@ public class Reporting {
     
   }
   
-  public void displayClientMRR(Date date, AccountFilter filter) throws ParseException, SQLException {
+  public void displayClientMRR(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {
     
     System.out.println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + Metrics.df.format(date) + "\n");
     
-    Contracts lis = contracts.getActive(date, filter, true);
+    Contracts lis = contracts.getActive(date, filter, metricDate);
     lis.sort(SortType.client);
     
     String lastN = null;
@@ -89,7 +89,7 @@ public class Reporting {
     
     for (int i = 0; i < lis.size(); i++) {
       Contract c = lis.get(i);
-      double mrr = c.mrr(date, true);
+      double mrr = c.mrr(date, metricDate);
       
       if (lastN == null) {
         lastN = c.client_name;

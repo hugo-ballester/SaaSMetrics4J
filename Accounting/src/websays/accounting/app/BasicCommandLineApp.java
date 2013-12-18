@@ -26,6 +26,8 @@ import websays.accounting.connectors.DatabaseManager;
 
 public class BasicCommandLineApp {
   
+  public static boolean connectToDB = true;
+  
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
   public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
@@ -36,7 +38,6 @@ public class BasicCommandLineApp {
     
   }
   
-  public static boolean connectToDB;
   public static Properties props = new Properties();
   public static String pricingFile;
   public static String dumpDataFile;
@@ -90,7 +91,7 @@ public class BasicCommandLineApp {
   }
   
   public static void title(String s) {
-    Reporting.title(s);
+    Reporting.title(s, connectToDB);
   }
   
 }

@@ -54,16 +54,16 @@ public class MyMetrics extends BasicCommandLineApp {
       writer.close();
       System.out.println("WROTE: " + dumpMetrics);
     }
-    //
-    // title("");
-    // title("Contract Changes Month By Month");
-    // for (int i = 1; i <= 12; i++) {
-    // date = Reporting.sdf.parse("01/" + i + "/2013");
-    // title("MONTH: " + Reporting.sdf.format(date));
-    // app.displayContracts(date, AccountFilter.starting, true);
-    // app.displayContracts(date, AccountFilter.ending, true);
-    // app.displayContracts(date, AccountFilter.changed, true);
-    // }
-    //
+    
+    title("");
+    title("Contract Changes Month By Month");
+    for (int i = 1; i <= 12; i++) {
+      date = Reporting.sdf.parse("01/" + i + "/2013");
+      title("MONTH: " + Reporting.sdf.format(date));
+      app.displayContracts(date, AccountFilter.starting, true);
+      app.displayContracts(date, AccountFilter.ending, true);
+      app.displayContracts(date, AccountFilter.changed, true);
+    }
+    
   }
 }

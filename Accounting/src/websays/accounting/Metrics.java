@@ -94,13 +94,17 @@ public class Metrics {
   
   static double checkmrr = 0;
   
-  @Override
-  public String toString() {
+  public Object[] toRow() {
     double[] mrrA = mrrSt.getMinMaxSumAvg();
     double[] profA = profilesSt.getMinMaxSumAvg();
-    String ret = String.format("%d\t%d\t%d\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%d\t%.1f\t%.0f\t%.0f", accounts, newAccs,
-        endAccs, oldMrr, newmrr, oldChurn, expansion, mrr, mrr - (oldMrr + newmrr - oldChurn + expansion), mrrA[3], mrrA[0], mrrA[1],
-        profiles, profA[3], profA[0], profA[1]);
+    Object[] ret = new Object[] {accounts, newAccs, endAccs, oldMrr, newmrr, oldChurn, expansion, mrr,
+        mrr - (oldMrr + newmrr - oldChurn + expansion), mrrA[3], mrrA[0], mrrA[1], profiles, profA[3], profA[0], profA[1]};
+    return ret;
+  }
+  
+  @Override
+  public String toString() {
+    String ret = String.format("%d\t%d\t%d\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%d\t%.1f\t%.0f\t%.0f", toRow());
     return ret;
   }
   

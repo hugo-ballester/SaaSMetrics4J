@@ -18,7 +18,6 @@ import websays.accounting.Contracts.SortType;
 
 public class Reporting {
   
-  static Boolean connectToDB = true;
   Contracts contracts;
   
   public Writer metricsWSB;
@@ -29,7 +28,7 @@ public class Reporting {
     this.contracts = contracts;
   }
   
-  public static void title(String string) {
+  public static void title(String string, boolean connectToDB) {
     final String line = "=========================================================\n";
     String msg = "\n\n" + line;
     if (!connectToDB) {
@@ -46,19 +45,21 @@ public class Reporting {
     double totM = 0;
     int totC = 0;
     for (Contract c : cs) {
-      String endS = "";
+      String endS = "", startS = "";
       if (c.endContract != null)
         if (metricDate) {
           endS = sdf.format(c.endBill);
+          startS = sdf.format(c.startBill);
         } else {
           endS = sdf.format(c.endContract);
+          startS = sdf.format(c.startContract);
         }
       double mrr = c.mrr(d, metricDate);
-      System.out.println(String.format("%4d %-20s %-20s %.0f\t%s\t%s", c.getId(), c.name, c.client_name, mrr, c.type, endS));
+      System.out.println(String.format("%4d %-20s %-20s %.2f\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, c.type, startS, endS));
       totM += mrr;
       totC++;
     }
-    System.out.println(String.format("%4d %-20s %-20s %.0f", totC, "TOTAL", "", totM));
+    System.out.println(String.format("%4d %-20s %-20s %.2f", totC, "TOTAL", "", totM));
     System.out.println();
     
   }
@@ -110,6 +111,9 @@ public class Reporting {
       // System.out.println(String.format("%20s\t%s\t%.2f", c.name,
       // c.client, mrr));
     }
+    
+    System.out.println(String.format("%3d %-20s\t(%d)\t%.2f", clientN, lastN, count, sum));
+    
     System.out.println(String.format("%3s %-20s\t(%d)\t%.2f", "", "TOTAL", countt, summ));
     
   }
@@ -136,9 +140,12 @@ public class Reporting {
     sb.append("     \t" + Metrics.headersTop() + "\n");
     sb.append("month\t" + Metrics.headers() + "\n");
     double oldmrr = 0, oldchurn = 0;
+    
     for (int i = monthStart; i <= (monthStart + months - 1); i++) {
       Metrics m = Metrics.compute(year, i, filter, contracts, oldmrr, oldchurn);
-      sb.append("" + year + "/" + i + "\t" + m + "\n");
+      Object[] row = m.toRow();
+      sb.append("" + year + "/" + i + "\t" + m.toString() + "\n");
+      
       oldmrr = m.mrr;
       oldchurn = m.churn;
     }

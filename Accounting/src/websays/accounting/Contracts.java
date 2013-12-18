@@ -257,6 +257,9 @@ public class Contracts extends ArrayList<Contract> {
         
         @Override
         public int compare(Contract o1, Contract o2) {
+          if (o1 == null || o2 == null || o1.client_name == null || o2.client_name == null)
+            return 0;
+          
           if (o1.client_name.equals(o2.client_name))
             return o1.name.compareTo(o2.name);
           else

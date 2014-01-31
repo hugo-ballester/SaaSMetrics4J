@@ -8,8 +8,11 @@ package websays.accounting.app;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
@@ -21,7 +24,6 @@ import org.apache.log4j.SimpleLayout;
 
 import websays.accounting.Contract;
 import websays.accounting.Metrics;
-import websays.accounting.Reporting;
 import websays.accounting.connectors.DatabaseManager;
 
 public class BasicCommandLineApp {
@@ -40,8 +42,10 @@ public class BasicCommandLineApp {
   
   public static Properties props = new Properties();
   public static String pricingFile;
+  public static String reportingHTMLDir;
+  public static String reportingHTMLDirRemote;
   public static String dumpDataFile;
-  public static String dumpMetrics;
+  public static String reportingTxtFile;
   
   public static void init(String[] args) {
     // init log4j
@@ -76,11 +80,17 @@ public class BasicCommandLineApp {
     
     pricingFile = props.getProperty("pricingFile", null);
     dumpDataFile = props.getProperty("dumpDBFile", null);
-    dumpMetrics = props.getProperty("dumpMetricsFile", null);
+    reportingHTMLDir = props.getProperty("reportingHTMLDir", null);
+    reportingHTMLDirRemote = props.getProperty("reportingHTMLDirRemote", null);
+    reportingTxtFile = props.getProperty("reportingTxtFile", null);
     
     if (connectToDB) {
       DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")),
           props.getProperty("user"), props.getProperty("pass"), props.getProperty("db"), true);
+    }
+    
+    if (reportingHTMLDir != null && !(new File(reportingHTMLDir).exists())) {
+      (new File(reportingHTMLDir)).mkdir();
     }
     
   }
@@ -90,8 +100,9 @@ public class BasicCommandLineApp {
     return br.readLine();
   }
   
-  public static void title(String s) {
-    Reporting.title(s, connectToDB);
+  public void setOutput(File newFile) throws FileNotFoundException {
+    PrintStream out = new PrintStream(new FileOutputStream(newFile));
+    System.setOut(out);
   }
   
 }

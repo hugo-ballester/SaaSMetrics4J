@@ -30,13 +30,29 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
   public static void main(String[] args) throws Exception {
     init(args);
     
+    MyMonthlyBillingReport m = new MyMonthlyBillingReport();
+    
     Calendar cal = Calendar.getInstance();
     int year = cal.get(Calendar.YEAR);
     int month = cal.get(Calendar.MONTH) + 1;
     int day = 25;
     
-    Contracts contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
-        pricingFile != null ? new File(pricingFile) : null);
+    m.execute_String(year, month, day);
+    
+  }
+  
+  Contracts contracts = null;
+  
+  public void initContracts() throws Exception {
+    contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
+        pricingFile) : null);
+  }
+  
+  public void execute_String(int year, int month, int day) throws Exception {
+    if (contracts == null) {
+      initContracts();
+    }
+    
     Reporting app = new Reporting(contracts);
     Date date = df.parse(day + "/" + month + "/" + year);
     
@@ -44,17 +60,18 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     // app.displayMetrics(2013, 1, 12, "Damm");
     // System.exit(-1);
     
-    title("Total MRR per Client, then list of contracts with MRR");
+    app.title("Total MRR per Client, then list of contracts with MRR", connectToDB);
     app.displayClientMRR(date, AccountFilter.contractedORproject, false);
     
-    title("Staring, Ending & Changing contracts:");
+    app.title("Starting, Ending & Changing contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.starting, false);
     app.displayContracts(date, AccountFilter.ending, false);
     app.displayContracts(date, AccountFilter.changed, false);
     
-    title("All active contracts:");
+    app.title("All active contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.contract, false);
     app.displayContracts(date, AccountFilter.project, false);
     
   }
+  
 }

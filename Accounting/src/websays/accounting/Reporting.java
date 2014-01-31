@@ -6,7 +6,6 @@
 package websays.accounting;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,15 +19,13 @@ public class Reporting {
   
   Contracts contracts;
   
-  public Writer metricsWSB;
-  
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   public Reporting(Contracts contracts) {
     this.contracts = contracts;
   }
   
-  public static void title(String string, boolean connectToDB) {
+  public void title(String string, boolean connectToDB) throws IOException {
     final String line = "=========================================================\n";
     String msg = "\n\n" + line;
     if (!connectToDB) {
@@ -55,11 +52,11 @@ public class Reporting {
           startS = sdf.format(c.startContract);
         }
       double mrr = c.mrr(d, metricDate);
-      System.out.println(String.format("%4d %-20s %-20s %.2f\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, c.type, startS, endS));
+      System.out.println(String.format("%4d %-20s %-20s %10.2f\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, c.type, startS, endS));
       totM += mrr;
       totC++;
     }
-    System.out.println(String.format("%4d %-20s %-20s %.2f", totC, "TOTAL", "", totM));
+    System.out.println(String.format("%4d %-20s %-20s %10.2f", totC, "TOTAL", "", totM));
     System.out.println();
     
   }
@@ -95,7 +92,7 @@ public class Reporting {
       if (lastN == null) {
         lastN = c.client_name;
       } else if ((i == lis.size() - 1) || (!lastN.equals(c.client_name))) {
-        System.out.println(String.format("%3d %-20s\t(%d)\t%.2f", clientN, lastN, count, sum));
+        System.out.println(String.format("%3d %-20s\t(%d)\t%10.2f", clientN, lastN, count, sum));
         if (sum == 0) {
           System.out.println("\n!!! ERROR: 0 MRR for Client: " + lastN + "\n");
         }
@@ -112,9 +109,9 @@ public class Reporting {
       // c.client, mrr));
     }
     
-    System.out.println(String.format("%3d %-20s\t(%d)\t%.2f", clientN, lastN, count, sum));
+    System.out.println(String.format("%3d %-20s\t(%d)\t%10.2f", clientN, lastN, count, sum));
     
-    System.out.println(String.format("%3s %-20s\t(%d)\t%.2f", "", "TOTAL", countt, summ));
+    System.out.println(String.format("%3s %-20s\t(%d)\t%10.2f", "", "TOTAL", countt, summ));
     
   }
   
@@ -134,35 +131,30 @@ public class Reporting {
     
   }
   
-  public void displayMetrics(int year, int monthStart, int months, AccountFilter filter) throws ParseException, SQLException {
+  public void displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter) throws ParseException, SQLException {
     StringBuffer sb = new StringBuffer();
     sb.append("displayAll   : " + filter.toString() + "\n");
     sb.append("     \t" + Metrics.headersTop() + "\n");
     sb.append("month\t" + Metrics.headers() + "\n");
     double oldmrr = 0, oldchurn = 0;
-    
-    for (int i = monthStart; i <= (monthStart + months - 1); i++) {
-      Metrics m = Metrics.compute(year, i, filter, contracts, oldmrr, oldchurn);
+    int year = yearStart;
+    int month = monthStart - 1;
+    for (int i = 0; i < months; i++) {
+      month++;
+      if (month == 13) {
+        month = 1;
+        year++;
+      }
+      
+      Metrics m = Metrics.compute(year, month, filter, contracts, oldmrr, oldchurn);
       Object[] row = m.toRow();
-      sb.append("" + year + "/" + i + "\t" + m.toString() + "\n");
+      sb.append("" + year + "/" + month + "\t" + m.toString() + "\n");
       
       oldmrr = m.mrr;
       oldchurn = m.churn;
     }
     sb.append("\n");
-    try {
-      if (metricsWSB != null) {
-        metricsWSB.write(sb.toString());
-      }
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
     System.out.print(sb.toString());
     
-  }
-  
-  public void setMetricsOutput(Writer writer) {
-    metricsWSB = writer;
   }
 }

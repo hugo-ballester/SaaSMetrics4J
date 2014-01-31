@@ -71,7 +71,7 @@ public class Metrics {
         m.newmrr += mrr;
       }
       if (logger.isDebugEnabled()) {
-        logger.debug(String.format("%d\t%40s\t%d\t%.0f\t%.0f\t%.0f", a.id, a.name, a.profiles, m.profilesSt.sum(), mrr, m.mrrSt.sum()));
+        logger.debug(String.format("%d\t%40s\t%d\t%6.0f\t%6.0f\t%6.0f", a.id, a.name, a.profiles, m.profilesSt.sum(), mrr, m.mrrSt.sum()));
       }
       
       // System.out.println(a.name + ": " + mrr);
@@ -84,12 +84,13 @@ public class Metrics {
   
   public static String headers() {
     
-    return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "#C", "new", "end", "OldMRR", "NewMRR", "Churn",
-        "Exp", "MRR", "0", "avg", "min", "max", "#P", "avg", "min", "max");
+    return String.format("%s\t%3s\t%3s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%3s\t%4s\t%3s\t%3s", "#C", "new", "end",
+        "OldMRR", "NewMRR", "Churn", "Exp", "MRR", "%inc", "0", "avg", "min", "max", "#P", "avg", "min", "max");
   }
   
   public static String headersTop() {
-    return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "[", "CONT.", "]", "[", "MRR\t\t\t\t\t\t", "]", "[", "Prof.\t", "]");
+    return String.format("%s\t3%s\t%3s\t%6s\t%6s\t%3s\t%6s\t%6s\t%6s", "[", "CONT.", "]", "[", "MRR\t\t\t\t\t\t", "]", "[", "Prof.\t\t",
+        "]");
   }
   
   static double checkmrr = 0;
@@ -97,14 +98,17 @@ public class Metrics {
   public Object[] toRow() {
     double[] mrrA = mrrSt.getMinMaxSumAvg();
     double[] profA = profilesSt.getMinMaxSumAvg();
-    Object[] ret = new Object[] {accounts, newAccs, endAccs, oldMrr, newmrr, oldChurn, expansion, mrr,
-        mrr - (oldMrr + newmrr - oldChurn + expansion), mrrA[3], mrrA[0], mrrA[1], profiles, profA[3], profA[0], profA[1]};
+    double mrrInc = oldMrr > 0 ? (mrr - oldMrr) / oldMrr * 100. : 0;
+    double check = mrr - (oldMrr + newmrr - oldChurn + expansion);
+    Object[] ret = new Object[] {accounts, newAccs, endAccs, oldMrr, newmrr, oldChurn, expansion, mrr, mrrInc, check, mrrA[3], mrrA[0],
+        mrrA[1], profiles, profA[3], profA[0], profA[1]};
     return ret;
   }
   
   @Override
   public String toString() {
-    String ret = String.format("%d\t%d\t%d\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%.0f\t%d\t%.1f\t%.0f\t%.0f", toRow());
+    String ret = String.format(
+        "%d\t%d\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f%%\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%3d\t%4.1f\t%3.0f\t%3.0f", toRow());
     return ret;
   }
   

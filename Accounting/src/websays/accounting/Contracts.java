@@ -81,7 +81,7 @@ public class Contracts extends ArrayList<Contract> {
     for (Contract a : this) {
       Date d = a.endContract;
       if (metricDate) {
-        d = a.endBill;
+        d = a.endMetric;
       }
       if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
         continue;
@@ -96,12 +96,28 @@ public class Contracts extends ArrayList<Contract> {
     for (Contract a : this) {
       Date d = a.startContract;
       if (metricDate) {
-        d = a.startBill;
+        d = a.startMetric;
       }
       if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
         continue;
       }
       ret.add(a);
+    }
+    return ret;
+  }
+  
+  /**
+   * @param date
+   * @param filter
+   * @return
+   */
+  public Contracts getActiveBill(Date date) {
+    Contracts ret = new Contracts();
+    
+    for (Contract a : this) {
+      if (a.isActiveBill(date)) {
+        ret.add(a);
+      }
     }
     return ret;
   }

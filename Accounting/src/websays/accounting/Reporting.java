@@ -25,38 +25,32 @@ public class Reporting {
     this.contracts = contracts;
   }
   
-  public void title(String string, boolean connectToDB) throws IOException {
-    final String line = "=========================================================\n";
-    String msg = "\n\n" + line;
-    if (!connectToDB) {
-      msg += "WARNING! NOT CONNECTED TO DB!!!\n";
-    }
-    msg += string + "\n" + line + "\n";
-    System.out.print(msg);
-  }
-  
   public void displayContracts(Date d, AccountFilter filter, boolean metricDate) {
     System.out.println("CONTRACTS  (" + filter.toString() + ") at " + Metrics.df.format(d) + "\n");
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
-    double totM = 0;
+    double totM = 0, totCom = 0;
     int totC = 0;
     for (Contract c : cs) {
       String endS = "", startS = "";
-      if (c.endContract != null)
+      if (c.endContract != null) {
         if (metricDate) {
-          endS = sdf.format(c.endBill);
-          startS = sdf.format(c.startBill);
+          endS = sdf.format(c.endMetric);
+          startS = sdf.format(c.startMetric);
         } else {
           endS = sdf.format(c.endContract);
           startS = sdf.format(c.startContract);
         }
-      double mrr = c.mrr(d, metricDate);
-      System.out.println(String.format("%4d %-20s %-20s %10.2f\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, c.type, startS, endS));
+      }
+      double mrr = c.computeMRR(d, metricDate);
+      double commission = c.computeCommission(d, metricDate);
+      System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, commission,
+          c.type, c.billingSchema, startS, endS));
       totM += mrr;
+      totCom += commission;
       totC++;
     }
-    System.out.println(String.format("%4d %-20s %-20s %10.2f", totC, "TOTAL", "", totM));
+    System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f", totC, "TOTAL", "", totM, totCom));
     System.out.println();
     
   }
@@ -73,6 +67,18 @@ public class Reporting {
     
   }
   
+  public void displayBilling(Date date) throws ParseException, SQLException {
+    
+    PrinterASCII p = new PrinterASCII();
+    
+    ArrayList<Bill> bs = Billing.bill(contracts, date);
+    
+    // System.out.println(p.line + "SUMMARY\n" + p.line);
+    // System.out.println(p.printBills(bs, true));
+    System.out.println(p.line + "INVOICES at :\n" + p.line);
+    System.out.println(p.printBills(bs, false));
+  }
+  
   public void displayClientMRR(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {
     
     System.out.println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + Metrics.df.format(date) + "\n");
@@ -87,7 +93,7 @@ public class Reporting {
     
     for (int i = 0; i < lis.size(); i++) {
       Contract c = lis.get(i);
-      double mrr = c.mrr(date, metricDate);
+      double mrr = c.computeMRR(date, metricDate);
       
       if (lastN == null) {
         lastN = c.client_name;
@@ -132,6 +138,7 @@ public class Reporting {
   }
   
   public void displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter) throws ParseException, SQLException {
+    
     StringBuffer sb = new StringBuffer();
     sb.append("displayAll   : " + filter.toString() + "\n");
     sb.append("     \t" + Metrics.headersTop() + "\n");
@@ -147,7 +154,6 @@ public class Reporting {
       }
       
       Metrics m = Metrics.compute(year, month, filter, contracts, oldmrr, oldchurn);
-      Object[] row = m.toRow();
       sb.append("" + year + "/" + month + "\t" + m.toString() + "\n");
       
       oldmrr = m.mrr;
@@ -156,5 +162,13 @@ public class Reporting {
     sb.append("\n");
     System.out.print(sb.toString());
     
+  }
+  
+  public void title(String string, boolean connectToDB) throws IOException {
+    PrinterASCII.title(string, connectToDB);
+  }
+  
+  public void subtitle(String string) throws IOException {
+    PrinterASCII.subtitle(string);
   }
 }

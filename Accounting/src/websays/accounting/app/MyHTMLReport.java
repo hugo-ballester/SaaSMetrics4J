@@ -23,6 +23,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Metrics;
 import websays.accounting.Reporting;
 import websays.accounting.connectors.ContractDAO;
+import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
@@ -31,6 +32,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     Logger.getLogger(Metrics.class).setLevel(Level.INFO);
     
   }
+  
+  int thisYear = DateUtilsWebsays.getYear(new Date());
+  int thisMonth = DateUtilsWebsays.getMonth(new Date());
   
   public static void main(String[] args) throws Exception {
     PrintStream oldOut = System.out;
@@ -60,16 +64,19 @@ public class MyHTMLReport extends BasicCommandLineApp {
     Reporting app = new Reporting(contracts);
     
     String indexFile = "<html><body><table cellpadding=\"20\" border=\"1\"  >";
-    indexFile += "\n<tr><th width=50%>Metrics</th><th>Billing</th></tr>\n";
-    indexFile += "\n<tr><td><h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n";
+    
+    // Billing
+    indexFile += "\n<tr><th>Billing</th><th width=50%>Metrics</th></tr>\n";
+    indexFile += "\n<tr><td>";
+    indexFile += billing(htmlDir);
+    indexFile += "\n</td>\n";
     
     // Build metrics.html file:
+    indexFile += "\n<td>\n";
+    indexFile += "<h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n";
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
     indexFile = metrics(htmlDir, app, indexFile);
-    
-    indexFile += "\n</td><td>\n";
-    indexFile += billing(htmlDir);
     indexFile += "\n</td></tr></table>\n";
     
     // write Index File:
@@ -80,6 +87,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private String metrics(File htmlDir, Reporting app, String indexFile) throws ParseException, IOException, SQLException,
       FileNotFoundException {
+    
     // ==============================================================
     // METRICS and changes for each month:
     // ==============================================================
@@ -99,18 +107,35 @@ public class MyHTMLReport extends BasicCommandLineApp {
     String what = "(Metric)";
     for (int myear : new int[] {2013, 2014}) {
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
+        if (fixYear > 0 && (!(myear == fixYear && bmonth == fixMonth))) {
+          continue;
+        }
+        
         String name1 = "metrics_" + myear + "_" + bmonth;
         String file = name1 + ".html";
-        indexFile += "<li><a href=\"" + file + "\">" + bmonth + "/" + myear + "</a>\n";
+        String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + myear + "</a>\n";
+        
+        if (thisYear == myear && thisMonth == bmonth) {
+          line = "<br/><bf>" + line + "<br/></bf>\n";
+        }
+        indexFile += line;
+        
         setOutput(new File(htmlDir, file));
         
         System.out.println("<html><body><pre>\n");
         
         date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
         app.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
+        
+        app.subtitle("Changes");
         app.displayContracts(date, AccountFilter.starting, true);
         app.displayContracts(date, AccountFilter.ending, true);
         app.displayContracts(date, AccountFilter.changed, true);
+        
+        app.subtitle("All Active Contracts");
+        app.displayContracts(date, AccountFilter.contract, true);
+        app.displayContracts(date, AccountFilter.project, true);
+        
       }
     }
     indexFile += "</li>\n";
@@ -119,9 +144,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
   }
   
   private String billing(File htmlDir) throws FileNotFoundException, Exception {
-    // ==============================================================
-    // BILLING for each month:
-    // ==============================================================
+    if (fixYear > 0) {
+      System.out.println("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
+    }
+    
     String indexFile = "\n\n<ul>\n";
     
     int day = 28;
@@ -129,9 +155,17 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     for (int byear : new int[] {2013, 2014}) {
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
+        if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
+          continue;
+        }
+        
         String name1 = "billing_" + byear + "_" + bmonth;
         String file = name1 + ".html";
-        indexFile += "<li><a href=\"" + file + "\">" + bmonth + "/" + byear + "</a>\n";
+        String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + byear + "</a><br/>\n";
+        if (thisYear == byear && thisMonth == bmonth) {
+          line = "<br/><bf>" + line + "<br/></bf>\n";
+        }
+        indexFile += line;
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body><h1>" + file + "</h1><pre>\n");
         mbr.execute_String(byear, bmonth, day);

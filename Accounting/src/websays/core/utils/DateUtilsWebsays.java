@@ -308,4 +308,16 @@ public class DateUtilsWebsays {
     cal.setTime(start);
     return cal.get(Calendar.DAY_OF_MONTH);
   }
+  
+  public static int getMonth(Date start) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(start);
+    return cal.get(Calendar.MONTH);
+  }
+  
+  public static int getYear(Date start) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(start);
+    return cal.get(Calendar.YEAR);
+  }
 }

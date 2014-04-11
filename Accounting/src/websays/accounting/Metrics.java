@@ -13,7 +13,6 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contracts.AccountFilter;
-import websays.accounting.connectors.ContractDAO;
 import websays.core.utils.maths.SequenceStatistics;
 
 /**
@@ -30,7 +29,7 @@ public class Metrics {
   
   int accounts;
   int profiles;
-  public double mrr;
+  public double mrr, comm;
   SequenceStatistics profilesSt = new SequenceStatistics();
   SequenceStatistics mrrSt = new SequenceStatistics();
   
@@ -45,8 +44,6 @@ public class Metrics {
     
     boolean metricDate = true;
     
-    ContractDAO cdao = new ContractDAO();
-    
     Date start = df.parse("1/" + month + "/" + year);
     Metrics m = new Metrics();
     m.oldMrr = oldMrr;
@@ -56,9 +53,12 @@ public class Metrics {
     accsFiltered.sort(websays.accounting.Contracts.SortType.contract);
     
     for (Contract a : accsFiltered) {
-      double mrr = a.mrr(start, metricDate);
+      double mrr = a.computeMRR(start, metricDate);
       m.accounts++;
       m.mrrSt.add(mrr);
+      if (a.commission != null) {
+        m.comm += a.commission * mrr;
+      }
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += a.expansion(start);
       
@@ -66,7 +66,7 @@ public class Metrics {
         m.endAccs++;
         m.churn += mrr;
       }
-      if (a.newThisMonth(start)) {
+      if (a.isFirstMonth(start, false)) {
         m.newAccs++;
         m.newmrr += mrr;
       }
@@ -84,13 +84,13 @@ public class Metrics {
   
   public static String headers() {
     
-    return String.format("%s\t%3s\t%3s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%3s\t%4s\t%3s\t%3s", "#C", "new", "end",
-        "OldMRR", "NewMRR", "Churn", "Exp", "MRR", "%inc", "0", "avg", "min", "max", "#P", "avg", "min", "max");
+    return String.format("%s\t%3s\t%3s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%3s\t%4s\t%3s\t%3s\t%6s", "#C", "new", "end",
+        "OldMRR", "NewMRR", "Churn", "Exp", "MRR", "%inc", "0", "avg", "min", "max", "#P", "avg", "min", "max", "comm");
   }
   
   public static String headersTop() {
     return String.format("%s\t3%s\t%3s\t%6s\t%6s\t%3s\t%6s\t%6s\t%6s", "[", "CONT.", "]", "[", "MRR\t\t\t\t\t\t", "]", "[", "Prof.\t\t",
-        "]");
+        "]\t[Comm.]");
   }
   
   static double checkmrr = 0;
@@ -101,14 +101,14 @@ public class Metrics {
     double mrrInc = oldMrr > 0 ? (mrr - oldMrr) / oldMrr * 100. : 0;
     double check = mrr - (oldMrr + newmrr - oldChurn + expansion);
     Object[] ret = new Object[] {accounts, newAccs, endAccs, oldMrr, newmrr, oldChurn, expansion, mrr, mrrInc, check, mrrA[3], mrrA[0],
-        mrrA[1], profiles, profA[3], profA[0], profA[1]};
+        mrrA[1], profiles, profA[3], profA[0], profA[1], comm};
     return ret;
   }
   
   @Override
   public String toString() {
     String ret = String.format(
-        "%d\t%d\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f%%\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%3d\t%4.1f\t%3.0f\t%3.0f", toRow());
+        "%d\t%d\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f%%\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%3d\t%4.1f\t%3.0f\t%3.0f\t---%6.0f", toRow());
     return ret;
   }
   

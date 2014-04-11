@@ -14,12 +14,13 @@ import java.sql.Statement;
 import java.util.Date;
 
 import websays.accounting.Contract;
+import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 
 public class ContractDAO extends MySQLDAO {
   
-  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, type, mrr, fixed, prizing, client_id, client.name";
+  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, type, billingSchema, mrr, fixed, prizing, client_id, client.name, commission_type";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   protected Connection getConnection() throws SQLException {
@@ -91,6 +92,8 @@ public class ContractDAO extends MySQLDAO {
       end = rs.getDate(column - 1);
     }
     Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
+    BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
+    
     Double mrr = rs.getDouble(column++);
     if (rs.wasNull()) {
       mrr = null;
@@ -103,11 +106,14 @@ public class ContractDAO extends MySQLDAO {
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
     
+    String c = rs.getString(column++);
+    Double comm = commission(c);
+    
     Contract a = null;
     if (prizing == null) {
-      a = new Contract(id, name, type, client_id, start, end, mrr, fix);
+      a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comm);
     } else {
-      a = new Contract(id, name, type, client_id, start, end, prizing);
+      a = new Contract(id, name, type, bs, client_id, start, end, prizing, comm);
     }
     a.client_name = cname;
     return a;
@@ -136,6 +142,7 @@ public class ContractDAO extends MySQLDAO {
       p.setDate(i++, new java.sql.Date(c.startContract.getTime()));
       p.setDate(i++, new java.sql.Date(c.endContract.getTime()));
       p.setString(i++, c.type.toString());
+      p.setString(i++, c.billingSchema.name());
       p.setDouble(i++, c.monthlyPrize);
       p.setDouble(i++, c.fixPrize);
       p.setString(i++, c.prizingName);
@@ -170,6 +177,19 @@ public class ContractDAO extends MySQLDAO {
       contracts = Contracts.load(dumpDataFile);
     }
     return contracts;
+  }
+  
+  private Double commission(String c) {
+    if (c == null) {
+      return null;
+    } else if (c.equals("C_10")) {
+      return 0.1;
+    } else if (c.equals("C_30")) {
+      return 0.3;
+    } else {
+      System.out.println("ERROR: unknown comission type: '" + c + "'");
+      return 0.;
+    }
   }
   
 }

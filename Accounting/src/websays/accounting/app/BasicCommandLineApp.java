@@ -26,6 +26,12 @@ import websays.accounting.Contract;
 import websays.accounting.Metrics;
 import websays.accounting.connectors.DatabaseManager;
 
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPException;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Switch;
+
 public class BasicCommandLineApp {
   
   public static boolean connectToDB = true;
@@ -47,7 +53,9 @@ public class BasicCommandLineApp {
   public static String dumpDataFile;
   public static String reportingTxtFile;
   
-  public static void init(String[] args) {
+  public static int fixYear = 0, fixMonth = 0;
+  
+  public static void init(String[] args) throws JSAPException {
     // init log4j
     Logger r = Logger.getRootLogger();
     Appender myAppender;
@@ -55,16 +63,42 @@ public class BasicCommandLineApp {
     myAppender = new ConsoleAppender(new SimpleLayout());
     r.addAppender(myAppender);
     
-    if (args.length < 1 || args.length > 2) {
-      System.out.println("ARGUMENTS: file.properties [false (to run without DB connection)]");
-      System.exit(0);
+    // argument parser:
+    JSAP jsap = new JSAP();
+    
+    jsap.registerParameter(new FlaggedOption("params").setStringParser(JSAP.STRING_PARSER).setRequired(true).setShortFlag('p'));
+    
+    jsap.registerParameter(new FlaggedOption("year").setStringParser(JSAP.INTEGER_PARSER).setRequired(false).setShortFlag('y'));
+    
+    jsap.registerParameter(new FlaggedOption("month").setStringParser(JSAP.INTEGER_PARSER).setRequired(false).setShortFlag('m'));
+    
+    jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setStringParser(JSAP.INTEGER_PARSER).setRequired(false));
+    
+    jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
+    
+    JSAPResult config = jsap.parse(args);
+    if (!config.success()) {
+      for (@SuppressWarnings("rawtypes")
+      java.util.Iterator errs = config.getErrorMessageIterator(); errs.hasNext();) {
+        System.err.println("Error: " + errs.next());
+      }
+      System.out.println("Usage:\n\n\t" + jsap.getUsage() + "\n\n");
+      
+      System.exit(1);
     }
     
-    File propFile = new File(args[0]);
+    File propFile = new File(config.getString("params"));
     if (!propFile.exists()) {
       System.out.println("Cannot find property file: " + args[0]);
       System.exit(0);
     }
+    
+    if (config.contains("year")) {
+      fixYear = config.getInt("year");
+      fixMonth = config.getInt("month");
+    }
+    
+    connectToDB = !config.getBoolean("offline");
     
     FileInputStream in;
     try {
@@ -75,8 +109,6 @@ public class BasicCommandLineApp {
       logger.error(e);
       System.exit(0);
     }
-    
-    connectToDB = !(args.length > 1 && args[1].equals("false"));
     
     pricingFile = props.getProperty("pricingFile", null);
     dumpDataFile = props.getProperty("dumpDBFile", null);

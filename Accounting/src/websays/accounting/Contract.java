@@ -35,6 +35,14 @@ public class Contract {
   
   public int profiles;
   
+  public BillingSchema billingSchema = BillingSchema.fullMonth;
+  
+  public enum BillingSchema {
+    fullYear, // the full year is payed on the first month of contract of every year (on the billing date)
+    fullMonth, // the full current month is payed on the billing date of the month
+    fullFirstMonth // the full amount due is payed at the billing date of the first month
+  }
+  
   // Optional:
   public Integer main_profile_id;
   Pricing prizing;
@@ -43,57 +51,63 @@ public class Contract {
   
   // to simplify we force contracts to start the first of the month and end the last of the month. This is arbitrarely done by rounding down up to the
   // 15th.
-  public Date startBill, endBill;
+  public Date startMetric, endMetric;
   Integer billedMonths = null;
   
   // from JOIN:
   public String client_name;
   
+  // from COMMISSION TYPES:
+  Double commission;
+  
   public Contract() {}
   
-  Contract(int id, String name, Type type, Integer client_id, Date start, Date end) {
+  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double commission) {
     super();
     this.id = id;
     this.name = name;
     this.type = type;
     this.client_id = client_id;
+    this.commission = commission;
+    billingSchema = bs;
     startContract = start;
     endContract = end;
     profiles = 0;
     
-    startBill = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
+    startMetric = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
     DateUtilsWebsays.dateBeginningOfMonth(start)
         : DateUtilsWebsays.dateBeginningOfMonth(start, 1);
     
-    endBill = end;
-    if (endBill != null) {
+    endMetric = end;
+    if (endMetric != null) {
       if (!end.after(start)) {
-        endBill = DateUtilsWebsays.dateEndOfMonth(start);
+        endMetric = DateUtilsWebsays.dateEndOfMonth(start);
       } else {
-        endBill = (DateUtilsWebsays.getDayOfMonth(end) <= 15) ? //
+        endMetric = (DateUtilsWebsays.getDayOfMonth(end) <= 15) ? //
         DateUtilsWebsays.dateEndOfMonth(end, -1)
             : //
             DateUtilsWebsays.dateEndOfMonth(end);
       }
-      billedMonths = DateUtilsWebsays.getHowManyMonths(startBill, endBill) + 1;
+      billedMonths = DateUtilsWebsays.getHowManyMonths(startMetric, endMetric) + 1;
       if (logger.isDebugEnabled()) {
-        String m = "\n" + df.format(start) + " --> " + df.format(startBill) + "\n" + df.format(end) + " --> " + df.format(endBill) + "   "
-            + billedMonths + "\n\n";
+        String m = "\n" + df.format(start) + " --> " + df.format(startMetric) + "\n" + df.format(end) + " --> " + df.format(endMetric)
+            + "   " + billedMonths + "\n\n";
         logger.debug(m);
       }
     }
     
   }
   
-  public Contract(int id, String name, Type type, Integer client_id, Date start, Date end, String prize) {
-    this(id, name, type, client_id, start, end);
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, String prize, Double commission) {
+    this(id, name, type, bs, client_id, start, end, commission);
     prizingName = prize;
     monthlyPrize = null;
     fixPrize = null;
   }
   
-  public Contract(int id, String name, Type type, Integer client_id, Date start, Date end, Double monthlyPrize, Double fixPrize) {
-    this(id, name, type, client_id, start, end);
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double monthlyPrize,
+      Double fixPrize, Double commission) {
+    this(id, name, type, bs, client_id, start, end, commission);
     this.monthlyPrize = monthlyPrize;
     this.fixPrize = fixPrize != null ? fixPrize : 0.0;
     prizing = null;
@@ -104,20 +118,21 @@ public class Contract {
   }
   
   public void linkPrize(HashMap<String,Pricing> map) {
-    if (prizingName != null)
+    if (prizingName != null) {
       if (!map.containsKey(prizingName)) {
         logger.error("Could not find prizing name '" + prizingName + "'");
       } else {
         prizing = map.get(prizingName);
       }
+    }
   }
   
   @Override
   public String toString() {
     String startS = startContract == null ? "-" : df.format(startContract);
     String endS = endContract == null ? "-" : df.format(endContract);
-    String startmS = startBill == null ? "-" : df.format(startBill);
-    String endmS = endBill == null ? "-" : df.format(endBill);
+    String startmS = startMetric == null ? "-" : df.format(startMetric);
+    String endmS = endMetric == null ? "-" : df.format(endMetric);
     
     return String.format("%-20s %-12s %s %s (%s %s) %s", name, client_id, startS, endS, startmS, endmS, (prizing != null ? prizing.name
         : "-") + "\t" + (monthlyPrize != null ? monthlyPrize : "-") + "\t" + (fixPrize != null ? fixPrize : "-"));
@@ -126,7 +141,7 @@ public class Contract {
   public double mrrChange(Date d, boolean metricDate) {
     Date newD = DateUtilsWebsays.dateEndOfMonth(d, 0);
     Date oldD = DateUtilsWebsays.dateEndOfMonth(d, -1);
-    double change = mrr(newD, metricDate) - mrr(oldD, metricDate);
+    double change = computeMRR(newD, metricDate) - computeMRR(oldD, metricDate);
     return change;
   }
   
@@ -135,40 +150,41 @@ public class Contract {
     
     // if contract ended last month, return 0;
     Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
-    if (isLastMonth(prevMonth, metricDate))
+    if (isLastMonth(prevMonth, metricDate)) {
       return 0;
+    }
     // if contract started this month, return 0;
-    if (isFirstMonth(d, metricDate))
+    if (isFirstMonth(d, metricDate)) {
       return 0;
-    else
+    } else {
       return mrrChange(d, metricDate);
+    }
   }
   
-  public double mrr(Date d, boolean metricDate) {
-    if (d.before(startBill))
+  public double computeCommission(Date d, boolean metricDate) {
+    if (commission == null || commission == 0) {
       return 0.;
+    }
+    return commission * computeMRR(d, metricDate);
+  }
+  
+  public double computeMRR(Date d, boolean metricDate) {
+    if (d.before(startMetric)) {
+      return 0.;
+    }
     if (metricDate) {
-      if (endBill != null && endBill.before(d))
+      if (endMetric != null && endMetric.before(d)) {
         return 0;
+      }
     } else {
-      if (endContract != null && endContract.before(d))
+      if (endContract != null && endContract.before(d)) {
         return 0;
+      }
     }
     
     double p = 0.;
     
-    if (monthlyPrize != null && prizing != null) {
-      logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
-    }
-    if (monthlyPrize == null && prizing == null && fixPrize == 0) {
-      logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize=prizing=NULL and fixPrize=0");
-    }
-    
-    if (monthlyPrize != null) {
-      p = monthlyPrize;
-    } else if (prizing != null) {
-      p = prizing.getPrize(d);
-    }
+    p = getMonthlyPrize(d);
     
     if (fixPrize != null && fixPrize > 0) {
       // Split fix prize evenly through all months, unless no end date is know (in that case put it al in the beginning)
@@ -185,59 +201,96 @@ public class Contract {
     return p;
   }
   
+  public double getMonthlyPrize(Date d) {
+    double p = 0;
+    if (monthlyPrize != null && prizing != null) {
+      logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
+    }
+    if (monthlyPrize == null && prizing == null && fixPrize == 0) {
+      logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize=prizing=NULL and fixPrize=0");
+    }
+    
+    if (monthlyPrize != null) {
+      p = monthlyPrize;
+    } else if (prizing != null) {
+      p = prizing.getPrize(d);
+    }
+    return p;
+  }
+  
   public boolean isActive(Date d, boolean metricDate) {
     if (metricDate) {
-      if (d.before(startBill) || (endBill != null && (endBill.before(d) || endBill.equals(d))))
+      if (d.before(startMetric) || (endMetric != null && (endMetric.before(d) || endMetric.equals(d)))) {
         return false;
-      else
+      } else {
         return true;
+      }
     } else {
-      if (d.before(startContract) || (endContract != null && (endContract.before(d) || endContract.equals(d))))
+      if (d.before(startContract) || (endContract != null && (endContract.before(d) || endContract.equals(d)))) {
         return false;
-      else
+      } else {
         return true;
+      }
       
     }
     
   }
   
+  /**
+   * True if this contract is in billing perior (from beginning of contract to last day of last month of contract)
+   * 
+   * @param d
+   * @return
+   */
+  public boolean isActiveBill(Date d) {
+    if (d.before(startContract)) {
+      return false;
+    }
+    if (endContract != null && !DateUtilsWebsays.isSameMonth(endContract, d) && d.after(endContract)) {
+      return false;
+    }
+    return true;
+  }
+  
   public boolean isFirstMonth(Date d, boolean metricDate) {
     if (metricDate) {
-      if (startBill != null && isSameMonth(d, startBill))
+      if (startMetric != null && isSameMonth(d, startMetric)) {
         return true;
-      else
+      } else {
         return false;
+      }
     } else {
-      if (startContract != null && isSameMonth(d, startContract))
+      if (startContract != null && isSameMonth(d, startContract)) {
         return true;
-      else
+      } else {
         return false;
+      }
     }
     
   }
   
   public boolean isLastMonth(Date d, boolean metricDate) {
     if (metricDate) {
-      if (endBill != null && isSameMonth(d, endBill))
+      if (endMetric != null && isSameMonth(d, endMetric)) {
         return true;
-      else
+      } else {
         return false;
+      }
     } else {
-      if (endContract != null && isSameMonth(d, endContract))
+      if (endContract != null && isSameMonth(d, endContract)) {
         return true;
-      else
+      } else {
         return false;
+      }
     }
   }
   
   private boolean isSameMonth(Date d, Date d2) {
-    if (d.getMonth() == d2.getMonth() && d.getYear() == d2.getYear())
+    if (d.getMonth() == d2.getMonth() && d.getYear() == d2.getYear()) {
       return true;
-    else
+    } else {
       return false;
+    }
   }
   
-  public boolean newThisMonth(Date d) {
-    return (isSameMonth(startBill, d));
-  }
 }

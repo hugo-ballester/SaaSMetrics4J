@@ -86,7 +86,7 @@ public class Reporting {
     
     // System.out.println(p.line + "SUMMARY\n" + p.line);
     // System.out.println(p.printBills(bs, true));
-    System.out.println(PrinterASCII.line + "INVOICES at :\n" + p.line);
+    System.out.println(PrinterASCII.line + "INVOICES at :\n" + PrinterASCII.line);
     System.out.println(p.printBills(bs, false));
   }
   

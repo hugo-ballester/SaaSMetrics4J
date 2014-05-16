@@ -6,6 +6,7 @@
 package websays.accounting;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -290,7 +291,11 @@ public class Contract {
   }
   
   private boolean isSameMonth(Date d, Date d2) {
-    if (d.getMonth() == d2.getMonth() && d.getYear() == d2.getYear()) {
+    Calendar c1 = Calendar.getInstance(), c2 = Calendar.getInstance();
+    c1.setTime(d);
+    c2.setTime(d2);
+    
+    if (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)) {
       return true;
     } else {
       return false;

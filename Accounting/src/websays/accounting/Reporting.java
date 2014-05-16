@@ -19,6 +19,7 @@ import websays.accounting.Contracts.SortType;
 
 public class Reporting {
   
+  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(Reporting.class);
   
   Contracts contracts;
@@ -64,6 +65,7 @@ public class Reporting {
     
   }
   
+  @SuppressWarnings("unused")
   private void displayClientMRR(String clientName, Date start, Date end) throws ParseException, SQLException {
     
     System.out.println("displayClientMRR   : " + (clientName));
@@ -84,7 +86,7 @@ public class Reporting {
     
     // System.out.println(p.line + "SUMMARY\n" + p.line);
     // System.out.println(p.printBills(bs, true));
-    System.out.println(p.line + "INVOICES at :\n" + p.line);
+    System.out.println(PrinterASCII.line + "INVOICES at :\n" + p.line);
     System.out.println(p.printBills(bs, false));
   }
   

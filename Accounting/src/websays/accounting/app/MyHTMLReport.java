@@ -26,6 +26,7 @@ import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
+  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   int thisYear = DateUtilsWebsays.getYear(new Date());
@@ -201,7 +202,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   }
   
   String html_header() {
-    Date d = new Date();
+    
     SimpleDateFormat sd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     return "SaaS4J Metrics Report. Generated on " + sd.format(new Date()) + "<hr/>\n\n";
   }

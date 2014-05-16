@@ -195,8 +195,6 @@ public class BillingTest {
     Assert.assertEquals(des, bills.get(0).sumFee, delta);
     Assert.assertEquals(c3.monthlyPrice / 30. * 4 + c3.fixedPrice, bills.get(1).sumFee, delta);
     
-    PrinterASCII bp = new PrinterASCII();
-    
   }
   
 }

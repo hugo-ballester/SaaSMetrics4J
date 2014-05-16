@@ -5,21 +5,16 @@
  */
 package websays.accounting;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,13 +38,13 @@ public class Contracts extends ArrayList<Contract> {
     contract, project, contractedORproject, starting, ending, changed;
     
     public String whereBoolean() {
-      if (this == contract)
+      if (this == contract) {
         return "type='contract'";
-      else if (this == project)
+      } else if (this == project) {
         return "type='project'";
-      else if (this == contractedORproject)
+      } else if (this == contractedORproject) {
         return "type='project' OR type='contract'";
-      else {
+      } else {
         logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
         return "";
       }
@@ -57,8 +52,7 @@ public class Contracts extends ArrayList<Contract> {
     
   };
   
-  SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  HashMap<String,Pricing> prizings = new HashMap<String,Pricing>();
+  static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   
   public Contracts() {}
   
@@ -81,7 +75,7 @@ public class Contracts extends ArrayList<Contract> {
     for (Contract a : this) {
       Date d = a.endContract;
       if (metricDate) {
-        d = a.endMetric;
+        d = a.endRoundDate;
       }
       if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
         continue;
@@ -96,7 +90,7 @@ public class Contracts extends ArrayList<Contract> {
     for (Contract a : this) {
       Date d = a.startContract;
       if (metricDate) {
-        d = a.startMetric;
+        d = a.startRoundDate;
       }
       if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
         continue;
@@ -130,23 +124,24 @@ public class Contracts extends ArrayList<Contract> {
    * @return
    */
   public Contracts getActive(Date date, AccountFilter filter, boolean metricDate) {
-    if (filter == null)
+    if (filter == null) {
       return (Contracts) clone();
+    }
     
     Contracts ret = new Contracts();
     
-    if (filter.equals(AccountFilter.ending))
+    if (filter.equals(AccountFilter.ending)) {
       return getEndingThisMonth(date, metricDate);
-    else if (filter.equals(AccountFilter.starting))
+    } else if (filter.equals(AccountFilter.starting)) {
       return getStartingThisMonth(date, metricDate);
+    }
     
     for (Contract a : this) {
       if (!a.isActive(date, metricDate)) {
         continue;
       }
       
-      if (filter != null)
-        
+      if (filter != null) {
         if (filter == AccountFilter.contract) {
           if (a.type != Type.contract) {
             continue;
@@ -166,6 +161,7 @@ public class Contracts extends ArrayList<Contract> {
         } else {
           System.err.println("UNKONWN FILTER: " + filter);
         }
+      }
       ret.add(a);
     }
     return ret;
@@ -182,44 +178,6 @@ public class Contracts extends ArrayList<Contract> {
       }
     }
     System.out.println("REMOVED " + r);
-  }
-  
-  public void linkPrizes() {
-    
-    for (Contract a : this) {
-      a.linkPrize(prizings);
-    }
-  }
-  
-  public void loadPrizeNames(File prizeFile) {
-    
-    String[] p = null;
-    try {
-      p = file_read(prizeFile).split("\n");
-    } catch (Exception e) {
-      System.err.println("COULD NOT LOAD prizeNames from file: " + prizeFile == null ? "null" : prizeFile.getAbsoluteFile());
-      return;
-    }
-    
-    int n = 0;
-    for (String line : p) {
-      try {
-        if (line.startsWith("#")) {
-          continue;
-        }
-        String[] r = line.split("\t");
-        Pricing pr = new Pricing(r[0]);
-        for (int i = 1; i < r.length; i += 2) {
-          pr.add(df.parse(r[i]), Double.parseDouble(r[i + 1]));
-        }
-        prizings.put(pr.name, pr);
-        n++;
-      } catch (Exception e) {
-        System.err.println("PARSING ERROR line:" + n + "\n" + line);
-      }
-    }
-    logger.info("Prizenames loaded: " + prizings.size());
-    
   }
   
   @Override
@@ -273,13 +231,15 @@ public class Contracts extends ArrayList<Contract> {
         
         @Override
         public int compare(Contract o1, Contract o2) {
-          if (o1 == null || o2 == null || o1.client_name == null || o2.client_name == null)
+          if (o1 == null || o2 == null || o1.client_name == null || o2.client_name == null) {
             return 0;
+          }
           
-          if (o1.client_name.equals(o2.client_name))
+          if (o1.client_name.equals(o2.client_name)) {
             return o1.name.compareTo(o2.name);
-          else
+          } else {
             return o1.client_name.compareTo(o2.client_name);
+          }
         }
       });
       
@@ -309,17 +269,6 @@ public class Contracts extends ArrayList<Contract> {
       }
     }
     return ret;
-  }
-  
-  static String file_read(File filename) throws IOException {
-    Reader in = new InputStreamReader(new FileInputStream(filename), "UTF8");
-    BufferedReader i = new BufferedReader(in);
-    StringBuffer b = new StringBuffer();
-    while (i.ready()) {
-      b.append(i.readLine() + "\n");
-    }
-    i.close();
-    return b.toString();
   }
   
 }

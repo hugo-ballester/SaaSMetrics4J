@@ -63,8 +63,8 @@ public class Billing {
         Date endOfMonth = DateUtilsWebsays.dateBeginningOfDay(DateUtilsWebsays.dateEndOfMonth(d));
         firstMonthDays = DateUtilsWebsays.getHowManyDays(c.startContract, endOfMonth) + 1;
         firstMonth = c.getMonthlyPrize(d) / 30. * firstMonthDays;
-        if (c.fixPrize != null) {
-          firstMonth += c.fixPrize;
+        if (c.fixedPrice != null) {
+          firstMonth += c.fixedPrice;
         }
       }
       
@@ -80,7 +80,7 @@ public class Billing {
       
       if (bs == BillingSchema.fullYear) {
         if (isSameMonth && !isLastMonth) {
-          if (c.fixPrize != null && c.fixPrize > 0) {
+          if (c.fixedPrice != null && c.fixedPrice > 0) {
             System.err.println(error1 + " Cant deal with fullYear and FixPrize");
           }
           monthly = 12. * c.getMonthlyPrize(d);
@@ -100,7 +100,7 @@ public class Billing {
           System.err.println(error1 + "has MRR but is " + bs.name());
         }
         if (isFirstMonth) {
-          monthly = c.fixPrize;
+          monthly = c.fixedPrice;
         } else {
           monthly = null;
         }

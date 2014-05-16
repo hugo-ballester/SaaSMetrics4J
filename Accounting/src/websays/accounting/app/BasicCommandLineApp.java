@@ -35,6 +35,7 @@ import com.martiansoftware.jsap.Switch;
 public class BasicCommandLineApp {
   
   public static boolean connectToDB = true;
+  public static boolean debug = false;
   
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
   public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -76,6 +77,8 @@ public class BasicCommandLineApp {
     
     jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
     
+    jsap.registerParameter(new Switch("debug").setLongFlag("debug").setDefault("false"));
+    
     JSAPResult config = jsap.parse(args);
     if (!config.success()) {
       for (@SuppressWarnings("rawtypes")
@@ -99,6 +102,7 @@ public class BasicCommandLineApp {
     }
     
     connectToDB = !config.getBoolean("offline");
+    debug = config.getBoolean("offline");
     
     FileInputStream in;
     try {
@@ -119,6 +123,8 @@ public class BasicCommandLineApp {
     if (connectToDB) {
       DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")),
           props.getProperty("user"), props.getProperty("pass"), props.getProperty("db"), true);
+    } else {
+      System.out.println("WARNING: not connecting to DB");
     }
     
     if (reportingHTMLDir != null && !(new File(reportingHTMLDir).exists())) {

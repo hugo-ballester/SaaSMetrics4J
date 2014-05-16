@@ -25,10 +25,9 @@ public class BillingTest {
   public static Contract c1() throws ParseException {
     Date d1 = sfd.parse("2013/02/25"); // 28 days, 4 days of service
     Date d2 = sfd.parse("2013/04/15");
-    Contract c = new Contract(0, "C0", Type.contract, BillingSchema.fullMonth, 10, d1, d2);
-    c.monthlyPrize = 1000.0;
-    c.fixPrize = 0.;
-    
+    Contract c = new Contract(0, "C0", Type.contract, BillingSchema.fullMonth, 10, d1, d2, 0.);
+    c.monthlyPrice = 1000.0;
+    c.fixedPrice = 0.;
     return c;
   }
   
@@ -39,23 +38,23 @@ public class BillingTest {
     System.out.println("testBilling_onceAMonthFullMonth");
     Contract c = c1();
     
-    c.monthlyPrize = 100.0;
-    c.fixPrize = 11.;
+    c.monthlyPrice = 100.0;
+    c.fixedPrice = 11.;
     c.billingSchema = BillingSchema.fullMonth;
     
     Object[] obs = new Object[] {//
     sfd.parse("2013/02/14"), null // 1
         , sfd.parse("2013/05/14"), null // 2
-        , sfd.parse("2013/02/25"), c.monthlyPrize / 30 * 4 + c.fixPrize// 3
-        , sfd.parse("2013/02/26"), c.monthlyPrize / 30 * 4 + c.fixPrize // 4
-        , sfd.parse("2013/02/28"), c.monthlyPrize / 30 * 4 + c.fixPrize // 5
-        , sfd.parse("2013/02/29"), c.monthlyPrize // 6 : same as 03/01 since only 28 days
-        , sfd.parse("2013/03/01"), c.monthlyPrize // 7 : no such date, so null
-        , sfd.parse("2013/04/18"), c.monthlyPrize //
-        , sfd.parse("2013/04/1"), c.monthlyPrize //
-        , sfd.parse("2013/04/15"), c.monthlyPrize //
-        , sfd.parse("2013/04/16"), c.monthlyPrize //
-        , sfd.parse("2013/04/30"), c.monthlyPrize //
+        , sfd.parse("2013/02/25"), c.monthlyPrice / 30 * 4 + c.fixedPrice// 3
+        , sfd.parse("2013/02/26"), c.monthlyPrice / 30 * 4 + c.fixedPrice // 4
+        , sfd.parse("2013/02/28"), c.monthlyPrice / 30 * 4 + c.fixedPrice // 5
+        , sfd.parse("2013/02/29"), c.monthlyPrice // 6 : same as 03/01 since only 28 days
+        , sfd.parse("2013/03/01"), c.monthlyPrice // 7 : no such date, so null
+        , sfd.parse("2013/04/18"), c.monthlyPrice //
+        , sfd.parse("2013/04/1"), c.monthlyPrice //
+        , sfd.parse("2013/04/15"), c.monthlyPrice //
+        , sfd.parse("2013/04/16"), c.monthlyPrice //
+        , sfd.parse("2013/04/30"), c.monthlyPrice //
         , sfd.parse("2013/05/01"), null //
     };
     
@@ -74,20 +73,20 @@ public class BillingTest {
     c.startContract = sfd.parse("2012/02/10"); // 28 days, 4 days of service
     c.endContract = sfd.parse("2014/02/09"); // 28 days, 4 days of service
     
-    c.monthlyPrize = 100.0;
-    c.fixPrize = 0.;
+    c.monthlyPrice = 100.0;
+    c.fixedPrice = 0.;
     c.billingSchema = BillingSchema.fullYear;
     
     Object[] obs = new Object[] {//
     sfd.parse("2012/02/1"), null // 1
         , sfd.parse("2012/02/2"), null // 2
-        , sfd.parse("2012/02/10"), c.monthlyPrize * 12. // 3
-        , sfd.parse("2012/02/11"), c.monthlyPrize * 12. // 4
-        , sfd.parse("2012/02/28"), c.monthlyPrize * 12. // 5
+        , sfd.parse("2012/02/10"), c.monthlyPrice * 12. // 3
+        , sfd.parse("2012/02/11"), c.monthlyPrice * 12. // 4
+        , sfd.parse("2012/02/28"), c.monthlyPrice * 12. // 5
         , sfd.parse("2012/03/01"), null // 6
         , sfd.parse("2012/05/01"), null // 7
-        , sfd.parse("2013/02/10"), c.monthlyPrize * 12. // 8
-        , sfd.parse("2012/02/28"), c.monthlyPrize * 12. // 9
+        , sfd.parse("2013/02/10"), c.monthlyPrice * 12. // 8
+        , sfd.parse("2012/02/28"), c.monthlyPrice * 12. // 9
         , sfd.parse("2013/03/01"), null // 10
         , sfd.parse("2013/04/15"), null // 11
         , sfd.parse("2014/02/02"), null // 12
@@ -134,16 +133,16 @@ public class BillingTest {
     System.out.println("testBilling_fullFirstMonth");
     
     Contract c = c1();
-    c.fixPrize = 100.;
-    c.monthlyPrize = null;
+    c.fixedPrice = 100.;
+    c.monthlyPrice = null;
     c.billingSchema = BillingSchema.fullFirstMonth;
     
     Object[] obs = new Object[] {//
     sfd.parse("2013/02/14"), null // 1
         , sfd.parse("2013/05/14"), null // 2
-        , sfd.parse("2013/02/25"), c.fixPrize// 3
-        , sfd.parse("2013/02/26"), c.fixPrize // 4
-        , sfd.parse("2013/02/28"), c.fixPrize // 5
+        , sfd.parse("2013/02/25"), c.fixedPrice// 3
+        , sfd.parse("2013/02/26"), c.fixedPrice // 4
+        , sfd.parse("2013/02/28"), c.fixedPrice // 5
         , sfd.parse("2013/02/29"), null // 6 : same as 03/01 since only 28 days
         , sfd.parse("2013/03/01"), null // 7 : no such date, so null
         , sfd.parse("2013/04/18"), null //
@@ -183,8 +182,8 @@ public class BillingTest {
     Assert.assertEquals(2, b1.contracts.size());
     Assert.assertEquals(2, b1.fees.size());
     
-    Assert.assertEquals(c1.monthlyPrize, b1.fees.get(0));
-    Assert.assertEquals(c1.monthlyPrize, b1.fees.get(1));
+    Assert.assertEquals(c1.monthlyPrice, b1.fees.get(0));
+    Assert.assertEquals(c1.monthlyPrice, b1.fees.get(1));
     Assert.assertEquals("C2", b2.clientName);
     Assert.assertEquals(1, b2.contracts.size());
     Assert.assertEquals(1, b2.fees.size());
@@ -192,9 +191,9 @@ public class BillingTest {
     // check quantities:
     d = sfd.parse("2013/02/26");
     bills = Billing.bill(cs, d);
-    double des = (c1.monthlyPrize + c2.monthlyPrize) / 30. * 4 + c1.fixPrize + c2.fixPrize;
+    double des = (c1.monthlyPrice + c2.monthlyPrice) / 30. * 4 + c1.fixedPrice + c2.fixedPrice;
     Assert.assertEquals(des, bills.get(0).sumFee, delta);
-    Assert.assertEquals(c3.monthlyPrize / 30. * 4 + c3.fixPrize, bills.get(1).sumFee, delta);
+    Assert.assertEquals(c3.monthlyPrice / 30. * 4 + c3.fixedPrice, bills.get(1).sumFee, delta);
     
     PrinterASCII bp = new PrinterASCII();
     

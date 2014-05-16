@@ -5,26 +5,72 @@
  */
 package websays.accounting.connectors;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
+import websays.accounting.Pricing;
 
 public class ContractDAO extends MySQLDAO {
   
-  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, type, billingSchema, mrr, fixed, prizing, client_id, client.name, commission_type";
+  private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, type, billingSchema, mrr, fixed, pricing, client_id, client.name, commission_type, commission_base";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
+  private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
+  
+  public ContractDAO(File pricingFile) {
+    super();
+    setPricing(loadPriceNames(pricingFile));
+  }
   
   protected Connection getConnection() throws SQLException {
     return DatabaseManager.getConnection();
+  }
+  
+  public static HashMap<String,Pricing> loadPriceNames(File priceFile) {
+    HashMap<String,Pricing> pricings = new HashMap<String,Pricing>();
+    String[] p = null;
+    try {
+      p = file_read(priceFile).split("\n");
+    } catch (Exception e) {
+      System.err.println("COULD NOT LOAD priceNames from file: " + priceFile == null ? "null" : priceFile.getAbsoluteFile());
+      return null;
+    }
+    
+    int n = 0;
+    for (String line : p) {
+      try {
+        if (line.startsWith("#")) {
+          continue;
+        }
+        String[] r = line.split("\t");
+        Pricing pr = new Pricing(r[0]);
+        for (int i = 1; i < r.length; i += 2) {
+          pr.add(df.parse(r[i]), Double.parseDouble(r[i + 1]));
+        }
+        pricings.put(pr.name, pr);
+        n++;
+      } catch (Exception e) {
+        System.err.println("PARSING ERROR line:" + n + "\n" + line);
+      }
+    }
+    logger.info("Pricing names loaded: " + pricings.size());
+    return pricings;
   }
   
   public int getNumberOfProfiles(int contractId) throws SQLException {
@@ -102,18 +148,27 @@ public class ContractDAO extends MySQLDAO {
     if (rs.wasNull()) {
       fix = null;
     }
-    String prizing = rs.getString(column++);
+    String pricing = rs.getString(column++);
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
     
     String c = rs.getString(column++);
     Double comm = commission(c);
     
+    Double cb = rs.getDouble(column++);
+    
     Contract a = null;
-    if (prizing == null) {
+    if (pricing == null) {
       a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comm);
+      a.commissionMonthlyBase = cb;
+      
     } else {
-      a = new Contract(id, name, type, bs, client_id, start, end, prizing, comm);
+      Pricing p = pricingSchemaNames.get(pricing);
+      if (p == null) {
+        logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
+      }
+      a = new Contract(id, name, type, bs, client_id, start, end, p, comm);
+      a.commissionMonthlyBase = cb;
     }
     a.client_name = cname;
     return a;
@@ -127,7 +182,7 @@ public class ContractDAO extends MySQLDAO {
   public int create(Contract c) throws SQLException {
     
     String query = "INSERT INTO contract (" //
-        + "name,start,end,type, mrr, fixed , prizing, client_id, main_profile_id" + ")" + " values(?,?,?,?,?,?,?,?,?)";
+        + "name,start,end,type, mrr, fixed , pricing, client_id, main_profile_id" + ")" + " values(?,?,?,?,?,?,?,?,?)";
     
     PreparedStatement p = null;
     Connection con = null;
@@ -142,10 +197,10 @@ public class ContractDAO extends MySQLDAO {
       p.setDate(i++, new java.sql.Date(c.startContract.getTime()));
       p.setDate(i++, new java.sql.Date(c.endContract.getTime()));
       p.setString(i++, c.type.toString());
-      p.setString(i++, c.billingSchema.name());
-      p.setDouble(i++, c.monthlyPrize);
-      p.setDouble(i++, c.fixPrize);
-      p.setString(i++, c.prizingName);
+      p.setString(i++, c.billingSchema == null ? null : c.billingSchema.name());
+      p.setDouble(i++, c.monthlyPrice);
+      p.setDouble(i++, c.fixedPrice);
+      p.setString(i++, c.pricingSchema == null ? null : c.pricingSchema.name);
       p.setInt(i++, c.client_id);
       p.setInt(i++, c.main_profile_id);
       p.executeUpdate();
@@ -165,10 +220,9 @@ public class ContractDAO extends MySQLDAO {
   public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, File pricingFile) throws Exception {
     Contracts contracts;
     if (connectToDB) {
-      ContractDAO adao = new ContractDAO();
+      ContractDAO adao = new ContractDAO(pricingFile);
       contracts = adao.getAccounts(AccountFilter.contractedORproject, true);
-      contracts.loadPrizeNames(pricingFile);
-      contracts.linkPrizes();
+      
       if (dumpDataFile != null) { // save for future use without Internet connection.
         contracts.save(dumpDataFile);
       }
@@ -179,6 +233,10 @@ public class ContractDAO extends MySQLDAO {
     return contracts;
   }
   
+  private void setPricing(HashMap<String,Pricing> loadPriceNames) {
+    pricingSchemaNames = loadPriceNames;
+  }
+  
   private Double commission(String c) {
     if (c == null) {
       return null;
@@ -187,9 +245,19 @@ public class ContractDAO extends MySQLDAO {
     } else if (c.equals("C_30")) {
       return 0.3;
     } else {
-      System.out.println("ERROR: unknown comission type: '" + c + "'");
+      System.out.println("ERROR: unknown commission type: '" + c + "'");
       return 0.;
     }
   }
   
+  static String file_read(File filename) throws IOException {
+    Reader in = new InputStreamReader(new FileInputStream(filename), "UTF8");
+    BufferedReader i = new BufferedReader(in);
+    StringBuffer b = new StringBuffer();
+    while (i.ready()) {
+      b.append(i.readLine() + "\n");
+    }
+    i.close();
+    return b.toString();
+  }
 }

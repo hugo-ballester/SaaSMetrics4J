@@ -64,16 +64,16 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     app.displayBilling(date);
     
     app.title("Starting, Ending & Changing contracts:", connectToDB);
-    app.displayContracts(date, AccountFilter.starting, false);
-    app.displayContracts(date, AccountFilter.ending, false);
-    app.displayContracts(date, AccountFilter.changed, false);
+    app.displayContracts(date, AccountFilter.starting, false, false);
+    app.displayContracts(date, AccountFilter.ending, false, false);
+    app.displayContracts(date, AccountFilter.changed, false, false);
     
     app.title("Total MRR per Client, then list of contracts with MRR", connectToDB);
     app.displayClientMRR(date, AccountFilter.contractedORproject, false);
     
     app.title("All active contracts:", connectToDB);
-    app.displayContracts(date, AccountFilter.contract, false);
-    app.displayContracts(date, AccountFilter.project, false);
+    app.displayContracts(date, AccountFilter.contract, false, false);
+    app.displayContracts(date, AccountFilter.project, false, false);
     
   }
   

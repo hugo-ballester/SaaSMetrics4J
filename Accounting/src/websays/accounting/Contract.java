@@ -7,13 +7,18 @@ package websays.accounting;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
 import websays.core.utils.DateUtilsWebsays;
 
 public class Contract {
+  
+  public enum BillingSchema {
+    fullYear, // the full year is payed on the first month of contract of every year (on the billing date)
+    fullMonth, // the full current month is payed on the billing date of the month
+    fullFirstMonth // the full amount due is payed at the billing date of the first month
+  }
   
   static Logger logger = Logger.getLogger(Contract.class);
   
@@ -30,34 +35,38 @@ public class Contract {
   public Integer client_id;
   public Date startContract, endContract;
   
-  public Double monthlyPrize, fixPrize;
-  public String prizingName;
+  // base recurring prize
+  public Double monthlyPrice;
+  
+  // fixed total price (will be added to monthlyPrice (dividing by total contract lenght) if both not null)
+  public Double fixedPrice;
+  
+  // if not null, this is used instead of cost base to compute comision. This is useful when comision is on a different
+  // quantity from cost.
+  public Double commissionMonthlyBase;
+  
+  // Contracts have either fixed prizing or a pricingSchema
+  public Pricing pricingSchema;
   
   public int profiles;
   
   public BillingSchema billingSchema = BillingSchema.fullMonth;
   
-  public enum BillingSchema {
-    fullYear, // the full year is payed on the first month of contract of every year (on the billing date)
-    fullMonth, // the full current month is payed on the billing date of the month
-    fullFirstMonth // the full amount due is payed at the billing date of the first month
-  }
-  
   // Optional:
   public Integer main_profile_id;
-  Pricing prizing;
   
   // DERIVED:
   
-  // to simplify we force contracts to start the first of the month and end the last of the month. This is arbitrarely done by rounding down up to the
+  // for "metric" counts, we force contracts to start the first of the month and end the last of the month. This is arbitrarely done by rounding down
+  // up to the
   // 15th.
-  public Date startMetric, endMetric;
+  public Date startRoundDate, endRoundDate;
   Integer billedMonths = null;
   
   // from JOIN:
   public String client_name;
   
-  // from COMMISSION TYPES:
+  // from COMMISSION %:
   Double commission;
   
   public Contract() {}
@@ -74,106 +83,101 @@ public class Contract {
     endContract = end;
     profiles = 0;
     
-    startMetric = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
+    startRoundDate = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
     DateUtilsWebsays.dateBeginningOfMonth(start)
         : DateUtilsWebsays.dateBeginningOfMonth(start, 1);
     
-    endMetric = end;
-    if (endMetric != null) {
+    endRoundDate = end;
+    if (endRoundDate != null) {
       if (!end.after(start)) {
-        endMetric = DateUtilsWebsays.dateEndOfMonth(start);
+        endRoundDate = DateUtilsWebsays.dateEndOfMonth(start);
       } else {
-        endMetric = (DateUtilsWebsays.getDayOfMonth(end) <= 15) ? //
+        endRoundDate = (DateUtilsWebsays.getDayOfMonth(end) <= 15) ? //
         DateUtilsWebsays.dateEndOfMonth(end, -1)
             : //
             DateUtilsWebsays.dateEndOfMonth(end);
       }
-      billedMonths = DateUtilsWebsays.getHowManyMonths(startMetric, endMetric) + 1;
+      billedMonths = DateUtilsWebsays.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       if (logger.isDebugEnabled()) {
-        String m = "\n" + df.format(start) + " --> " + df.format(startMetric) + "\n" + df.format(end) + " --> " + df.format(endMetric)
-            + "   " + billedMonths + "\n\n";
+        String m = "\n" + df.format(start) + " --> " + df.format(startRoundDate) + "\n" + df.format(end) + " --> "
+            + df.format(endRoundDate) + "   " + billedMonths + "\n\n";
         logger.debug(m);
       }
     }
     
   }
   
-  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, String prize, Double commission) {
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Pricing pricing,
+      Double commission) {
     this(id, name, type, bs, client_id, start, end, commission);
-    prizingName = prize;
-    monthlyPrize = null;
-    fixPrize = null;
+    pricingSchema = pricing;
+    monthlyPrice = null;
+    fixedPrice = null;
   }
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double monthlyPrize,
       Double fixPrize, Double commission) {
     this(id, name, type, bs, client_id, start, end, commission);
-    this.monthlyPrize = monthlyPrize;
-    this.fixPrize = fixPrize != null ? fixPrize : 0.0;
-    prizing = null;
+    monthlyPrice = monthlyPrize;
+    fixedPrice = fixPrize != null ? fixPrize : 0.0;
+    pricingSchema = null;
   }
   
   public int getId() {
     return id;
   }
   
-  public void linkPrize(HashMap<String,Pricing> map) {
-    if (prizingName != null) {
-      if (!map.containsKey(prizingName)) {
-        logger.error("Could not find prizing name '" + prizingName + "'");
-      } else {
-        prizing = map.get(prizingName);
-      }
-    }
-  }
-  
   @Override
   public String toString() {
     String startS = startContract == null ? "-" : df.format(startContract);
     String endS = endContract == null ? "-" : df.format(endContract);
-    String startmS = startMetric == null ? "-" : df.format(startMetric);
-    String endmS = endMetric == null ? "-" : df.format(endMetric);
+    String startmS = startRoundDate == null ? "-" : df.format(startRoundDate);
+    String endmS = endRoundDate == null ? "-" : df.format(endRoundDate);
     
-    return String.format("%-20s %-12s %s %s (%s %s) %s", name, client_id, startS, endS, startmS, endmS, (prizing != null ? prizing.name
-        : "-") + "\t" + (monthlyPrize != null ? monthlyPrize : "-") + "\t" + (fixPrize != null ? fixPrize : "-"));
+    return String.format("%-20s %-12s %s %s (%s %s) %s ", name, client_id, startS, endS, startmS, endmS,
+        (pricingSchema != null ? pricingSchema.name : "-") + "\t" + (monthlyPrice != null ? monthlyPrice : "-") + "\t"
+            + (fixedPrice != null ? fixedPrice : "-"));
   }
   
-  public double mrrChange(Date d, boolean metricDate) {
+  public double mrrChange(Date d, boolean roundDate) {
     Date newD = DateUtilsWebsays.dateEndOfMonth(d, 0);
     Date oldD = DateUtilsWebsays.dateEndOfMonth(d, -1);
-    double change = computeMRR(newD, metricDate) - computeMRR(oldD, metricDate);
+    double change = computeMRR(newD, roundDate) - computeMRR(oldD, roundDate);
     return change;
   }
   
   public double expansion(Date d) {
-    boolean metricDate = true;
+    boolean roundDate = true;
     
     // if contract ended last month, return 0;
     Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
-    if (isLastMonth(prevMonth, metricDate)) {
+    if (isLastMonth(prevMonth, roundDate)) {
       return 0;
     }
     // if contract started this month, return 0;
-    if (isFirstMonth(d, metricDate)) {
+    if (isFirstMonth(d, roundDate)) {
       return 0;
     } else {
-      return mrrChange(d, metricDate);
+      return mrrChange(d, roundDate);
     }
   }
   
-  public double computeCommission(Date d, boolean metricDate) {
+  public double computeCommission(Date d, boolean roundDate) {
     if (commission == null || commission == 0) {
       return 0.;
+    } else if (commissionMonthlyBase != null) {
+      return commission * commissionMonthlyBase;
+    } else {
+      return commission * computeMRR(d, roundDate);
     }
-    return commission * computeMRR(d, metricDate);
   }
   
-  public double computeMRR(Date d, boolean metricDate) {
-    if (d.before(startMetric)) {
+  public double computeMRR(Date d, boolean roundDate) {
+    if (d.before(startRoundDate)) {
       return 0.;
     }
-    if (metricDate) {
-      if (endMetric != null && endMetric.before(d)) {
+    if (roundDate) {
+      if (endRoundDate != null && endRoundDate.before(d)) {
         return 0;
       }
     } else {
@@ -186,14 +190,14 @@ public class Contract {
     
     p = getMonthlyPrize(d);
     
-    if (fixPrize != null && fixPrize > 0) {
+    if (fixedPrice != null && fixedPrice > 0) {
       // Split fix prize evenly through all months, unless no end date is know (in that case put it al in the beginning)
       if (billedMonths != null) {
-        p += fixPrize / billedMonths;
+        p += fixedPrice / billedMonths;
       } else {
         // add fixed prize at the first month of the project
-        if (fixPrize != null && isFirstMonth(d, true)) {
-          p += fixPrize;
+        if (fixedPrice != null && isFirstMonth(d, true)) {
+          p += fixedPrice;
         }
       }
     }
@@ -203,24 +207,24 @@ public class Contract {
   
   public double getMonthlyPrize(Date d) {
     double p = 0;
-    if (monthlyPrize != null && prizing != null) {
+    if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
     }
-    if (monthlyPrize == null && prizing == null && fixPrize == 0) {
+    if (monthlyPrice == null && pricingSchema == null && fixedPrice == 0) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize=prizing=NULL and fixPrize=0");
     }
     
-    if (monthlyPrize != null) {
-      p = monthlyPrize;
-    } else if (prizing != null) {
-      p = prizing.getPrize(d);
+    if (monthlyPrice != null) {
+      p = monthlyPrice;
+    } else if (pricingSchema != null) {
+      p = pricingSchema.getPrize(d);
     }
     return p;
   }
   
-  public boolean isActive(Date d, boolean metricDate) {
-    if (metricDate) {
-      if (d.before(startMetric) || (endMetric != null && (endMetric.before(d) || endMetric.equals(d)))) {
+  public boolean isActive(Date d, boolean roundDate) {
+    if (roundDate) {
+      if (d.before(startRoundDate) || (endRoundDate != null && (endRoundDate.before(d) || endRoundDate.equals(d)))) {
         return false;
       } else {
         return true;
@@ -252,9 +256,9 @@ public class Contract {
     return true;
   }
   
-  public boolean isFirstMonth(Date d, boolean metricDate) {
-    if (metricDate) {
-      if (startMetric != null && isSameMonth(d, startMetric)) {
+  public boolean isFirstMonth(Date d, boolean roundDate) {
+    if (roundDate) {
+      if (startRoundDate != null && isSameMonth(d, startRoundDate)) {
         return true;
       } else {
         return false;
@@ -269,9 +273,9 @@ public class Contract {
     
   }
   
-  public boolean isLastMonth(Date d, boolean metricDate) {
-    if (metricDate) {
-      if (endMetric != null && isSameMonth(d, endMetric)) {
+  public boolean isLastMonth(Date d, boolean roundDate) {
+    if (roundDate) {
+      if (endRoundDate != null && isSameMonth(d, endRoundDate)) {
         return true;
       } else {
         return false;

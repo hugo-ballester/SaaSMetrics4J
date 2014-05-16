@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contracts.AccountFilter;
@@ -38,6 +39,14 @@ public class Metrics {
   double newmrr;
   public double churn, expansion;
   public double oldMrr, oldChurn;
+  
+  /**
+   * should not be needed but for some reason can't force it from the outside
+   */
+  public static void setDebug() {
+    Logger.getLogger(Metrics.class).setLevel(Level.DEBUG);
+    
+  }
   
   public static Metrics compute(int year, int month, AccountFilter filter, Contracts accounts, double oldMrr, double oldChurn)
       throws ParseException, SQLException {

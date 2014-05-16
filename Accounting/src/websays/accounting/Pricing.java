@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class Pricing {
   
-  String name;
+  public String name;
   ArrayList<Date> dates = new ArrayList<Date>();
   ArrayList<Double> prizes = new ArrayList<Double>();
   
@@ -29,8 +29,9 @@ public class Pricing {
   }
   
   Double getPrize(Date d) {
-    if (dates == null || dates.size() == 0)
+    if (dates == null || dates.size() == 0) {
       return null;
+    }
     int p = 0;
     for (int i = 0; i < dates.size(); i++) {
       Date start = dates.get(i);
@@ -38,10 +39,11 @@ public class Pricing {
         p = i;
       }
     }
-    if (p < prizes.size())
+    if (p < prizes.size()) {
       return prizes.get(p);
-    else
+    } else {
       return null;
+    }
   }
   
 }

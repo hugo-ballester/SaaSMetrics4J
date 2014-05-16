@@ -12,10 +12,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 
 public class Reporting {
+  
+  private static final Logger logger = Logger.getLogger(Reporting.class);
   
   Contracts contracts;
   
@@ -25,18 +29,23 @@ public class Reporting {
     this.contracts = contracts;
   }
   
-  public void displayContracts(Date d, AccountFilter filter, boolean metricDate) {
+  public void displayContracts(Date d, AccountFilter filter, boolean metricDate, boolean colheader) {
     System.out.println("CONTRACTS  (" + filter.toString() + ") at " + Metrics.df.format(d) + "\n");
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0, totCom = 0;
     int totC = 0;
+    if (colheader) {
+      System.out.println(String.format("%4s %-20s %-20s %-12s\t%-11s\t%s\t%s    \t%s-%s", //
+          "ID", "Contract Name", "Client Name", "MRR", "Commission", "Type     ", "Billing", "start", "end"));
+    }
+    
     for (Contract c : cs) {
       String endS = "", startS = "";
       if (c.endContract != null) {
         if (metricDate) {
-          endS = sdf.format(c.endMetric);
-          startS = sdf.format(c.startMetric);
+          endS = sdf.format(c.endRoundDate);
+          startS = sdf.format(c.startRoundDate);
         } else {
           endS = sdf.format(c.endContract);
           startS = sdf.format(c.startContract);

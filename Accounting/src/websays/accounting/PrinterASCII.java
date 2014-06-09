@@ -31,6 +31,9 @@ public class PrinterASCII {
   }
   
   public String printBills(ArrayList<Bill> bills, boolean summary) {
+    if (bills.size() == 0) {
+      return "\n";
+    }
     StringBuilder sb = new StringBuilder();
     Date d = bills.get(0).date;
     for (Bill b : bills) {

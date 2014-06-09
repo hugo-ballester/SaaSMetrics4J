@@ -56,6 +56,16 @@ public class Contracts extends ArrayList<Contract> {
   
   public Contracts() {}
   
+  public Contract getContract(int contractID) {
+    for (Contract c : this) {
+      if (c.getId() == contractID) {
+        return c;
+      }
+    }
+    return null;
+    
+  }
+  
   public String display() {
     StringBuilder sb = new StringBuilder();
     for (Contract a : this) {

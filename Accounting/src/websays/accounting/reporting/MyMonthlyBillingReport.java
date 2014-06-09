@@ -3,9 +3,8 @@
  *
  *    Hugo Zaragoza, Websays.
  */
-package websays.accounting.app;
+package websays.accounting.reporting;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -17,7 +16,8 @@ import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Metrics;
 import websays.accounting.Reporting;
-import websays.accounting.connectors.ContractDAO;
+import websays.accounting.app.BasicCommandLineApp;
+import websays.core.utils.DateUtilsWebsays;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
@@ -27,41 +27,24 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
   }
   
-  public static void main(String[] args) throws Exception {
-    init(args);
-    
-    MyMonthlyBillingReport m = new MyMonthlyBillingReport();
-    
-    Calendar cal = Calendar.getInstance();
-    int year = cal.get(Calendar.YEAR);
-    int month = cal.get(Calendar.MONTH) + 1;
-    int day = 25;
-    
-    m.execute_String(year, month, day);
-    
-  }
-  
   Contracts contracts = null;
   
-  public void initContracts() throws Exception {
-    contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
-        pricingFile) : null);
-  }
-  
-  public void execute_String(int year, int month, int day) throws Exception {
+  public void execute_String(int year, int month) throws Exception {
     if (contracts == null) {
       initContracts();
     }
     
     Reporting app = new Reporting(contracts);
-    Date date = df.parse(day + "/" + month + "/" + year);
+    
+    Calendar cal = DateUtilsWebsays.getCalendar(year, month, 1);
+    Date date = cal.getTime();
     
     // title("DEBUG Contract");
     // app.displayMetrics(2013, 1, 12, "Damm");
     // System.exit(-1);
     
     app.title("BILLING", connectToDB);
-    app.displayBilling(date);
+    app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH));
     
     app.title("Starting, Ending & Changing contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.starting, false, false);

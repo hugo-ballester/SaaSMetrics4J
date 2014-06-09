@@ -5,6 +5,11 @@ import java.util.ArrayList;
 public class SequenceStatistics extends ArrayList<Double> {
   
   /**
+   * 
+   */
+  private static final long serialVersionUID = -8414200055139429543L;
+  
+  /**
    * @return [min,max,sum,avg]
    */
   public double[] getMinMaxSumAvg() {

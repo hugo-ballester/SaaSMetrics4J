@@ -16,9 +16,28 @@ import websays.core.utils.DateUtilsWebsays;
 public class Contract {
   
   public enum BillingSchema {
-    fullYear, // the full year is payed on the first month of contract of every year (on the billing date)
-    fullMonth, // the full current month is payed on the billing date of the month
-    fullFirstMonth // the full amount due is payed at the billing date of the first month
+    MONTHS_1(true, 1), //
+    MONTHS_3(true, 3), //
+    MONTHS_6(true, 6), //
+    MONTHS_12(true, 12), // the full year is payed on the first month of contract of every year (on the billing date)
+    FULL_1(false, null);
+    
+    Integer months;
+    boolean periodic;
+    
+    BillingSchema(boolean periodic, Integer months) {
+      this.periodic = periodic;
+      this.months = months;
+    }
+    
+    boolean isPeriodic() {
+      return periodic;
+    }
+    
+    Integer getMonths() {
+      return months;
+    }
+    
   }
   
   static Logger logger = Logger.getLogger(Contract.class);
@@ -51,7 +70,7 @@ public class Contract {
   
   public int profiles;
   
-  public BillingSchema billingSchema = BillingSchema.fullMonth;
+  public BillingSchema billingSchema = BillingSchema.MONTHS_1;
   
   // Optional:
   public Integer main_profile_id;
@@ -87,6 +106,10 @@ public class Contract {
     startRoundDate = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
     DateUtilsWebsays.dateBeginningOfMonth(start)
         : DateUtilsWebsays.dateBeginningOfMonth(start, 1);
+    
+    if (endContract != null && !DateUtilsWebsays.isLastDayOfMonth(endContract)) {
+      System.err.println("WARNING: CONTRACT ENDING ON A DATE WHICH IS NOT END OF MONTH: " + name + " " + df.format(endContract));
+    }
     
     endRoundDate = end;
     if (endRoundDate != null) {
@@ -189,7 +212,7 @@ public class Contract {
     
     double p = 0.;
     
-    p = getMonthlyPrize(d);
+    p = getMonthlyPrize(d, true);
     
     if (fixedPrice != null && fixedPrice > 0) {
       // Split fix prize evenly through all months, unless no end date is know (in that case put it al in the beginning)
@@ -206,7 +229,14 @@ public class Contract {
     return p;
   }
   
-  public double getMonthlyPrize(Date d) {
+  /**
+   * Gets right monthly price, adding proportional fixed price
+   * 
+   * @param d
+   *          only needd for pricing schemas that depend on date, otherwise can be null
+   * @return
+   */
+  public double getMonthlyPrize(Date d, boolean addFixedPrize) {
     double p = 0;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
@@ -215,11 +245,25 @@ public class Contract {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize=prizing=NULL and fixPrize=0");
     }
     
+    // choose between monthlyPrize or pricingSchema
     if (monthlyPrice != null) {
       p = monthlyPrice;
     } else if (pricingSchema != null) {
       p = pricingSchema.getPrize(d);
+    } else if (fixedPrice == null) {
+      System.err.println("NEITHER monthlyPrice nor pricingSchema nor fixedPrice " + name);
     }
+    
+    // add fixedPrice fraction
+    if (addFixedPrize && fixedPrice != null && fixedPrice > 0.) {
+      if (endContract == null) {
+        System.err.println("ERROR: fixedPrize but no endContract date !? " + name + ": " + fixedPrice);
+        return 0;
+      }
+      int months = DateUtilsWebsays.getHowManyMonths(startContract, endContract) + 1;
+      p += fixedPrice / months;
+    }
+    
     return p;
   }
   
@@ -236,9 +280,7 @@ public class Contract {
       } else {
         return true;
       }
-      
     }
-    
   }
   
   /**
@@ -299,6 +341,14 @@ public class Contract {
       return true;
     } else {
       return false;
+    }
+  }
+  
+  public boolean isFirstFullMonth(Date d, boolean b) {
+    if (DateUtilsWebsays.getDayOfMonth(startContract) == 1) {
+      return isSameMonth(d, startContract);
+    } else {
+      return (DateUtilsWebsays.getHowManyMonths(startContract, d) == 1);
     }
   }
   

@@ -23,7 +23,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 
 import websays.accounting.Contract;
+import websays.accounting.Contracts;
 import websays.accounting.Metrics;
+import websays.accounting.connectors.ContractDAO;
 import websays.accounting.connectors.DatabaseManager;
 
 import com.martiansoftware.jsap.FlaggedOption;
@@ -40,6 +42,7 @@ public class BasicCommandLineApp {
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
   public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+  protected Contracts contracts;
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
@@ -55,6 +58,7 @@ public class BasicCommandLineApp {
   public static String reportingTxtFile;
   
   public static int fixYear = 0, fixMonth = 0;
+  protected static Integer contractID = null;
   
   public static void init(String[] args) throws JSAPException {
     // init log4j
@@ -73,7 +77,8 @@ public class BasicCommandLineApp {
     
     jsap.registerParameter(new FlaggedOption("month").setStringParser(JSAP.INTEGER_PARSER).setRequired(false).setShortFlag('m'));
     
-    jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setStringParser(JSAP.INTEGER_PARSER).setRequired(false));
+    jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setShortFlag('c').setStringParser(JSAP.INTEGER_PARSER)
+        .setRequired(false));
     
     jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
     
@@ -101,6 +106,9 @@ public class BasicCommandLineApp {
       fixMonth = config.getInt("month");
     }
     
+    if (config.contains("contract")) {
+      contractID = config.getInt("contract");
+    }
     connectToDB = !config.getBoolean("offline");
     debug = config.getBoolean("offline");
     
@@ -141,6 +149,12 @@ public class BasicCommandLineApp {
   public void setOutput(File newFile) throws FileNotFoundException {
     PrintStream out = new PrintStream(new FileOutputStream(newFile));
     System.setOut(out);
+  }
+  
+  public void initContracts() throws Exception {
+    
+    contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
+        pricingFile) : null);
   }
   
 }

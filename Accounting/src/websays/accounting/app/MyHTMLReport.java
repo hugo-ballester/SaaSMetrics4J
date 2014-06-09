@@ -12,16 +12,16 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Metrics;
 import websays.accounting.Reporting;
-import websays.accounting.connectors.ContractDAO;
+import websays.accounting.reporting.MyMonthlyBillingReport;
 import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
@@ -43,7 +43,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     }
     
     System.out.println("Writing to " + reportingHTMLDir);
-    System.out.println("scp -r " + reportingHTMLDir + " deployer@stage:" + reportingHTMLDirRemote);
+    if (reportingHTMLDir != null && reportingHTMLDir.length() > 0) {
+      System.out.println("scp -r " + reportingHTMLDir + " deployer@stage:" + reportingHTMLDirRemote);
+    }
     
     (new MyHTMLReport()).execute_HTML();
     System.setOut(oldOut);
@@ -58,8 +60,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
       return;
     }
     
-    Contracts contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
-        pricingFile != null ? new File(pricingFile) : null);
+    if (contracts == null) {
+      initContracts();
+    }
     Reporting app = new Reporting(contracts);
     
     File htmlDir = new File(reportingHTMLDir);
@@ -175,22 +178,27 @@ public class MyHTMLReport extends BasicCommandLineApp {
     int day = 28;
     MyMonthlyBillingReport mbr = new MyMonthlyBillingReport();
     
+    Calendar cal = Calendar.getInstance();
+    
     for (int byear : new int[] {2013, 2014}) {
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
         if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
         }
-        
+        boolean thisMonth = (byear == cal.get(Calendar.YEAR) && bmonth == cal.get(Calendar.MONTH) + 1);
         String name1 = "billing_" + byear + "_" + bmonth;
         String file = name1 + ".html";
-        String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + byear + "</a><br/>\n";
-        if (thisYear == byear && thisMonth == bmonth) {
-          line = "<br/><bf>" + line + "<br/></bf>\n";
+        if (thisMonth) {
+          indexFile += "<table border=1><tr><td>";
         }
+        String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + byear + "</a><br/>\n";
         indexFile += line;
+        if (thisMonth) {
+          indexFile += "</td></tr></table>";
+        }
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body><h1>" + file + "</h1><pre>\n");
-        mbr.execute_String(byear, bmonth, day);
+        mbr.execute_String(byear, bmonth);
       }
     }
     indexFile += "</ul>";

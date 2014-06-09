@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 public class DateUtilsWebsays {
   
+  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(DateUtilsWebsays.class);
   
   /**
@@ -82,8 +83,9 @@ public class DateUtilsWebsays {
   // ============================
   
   public static String toSOLRDate(Date date) {
-    if (date == null)
+    if (date == null) {
       return null;
+    }
     return "" + format(SOLR_DATE_FORMAT1, date) + "T" + format(SOLR_DATE_FORMAT2, date) + "Z";
   }
   
@@ -130,6 +132,13 @@ public class DateUtilsWebsays {
     c.set(Calendar.MINUTE, 59);
     c.set(Calendar.SECOND, 59);
     c.set(Calendar.MILLISECOND, 000);
+  }
+  
+  public static boolean isLastDayOfMonth(Date d) {
+    Calendar c = Calendar.getInstance();
+    c.setTime(d);
+    int ld = lastDayOfMonth(c);
+    return ld == c.get(Calendar.DAY_OF_MONTH);
   }
   
   public static int lastDayOfMonth(Calendar c) {
@@ -243,8 +252,9 @@ public class DateUtilsWebsays {
   public static boolean isSameDay(Calendar c1, Calendar c2) {
     int[] f = {Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH};
     for (int i : f) {
-      if (c1.get(i) != c2.get(i))
+      if (c1.get(i) != c2.get(i)) {
         return false;
+      }
     }
     return true;
   }
@@ -252,8 +262,9 @@ public class DateUtilsWebsays {
   public static boolean isSameMonth(Calendar c1, Calendar c2) {
     int[] f = {Calendar.YEAR, Calendar.MONTH};
     for (int i : f) {
-      if (c1.get(i) != c2.get(i))
+      if (c1.get(i) != c2.get(i)) {
         return false;
+      }
     }
     return true;
   }
@@ -280,6 +291,7 @@ public class DateUtilsWebsays {
   }
   
   /**
+   * Return the number of months in between. If start and end are of same months, returns 0
    * 
    * @param gap
    * @return
@@ -320,4 +332,35 @@ public class DateUtilsWebsays {
     cal.setTime(start);
     return cal.get(Calendar.YEAR);
   }
+  
+  public static Calendar getFirstDayOfNextMonth(Date firstBillingDate) {
+    Calendar c = Calendar.getInstance();
+    c.setTime(firstBillingDate);
+    if (c.get(Calendar.DAY_OF_MONTH) != 1) {
+      c.set(Calendar.DAY_OF_MONTH, 1);
+      c.add(Calendar.MONTH, 1);
+    }
+    return c;
+  }
+  
+  /**
+   * @param year
+   * @param month
+   *          {1..12}
+   * @param i
+   */
+  public static Calendar getCalendar(int year, int month, int i) {
+    Calendar c = Calendar.getInstance();
+    c.set(Calendar.YEAR, year);
+    c.set(Calendar.MONTH, month - 1);
+    c.set(Calendar.DAY_OF_MONTH, 1);
+    return c;
+  }
+  
+  public static Calendar getCalendar(Date d) {
+    Calendar c = Calendar.getInstance();
+    c.setTime(d);
+    return c;
+  }
+  
 }

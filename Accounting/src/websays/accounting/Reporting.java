@@ -26,6 +26,8 @@ public class Reporting {
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
+  public boolean showInvoicesHeadlineWhenNone = true;
+  
   public Reporting(Contracts contracts) {
     this.contracts = contracts;
   }
@@ -78,16 +80,20 @@ public class Reporting {
     
   }
   
-  public void displayBilling(Date date) throws ParseException, SQLException {
+  public void displayBilling(int year, int month) throws ParseException, SQLException {
     
     PrinterASCII p = new PrinterASCII();
     
-    ArrayList<Bill> bs = Billing.bill(contracts, date);
+    ArrayList<Bill> bs = Billing.bill(contracts, year, month);
     
     // System.out.println(p.line + "SUMMARY\n" + p.line);
     // System.out.println(p.printBills(bs, true));
-    System.out.println(PrinterASCII.line + "INVOICES at :\n" + PrinterASCII.line);
-    System.out.println(p.printBills(bs, false));
+    
+    if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
+      String invoices = p.printBills(bs, false);
+      System.out.println(PrinterASCII.line + "INVOICES at " + year + "/" + month + ":\n" + PrinterASCII.line);
+      System.out.println(invoices);
+    }
   }
   
   public void displayClientMRR(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {

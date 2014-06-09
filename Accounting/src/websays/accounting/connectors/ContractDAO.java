@@ -35,7 +35,10 @@ public class ContractDAO extends MySQLDAO {
   
   public ContractDAO(File pricingFile) {
     super();
-    setPricing(loadPriceNames(pricingFile));
+    HashMap<String,Pricing> p = loadPriceNames(pricingFile);
+    if (p != null) {
+      setPricing(p);
+    }
   }
   
   protected Connection getConnection() throws SQLException {
@@ -48,7 +51,8 @@ public class ContractDAO extends MySQLDAO {
     try {
       p = file_read(priceFile).split("\n");
     } catch (Exception e) {
-      System.err.println("COULD NOT LOAD priceNames from file: " + priceFile == null ? "null" : priceFile.getAbsoluteFile());
+      System.err.print("\nCOULD NOT LOAD priceNames from file: ");
+      System.err.println((priceFile == null ? "null" : priceFile.getAbsolutePath()) + "\n");
       return null;
     }
     
@@ -163,6 +167,10 @@ public class ContractDAO extends MySQLDAO {
       a.commissionMonthlyBase = cb;
       
     } else {
+      if (pricingSchemaNames == null) {
+        logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
+        return null;
+      }
       Pricing p = pricingSchemaNames.get(pricing);
       if (p == null) {
         logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");

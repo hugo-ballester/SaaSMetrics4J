@@ -33,6 +33,10 @@ public class Reporting {
   }
   
   public void displayContracts(Date d, AccountFilter filter, boolean metricDate, boolean colheader) {
+    if (contracts == null) {
+      System.err.println("ERROR: NULL contracts?");
+      return;
+    }
     System.out.println("CONTRACTS  (" + filter.toString() + ") at " + Metrics.df.format(d) + "\n");
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
@@ -81,6 +85,10 @@ public class Reporting {
   }
   
   public void displayBilling(int year, int month) throws ParseException, SQLException {
+    if (contracts == null) {
+      System.err.println("ERROR: displayBilling: NULL contracts?");
+      return;
+    }
     
     PrinterASCII p = new PrinterASCII();
     
@@ -97,8 +105,11 @@ public class Reporting {
   }
   
   public void displayClientMRR(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {
-    
     System.out.println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + Metrics.df.format(date) + "\n");
+    if (contracts == null) {
+      System.err.println("ERROR: NULL contracts?");
+      return;
+    }
     
     Contracts lis = contracts.getActive(date, filter, metricDate);
     lis.sort(SortType.client);

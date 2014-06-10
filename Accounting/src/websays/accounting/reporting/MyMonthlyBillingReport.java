@@ -29,9 +29,10 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
   Contracts contracts = null;
   
-  public void execute_String(int year, int month) throws Exception {
+  public void execute_String(Contracts contracts, int year, int month) throws Exception {
     if (contracts == null) {
-      initContracts();
+      System.err.println("ERROR: NO CONTRACTS WERE LOADED");
+      return;
     }
     
     Reporting app = new Reporting(contracts);

@@ -26,7 +26,6 @@ import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
-  @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   int thisYear = DateUtilsWebsays.getYear(new Date());
@@ -170,12 +169,11 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private String billing(File htmlDir) throws FileNotFoundException, Exception {
     if (fixYear > 0) {
-      System.out.println("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
+      logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
     String indexFile = "\n\n<ul>\n";
     
-    int day = 28;
     MyMonthlyBillingReport mbr = new MyMonthlyBillingReport();
     
     Calendar cal = Calendar.getInstance();
@@ -198,7 +196,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         }
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body><h1>" + file + "</h1><pre>\n");
-        mbr.execute_String(byear, bmonth);
+        mbr.execute_String(contracts, byear, bmonth);
       }
     }
     indexFile += "</ul>";

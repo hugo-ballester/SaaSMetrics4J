@@ -165,6 +165,10 @@ public class Billing {
   }
   
   public static ArrayList<Bill> bill(Contracts cs, int year, int month) {
+    if (cs == null) {
+      System.err.println("ERROR: NULL contracts");
+      return null;
+    }
     TreeMap<String,Bill> ret = new TreeMap<String,Bill>();
     for (Contract c : cs) {
       Bill b = Billing.bill(c, year, month);

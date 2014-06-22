@@ -49,13 +49,17 @@ public class Reporting {
     
     for (Contract c : cs) {
       String endS = "", startS = "";
+      if (metricDate) {
+        startS = sdf.format(c.startRoundDate);
+      } else {
+        startS = sdf.format(c.startContract);
+      }
+      
       if (c.endContract != null) {
         if (metricDate) {
           endS = sdf.format(c.endRoundDate);
-          startS = sdf.format(c.startRoundDate);
         } else {
           endS = sdf.format(c.endContract);
-          startS = sdf.format(c.startContract);
         }
       }
       double mrr = c.computeMRR(d, metricDate);
@@ -98,8 +102,9 @@ public class Reporting {
     // System.out.println(p.printBills(bs, true));
     
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
+      Date billingDate = bs.get(0).date;
       String invoices = p.printBills(bs, false);
-      System.out.println(PrinterASCII.line + "INVOICES at " + year + "/" + month + ":\n" + PrinterASCII.line);
+      System.out.println(PrinterASCII.line + "INVOICES. " + sdf.format(billingDate) + ":\n" + PrinterASCII.line);
       System.out.println(invoices);
     }
   }

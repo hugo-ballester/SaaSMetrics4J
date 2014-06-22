@@ -45,7 +45,7 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     // System.exit(-1);
     
     app.title("BILLING", connectToDB);
-    app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH));
+    app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
     
     app.title("Starting, Ending & Changing contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.starting, false, false);

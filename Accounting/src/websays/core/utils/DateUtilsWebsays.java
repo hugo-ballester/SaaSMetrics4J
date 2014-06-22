@@ -56,6 +56,7 @@ public class DateUtilsWebsays {
   
   /** ThreadLocal with SimpleDateFormat'ers */
   private static final FormattersThreadCache fmtCache = new FormattersThreadCache();
+  public static final SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy");
   
   // public static Date parse(String date) throws ParseException {
   // return parse(ISO_DATE_FORMAT, date);
@@ -249,6 +250,13 @@ public class DateUtilsWebsays {
     return d;
   }
   
+  /**
+   * Same year, month and day
+   * 
+   * @param c1
+   * @param c2
+   * @return
+   */
   public static boolean isSameDay(Calendar c1, Calendar c2) {
     int[] f = {Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH};
     for (int i : f) {
@@ -257,6 +265,12 @@ public class DateUtilsWebsays {
       }
     }
     return true;
+  }
+  
+  public static boolean isSameDay(Date d1, Date d2) {
+    Calendar c1 = getCalendar(d1);
+    Calendar c2 = getCalendar(d2);
+    return isSameDay(c1, c2);
   }
   
   public static boolean isSameMonth(Calendar c1, Calendar c2) {
@@ -315,6 +329,13 @@ public class DateUtilsWebsays {
     return cal.getTime();
   }
   
+  public static Date addMonths(Date start, int months) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(start);
+    cal.add(Calendar.MONTH, months);
+    return cal.getTime();
+  }
+  
   public static int getDayOfMonth(Date start) {
     Calendar cal = Calendar.getInstance();
     cal.setTime(start);
@@ -349,11 +370,15 @@ public class DateUtilsWebsays {
    *          {1..12}
    * @param i
    */
-  public static Calendar getCalendar(int year, int month, int i) {
+  public static Calendar getCalendar(int year, int month, int day) {
     Calendar c = Calendar.getInstance();
     c.set(Calendar.YEAR, year);
     c.set(Calendar.MONTH, month - 1);
-    c.set(Calendar.DAY_OF_MONTH, 1);
+    c.set(Calendar.DAY_OF_MONTH, day);
+    c.set(Calendar.HOUR_OF_DAY, 0);
+    c.set(Calendar.MINUTE, 0);
+    c.set(Calendar.SECOND, 0);
+    c.set(Calendar.MILLISECOND, 0);
     return c;
   }
   
@@ -361,6 +386,28 @@ public class DateUtilsWebsays {
     Calendar c = Calendar.getInstance();
     c.setTime(d);
     return c;
+  }
+  
+  /**
+   * Only care about year, month, date, it ignores hours, minutes, etc.
+   * 
+   * Includes beginning and end of period in period.
+   * 
+   * @param dC
+   * @param staC
+   * @param endC
+   */
+  public static boolean isInPeriod_Day(Calendar dC, Calendar staC, Calendar endC) {
+    
+    if (DateUtilsWebsays.isSameDay(dC, staC) || DateUtilsWebsays.isSameDay(dC, endC)) {
+      return true;
+    }
+    
+    if (dC.after(staC) && dC.before(endC)) {
+      return true;
+    }
+    return false;
+    
   }
   
 }

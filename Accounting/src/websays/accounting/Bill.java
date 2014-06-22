@@ -16,12 +16,12 @@ public class Bill {
   public Date date;
   public String clientName;
   public Double sumFee = 0.0;
-  public ArrayList<String> contracts;
-  public ArrayList<Double> fees;
   
-  public Bill(Date d, String clientName, String contractName, Double fee) {
+  public ArrayList<BilledItem> items;
+  
+  public Bill(Date d, String clientName, String contractName, Double fee, BilledPeriod period) {
     this(d, clientName);
-    addFee(contractName, fee);
+    addFee(contractName, fee, period);
   }
   
   public Bill(Date d, String clientName) {
@@ -30,19 +30,21 @@ public class Bill {
     this.clientName = clientName;
   }
   
-  public void addFee(String contract, Double fee) {
-    if (fee == null) {
+  public void addFee(String contract, Double fee, BilledPeriod period) {
+    BilledItem bi = new BilledItem(period, fee, contract, -1); // TODO add contractId
+    addItem(bi);
+  }
+  
+  public void addItem(BilledItem bi) {
+    
+    if (bi.fee == null) {
       System.err.println("ERROR: null fee cannot be added to bill!");
     }
-    if (contracts == null) {
-      contracts = new ArrayList<String>();
+    if (items == null) {
+      items = new ArrayList<BilledItem>();
     }
-    if (fees == null) {
-      fees = new ArrayList<Double>();
-    }
-    contracts.add(contract);
-    fees.add(fee);
-    sumFee += fee;
+    items.add(bi);
+    sumFee += bi.fee;
   }
   
   @Override
@@ -50,14 +52,13 @@ public class Bill {
     return "BILL FOR '" + clientName + "', ON " + sdf.format(date) + ", FOR: " + sumFee;
   }
   
-  public void addBill(Bill b) {
+  public void mergeBill(Bill b) {
     if (b.clientName != null && clientName != null && !b.clientName.equals(clientName)) {
       System.err.println("MERGING TWO BILLS OF DIFFERENT CLIENTS!?");
     }
-    for (int i = 0; i < b.contracts.size(); i++) {
-      addFee(b.contracts.get(i), b.fees.get(i));
+    for (int i = 0; i < b.items.size(); i++) {
+      addItem(b.items.get(i));
     }
-    
   }
   
 }

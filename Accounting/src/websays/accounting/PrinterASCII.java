@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class PrinterASCII {
   
-  static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+  static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   static final String line = "---------------------------------------------\n";
   static final String line1 = "=========================================================\n";
@@ -23,8 +23,10 @@ public class PrinterASCII {
     String s = String.format("INVOICE FOR CLIENT: %-30s\t%10s€\n", b.clientName, //
         NumberFormat.getIntegerInstance().format(b.sumFee));
     if (!sumary) {
-      for (int i = 0; i < b.fees.size(); i++) {
-        s += String.format("   %-20s\t(%s €)\n", b.contracts.get(i), NumberFormat.getIntegerInstance().format(b.fees.get(i)));
+      for (int i = 0; i < b.items.size(); i++) {
+        BilledItem bi = b.items.get(i);
+        s += String.format("   %-20s\t(%s-%s, %s€)\n", bi.contract_name, sdf.format(bi.period.periodStart),
+            sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee));
       }
     }
     return s;
@@ -38,14 +40,26 @@ public class PrinterASCII {
     Date d = bills.get(0).date;
     for (Bill b : bills) {
       if (!b.date.equals(d)) {
-        System.err.println("WARNING: not all bills have same date!");
+        System.err.println("WARNING: not all bills have same date! " + sdf.format(b.date));
       }
     }
     
     // sb.append(line);
     // sb.append(line);
+    ArrayList<Bill> noBills = new ArrayList<Bill>();
     
     for (Bill b : bills) {
+      if (b.sumFee == 0) {
+        noBills.add(b);
+      } else {
+        sb.append(printBill(b, summary));
+        sb.append("\n");
+      }
+    }
+    
+    sb.append("\n" + line2 + "(Active contracts with no bills this month:)\n\n");
+    
+    for (Bill b : noBills) {
       sb.append(printBill(b, summary));
       sb.append("\n");
     }

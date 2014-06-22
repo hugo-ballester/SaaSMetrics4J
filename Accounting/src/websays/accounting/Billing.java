@@ -10,18 +10,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 import websays.accounting.Contract.BillingSchema;
 import websays.core.utils.DateUtilsWebsays;
 
 /**
- * 
- * MONTH_X Billing:
- * <ul>
- * <li>Contracts can start on any date, must end the last day of a month.
- * <li>Billing is in advanced on 1st of the month
- * <li>On the very first bill, the days of the previous month since contract_start are added at a prop. prize
- * <li>Consequents bills are at months previousBillMonth+X
- * </ul>
  * 
  * @author hugoz
  * 
@@ -29,9 +23,10 @@ import websays.core.utils.DateUtilsWebsays;
 public class Billing {
   
   private static final String error1 = "DONT KNOW HOW TO COMPUTE BILLING: ";
+  private static final Logger logger = Logger.getLogger(Billing.class);
   
   static public void error(String s) {
-    System.err.println(error1 + s);
+    logger.error(error1 + s);
   }
   
   /**
@@ -44,44 +39,45 @@ public class Billing {
   public static Bill bill(Contract c, Date d) {
     Calendar cal = Calendar.getInstance();
     cal.setTime(d);
-    return bill(c, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH));
+    return bill(c, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
+  }
+  
+  public static Calendar getBillingDate(int year, int month) {
+    Calendar billingDate = DateUtilsWebsays.getCalendar(year, month, BilledPeriod.billingDayOfMonth);
+    return billingDate;
   }
   
   public static Bill bill(Contract c, int year, int month) {
-    
-    // Set billing date:
-    Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.YEAR, year);
-    cal.set(Calendar.MONTH, month - 1);
-    cal.set(Calendar.DAY_OF_MONTH, 1);
-    DateUtilsWebsays.calToStartOfDay(cal);
-    Date d = cal.getTime();
-    
-    // integrity tests
-    if (c == null) {
-      error(" null contract.");
-      return null;
-    }
-    if (c.startContract == null) {
-      error(" null starting date for contract.");
-      return null;
-    }
-    
-    // if not active, return
-    if (!c.isActiveBill(d)) {
-      return null;
-    }
-    
-    BillingSchema bs = c.billingSchema;
-    Double monthly = null;
-    // boolean isFirstMonth = false, isSameMonth = false, isLastMonth = false;
-    
-    boolean isFirstFullMonth = c.isFirstFullMonth(d, false);
-    
     try {
       
-      // double firstMonth = 0;
+      // integrity tests
+      if (c == null) {
+        error(" null contract.");
+        return null;
+      }
       
+      Date billingDate = getBillingDate(year, month).getTime();
+      
+      if (!c.isActiveBill(billingDate)) {
+        logger.trace("Contract not active: " + c.name);
+        return null;
+      }
+      logger.trace("Contract ACTIVE: " + c.name);
+      
+      BilledPeriod bp = c.getFirstBilledPeriod();
+      boolean ok = bp.moveForwardTo(billingDate);
+      if (!ok) {
+        return null;
+      }
+      if (!DateUtilsWebsays.isSameDay(billingDate, bp.billDate)) {
+        return new Bill(bp.billDate, c.client_name, c.name, 0.0, bp);
+      }
+      
+      BillingSchema bs = c.billingSchema;
+      Double monthly = null;
+      
+      // boolean isFirstFullMonth = c.isFirstFullMonth(bd, false);
+      // double firstMonth = 0;
       // // First month of contract
       // if (c.isFirstMonth(d, false)) {
       // // First Bill of Service: bill number of days
@@ -104,34 +100,27 @@ public class Billing {
       // isLastMonth = true;
       // }
       
-      Date firstBillingDate = c.startContract;
-      firstBillingDate = DateUtilsWebsays.getFirstDayOfNextMonth(firstBillingDate).getTime();
+      // Date firstBillingDate = c.startContract;
+      // firstBillingDate = DateUtilsWebsays.getFirstDayOfNextMonth(firstBillingDate).getTime();
       
-      double monthlyPrize = c.getMonthlyPrize(d, true);
-      double monthlyPrizeNoFixed = c.getMonthlyPrize(d, false);
+      double monthlyPrize = c.getMonthlyPrize(billingDate, true);
+      double monthlyPrizeNoFixed = c.getMonthlyPrize(billingDate, false);
       double monthlyFixed = monthlyPrize - monthlyPrizeNoFixed;
       
       if (bs.isPeriodic()) {
         
         int n = c.billingSchema.getMonths();
-        
-        int months = DateUtilsWebsays.getHowManyMonths(firstBillingDate, d);
-        if (months % n != 0) {
-          return null;
-        }
-        
-        // Standard Period Price:
-        
         monthly = monthlyPrize * n;
         
-        // Add remaining of first incomplete month. E.g. a contract starting on the 30th of January, would be billed on the 1st of February for the 2
-        // days of January plus February.
-        if (isFirstFullMonth && DateUtilsWebsays.getDayOfMonth(c.startContract) != 1) {
-          Date endOfLastMonth = DateUtilsWebsays.dateBeginningOfDay(DateUtilsWebsays.dateEndOfMonth(d, -1));
-          int firstMonthDays = DateUtilsWebsays.getHowManyDays(c.startContract, endOfLastMonth) + 1;
-          double firstMonth = monthlyFixed + monthlyPrizeNoFixed / 30. * firstMonthDays;
-          monthly += firstMonth;
-        }
+        // // Add remaining of first incomplete month. E.g. a contract starting on the 30th of January, would be billed on the 1st of February for the
+        // 2
+        // // days of January plus February.
+        // if (isFirstFullMonth && DateUtilsWebsays.getDayOfMonth(c.startContract) != 1) {
+        // Date endOfLastMonth = DateUtilsWebsays.dateBeginningOfDay(DateUtilsWebsays.dateEndOfMonth(d, -1));
+        // int firstMonthDays = DateUtilsWebsays.getHowManyDays(c.startContract, endOfLastMonth) + 1;
+        // double firstMonth = monthlyFixed + monthlyPrizeNoFixed / 30. * firstMonthDays;
+        // monthly += firstMonth;
+        // }
         
       }
       
@@ -140,7 +129,7 @@ public class Billing {
           error(" monthly prized defined for FULL_1 billing schema");
         }
         
-        if (isFirstFullMonth) {
+        if (bp.period == 1) {
           monthly = c.fixedPrice;
         } else {
           monthly = null;
@@ -151,22 +140,18 @@ public class Billing {
         return null;
       }
       
+      return new Bill(bp.billDate, c.client_name, c.name, monthly, bp);
+      
     } catch (Exception e) {
       e.printStackTrace();
       return null;
-    }
-    
-    if (monthly == null) {
-      return null;
-    } else {
-      return new Bill(d, c.client_name, c.name, monthly);
     }
     
   }
   
   public static ArrayList<Bill> bill(Contracts cs, int year, int month) {
     if (cs == null) {
-      System.err.println("ERROR: NULL contracts");
+      logger.error("ERROR: NULL contracts");
       return null;
     }
     TreeMap<String,Bill> ret = new TreeMap<String,Bill>();
@@ -176,7 +161,7 @@ public class Billing {
         if (!ret.containsKey(c.client_name)) {
           ret.put(c.client_name, new Bill(b.date, c.client_name));
         }
-        ret.get(c.client_name).addBill(b);
+        ret.get(c.client_name).mergeBill(b);
       }
     }
     

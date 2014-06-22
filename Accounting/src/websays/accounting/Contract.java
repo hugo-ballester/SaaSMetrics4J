@@ -15,6 +15,9 @@ import websays.core.utils.DateUtilsWebsays;
 
 public class Contract {
   
+  static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+  private static final Logger logger = Logger.getLogger(Contract.class);
+  
   public enum BillingSchema {
     MONTHS_1(true, 1), //
     MONTHS_3(true, 3), //
@@ -39,10 +42,6 @@ public class Contract {
     }
     
   }
-  
-  static Logger logger = Logger.getLogger(Contract.class);
-  
-  static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   
   public enum Type {
     contract, project, pilot, internal, budget, test
@@ -107,9 +106,9 @@ public class Contract {
     DateUtilsWebsays.dateBeginningOfMonth(start)
         : DateUtilsWebsays.dateBeginningOfMonth(start, 1);
     
-    if (endContract != null && !DateUtilsWebsays.isLastDayOfMonth(endContract)) {
-      System.err.println("WARNING: CONTRACT ENDING ON A DATE WHICH IS NOT END OF MONTH: " + name + " " + df.format(endContract));
-    }
+    // if (endContract != null && !DateUtilsWebsays.isLastDayOfMonth(endContract)) {
+    // logger.warn("CONTRACT ENDING ON A DATE WHICH IS NOT END OF MONTH: " + name + " " + df.format(endContract));
+    // }
     
     endRoundDate = end;
     if (endRoundDate != null) {
@@ -284,7 +283,7 @@ public class Contract {
   }
   
   /**
-   * True if this contract is in billing perior (from beginning of contract to last day of last month of contract)
+   * True if this contract is in billing period (from beginning of contract to last day of last month of contract)
    * 
    * @param d
    * @return
@@ -350,6 +349,10 @@ public class Contract {
     } else {
       return (DateUtilsWebsays.getHowManyMonths(startContract, d) == 1);
     }
+  }
+  
+  public BilledPeriod getFirstBilledPeriod() {
+    return new BilledPeriod(startContract, endContract, billingSchema);
   }
   
 }

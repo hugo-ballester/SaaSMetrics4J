@@ -18,6 +18,7 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import websays.accounting.Billing;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Metrics;
 import websays.accounting.Reporting;
@@ -39,6 +40,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
       Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
       Logger.getLogger(Metrics.class).setLevel(Level.DEBUG);
+      Logger.getLogger(Billing.class).setLevel(Level.TRACE);
     }
     
     System.out.println("Writing to " + reportingHTMLDir);

@@ -1,7 +1,9 @@
-/**
- * WebSays Core
- * Hugo Zaragoza 2011. 
+/*
+ *    SaaSMetrics4J : https://github.com/hugozaragoza/SaaSMetrics4J
+ *
+ *    (c) 2014, Hugo Zaragoza, Websays.
  */
+
 package websays.accounting.connectors;
 
 import java.sql.Connection;
@@ -53,8 +55,9 @@ public class DatabaseManager {
   
   protected static DatabaseManager getInstance() {
     // nothing to do..
-    if (DatabaseManager.databaseManagerInstance == null)
+    if (DatabaseManager.databaseManagerInstance == null) {
       throw new IllegalStateException("you can not access connections before call initDatabaseManager().");
+    }
     return DatabaseManager.databaseManagerInstance;
   }
   
@@ -68,8 +71,9 @@ public class DatabaseManager {
   }
   
   public static void initDatabaseManager(String host, int port, String user, String pswd, String db, boolean forceRestart) {
-    if (DatabaseManager.databaseManagerInstance != null && !forceRestart)
+    if (DatabaseManager.databaseManagerInstance != null && !forceRestart) {
       return;
+    }
     
     DatabaseManager databaseManager = new DatabaseManager();
     

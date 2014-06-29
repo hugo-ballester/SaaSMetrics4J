@@ -1,7 +1,7 @@
 /*
- *    SAS4J
+ *    SaaSMetrics4J : https://github.com/hugozaragoza/SaaSMetrics4J
  *
- *    Hugo Zaragoza, Websays.
+ *    (c) 2014, Hugo Zaragoza, Websays.
  */
 package websays.accounting.connectors;
 
@@ -201,10 +201,12 @@ public class MySQLDAO {
   }
   
   public boolean tableExists(Connection con, String dbName, String tableName) throws SQLException {
-    if (dbName == null || dbName.length() == 0)
+    if (dbName == null || dbName.length() == 0) {
       throw new IllegalArgumentException("dbName can not be null");
-    if (tableName == null || tableName.length() == 0)
+    }
+    if (tableName == null || tableName.length() == 0) {
       throw new IllegalArgumentException("tableName can not be null");
+    }
     
     String cmd = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '" + dbName + "' AND table_name = '" + tableName
         + "';";
@@ -219,8 +221,9 @@ public class MySQLDAO {
       if (rs.next()) {
         numRows = rs.getLong(1);
       }
-      if (numRows != null && numRows.longValue() > 0)
+      if (numRows != null && numRows.longValue() > 0) {
         return true;
+      }
       return false;
     } finally {
       this.close(rs);
@@ -291,8 +294,9 @@ public class MySQLDAO {
     if (rs.next()) {
       numRows = rs.getLong(1);
     }
-    if (numRows != null && numRows.longValue() > 0)
+    if (numRows != null && numRows.longValue() > 0) {
       return numRows.longValue();
+    }
     return 0;
   }
   
@@ -354,8 +358,9 @@ public class MySQLDAO {
         p.setLong(1, (Long) id);
       } else if (id instanceof String) {
         p.setString(1, (String) id);
-      } else
+      } else {
         throw new IllegalArgumentException("Id can be from class java.lang.Long or java.lang.String.");
+      }
       
       rs = p.executeQuery();
       return this.getNumRows(rs);
@@ -396,8 +401,9 @@ public class MySQLDAO {
   }
   
   protected String addAndCondition(String currentWhere, String newCondition) {
-    if (newCondition == null || newCondition.length() == 0)
+    if (newCondition == null || newCondition.length() == 0) {
       return currentWhere;
+    }
     
     String result = currentWhere == null ? "" : currentWhere;
     if (result.length() > 0) {

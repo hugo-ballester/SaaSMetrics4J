@@ -1,7 +1,7 @@
 /*
- *    SAS4J
+ *    SaaSMetrics4J : https://github.com/hugozaragoza/SaaSMetrics4J
  *
- *    Hugo Zaragoza, Websays.
+ *    (c) 2014, Hugo Zaragoza, Websays.
  */
 package websays.accounting.app;
 

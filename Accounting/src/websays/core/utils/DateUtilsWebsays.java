@@ -1,3 +1,8 @@
+/*
+ *    SaaSMetrics4J : https://github.com/hugozaragoza/SaaSMetrics4J
+ *
+ *    (c) 2014, Hugo Zaragoza, Websays.
+ */
 package websays.core.utils;
 
 import java.text.ParseException;

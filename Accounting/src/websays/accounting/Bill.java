@@ -9,8 +9,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public class Bill {
   
+  private static final Logger logger = Logger.getLogger(Bill.class);
+  {
+    logger.setLevel(Level.TRACE);
+  }
   final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
   
   public Date date;
@@ -19,20 +26,10 @@ public class Bill {
   
   public ArrayList<BilledItem> items;
   
-  public Bill(Date d, String clientName, String contractName, Double fee, BilledPeriod period) {
-    this(d, clientName);
-    addFee(contractName, fee, period);
-  }
-  
   public Bill(Date d, String clientName) {
     super();
     date = d;
     this.clientName = clientName;
-  }
-  
-  public void addFee(String contract, Double fee, BilledPeriod period) {
-    BilledItem bi = new BilledItem(period, fee, contract, -1); // TODO add contractId
-    addItem(bi);
   }
   
   public void addItem(BilledItem bi) {

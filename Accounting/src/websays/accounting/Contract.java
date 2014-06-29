@@ -52,7 +52,13 @@ public class Contract {
   public String name;
   public Type type;
   public Integer client_id;
-  public Date startContract, endContract;
+  public Date startContract;
+  // endContract when known (typical monthly renewable contracts will have endContract NULL until client cancels with a date).
+  public Date endContract;
+  
+  // agreed periods by contract (only used to warn when a contract is near the end). NOTE: this does not replace endContract, it is only an indication
+  // since contracts may end early or auto-extend
+  public int contractedMonths = 0;
   
   // base recurring prize
   public Double monthlyPrice;

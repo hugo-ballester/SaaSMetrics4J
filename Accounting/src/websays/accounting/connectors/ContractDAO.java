@@ -29,7 +29,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, type, billingSchema, mrr, fixed, pricing, client_id, client.name, commission_type, commission_base";
+  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, contractedMonths, type, billingSchema, mrr, fixed, pricing, client_id, client.name, commission_type, commission_base";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -117,10 +117,10 @@ public class ContractDAO extends MySQLDAO {
       p = connection.prepareStatement(st);
       r = p.executeQuery();
       while (r.next()) {
-        Contract a = readFromResulset(r);
-        accs.add(a);
+        Contract c = readFromResulset(r);
+        accs.add(c);
         if (getNumberOfProfiles) {
-          a.profiles = getNumberOfProfiles(a.id);
+          c.profiles = getNumberOfProfiles(c.id);
         }
       }
     } finally {
@@ -141,6 +141,7 @@ public class ContractDAO extends MySQLDAO {
     if (rs.getInt(column++) != 0) {
       end = rs.getDate(column - 1);
     }
+    Integer contracteMonths = rs.getInt(column++);
     Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
     BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
     
@@ -164,8 +165,6 @@ public class ContractDAO extends MySQLDAO {
     Contract a = null;
     if (pricing == null) {
       a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comm);
-      a.commissionMonthlyBase = cb;
-      
     } else {
       if (pricingSchemaNames == null) {
         logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
@@ -176,9 +175,11 @@ public class ContractDAO extends MySQLDAO {
         logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
       }
       a = new Contract(id, name, type, bs, client_id, start, end, p, comm);
-      a.commissionMonthlyBase = cb;
     }
     a.client_name = cname;
+    a.commissionMonthlyBase = cb;
+    a.contractedMonths = contracteMonths;
+    
     return a;
   }
   

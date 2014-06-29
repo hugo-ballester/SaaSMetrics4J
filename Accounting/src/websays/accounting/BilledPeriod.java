@@ -17,7 +17,7 @@ public class BilledPeriod {
   
   private static final Logger logger = Logger.getLogger(BilledPeriod.class);
   
-  static int billingDayOfMonth = 1;
+  static int billingDayOfMonth = 28;
   
   Date periodStart, periodEnd;
   Date contractStart, contractEnd;
@@ -143,7 +143,12 @@ public class BilledPeriod {
       }
       next();
     } while (!inPeriod(d));
+    
     return true;
+  }
+  
+  public int monthNumber(Date d) {
+    return DateUtilsWebsays.getHowManyMonths(contractStart, d) + 1;
   }
   
 }

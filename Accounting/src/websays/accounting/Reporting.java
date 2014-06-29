@@ -197,11 +197,11 @@ public class Reporting {
     
   }
   
-  public void title(String string, boolean connectToDB) throws IOException {
-    PrinterASCII.title(string, connectToDB);
+  public void printTitle(String string, boolean connectToDB) throws IOException {
+    PrinterASCII.printTitle(string, connectToDB);
   }
   
-  public void subtitle(String string) throws IOException {
-    PrinterASCII.subtitle(string);
+  public void printSubtitle(String string) throws IOException {
+    PrinterASCII.printSubtitle(string);
   }
 }

@@ -11,7 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
 public class PrinterASCII {
+  
+  private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
@@ -25,8 +30,13 @@ public class PrinterASCII {
     if (!sumary) {
       for (int i = 0; i < b.items.size(); i++) {
         BilledItem bi = b.items.get(i);
-        s += String.format("   %-20s\t(%s-%s, %s€)\n", bi.contract_name, sdf.format(bi.period.periodStart),
-            sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee));
+        int monthNumber = bi.period.monthNumber(bi.period.billDate);
+        s += String.format("   %-20s\t(B%dM%d %s-%s %s€)", bi.contract_name, bi.period.period, monthNumber,
+            sdf.format(bi.period.periodStart), sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee));
+        if (bi.notes != null && bi.notes.size() > 0) {
+          s += "\t" + StringUtils.join(bi.notes, " | ");
+        }
+        s += "\n";
       }
     }
     return s;
@@ -37,16 +47,11 @@ public class PrinterASCII {
       return "\n";
     }
     StringBuilder sb = new StringBuilder();
-    Date d = bills.get(0).date;
-    for (Bill b : bills) {
-      if (!b.date.equals(d)) {
-        System.err.println("WARNING: not all bills have same date! " + sdf.format(b.date));
-      }
-    }
     
     // sb.append(line);
     // sb.append(line);
     ArrayList<Bill> noBills = new ArrayList<Bill>();
+    Date billDate = null;
     
     for (Bill b : bills) {
       if (b.sumFee == 0) {
@@ -54,6 +59,15 @@ public class PrinterASCII {
       } else {
         sb.append(printBill(b, summary));
         sb.append("\n");
+        
+        if (billDate == null) {
+          billDate = b.date;
+        } else {
+          if (!billDate.equals(b.date)) {
+            logger.warn("not all bills have same date! " + "\n\t" + sdf.format(b.date) + "<>" + sdf.format(billDate) + "\n\t"
+                + b.clientName);
+          }
+        }
       }
     }
     
@@ -68,7 +82,7 @@ public class PrinterASCII {
     return sb.toString();
   }
   
-  public static void title(String string, boolean connectToDB) throws IOException {
+  public static void printTitle(String string, boolean connectToDB) throws IOException {
     String msg = "\n\n" + line1;
     if (!connectToDB) {
       msg += "WARNING! NOT CONNECTED TO DB!!!\n";
@@ -77,7 +91,7 @@ public class PrinterASCII {
     System.out.print(msg);
   }
   
-  public static void subtitle(String string) throws IOException {
+  public static void printSubtitle(String string) throws IOException {
     String msg = "\n\n" + line2;
     msg += string + "\n" + line2 + "\n";
     System.out.print(msg);

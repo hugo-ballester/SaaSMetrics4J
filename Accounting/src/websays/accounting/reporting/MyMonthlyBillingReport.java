@@ -44,18 +44,18 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     // app.displayMetrics(2013, 1, 12, "Damm");
     // System.exit(-1);
     
-    app.title("BILLING", connectToDB);
+    app.printTitle("BILLING", connectToDB);
     app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
     
-    app.title("Starting, Ending & Changing contracts:", connectToDB);
+    app.printTitle("Starting, Ending & Changing contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.starting, false, false);
     app.displayContracts(date, AccountFilter.ending, false, false);
     app.displayContracts(date, AccountFilter.changed, false, false);
     
-    app.title("Total MRR per Client, then list of contracts with MRR", connectToDB);
+    app.printTitle("Total MRR per Client, then list of contracts with MRR", connectToDB);
     app.displayClientMRR(date, AccountFilter.contractedORproject, false);
     
-    app.title("All active contracts:", connectToDB);
+    app.printTitle("All active contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.contract, false, false);
     app.displayContracts(date, AccountFilter.project, false, false);
     

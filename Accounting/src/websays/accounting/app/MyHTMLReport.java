@@ -36,6 +36,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
+    debug = true;
     if (debug) {
       Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
       Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
@@ -133,14 +134,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
         System.out.println("<html><body><pre>\n");
         
         date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
-        app.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
+        app.printTitle("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
         
-        app.subtitle("Changes");
+        app.printSubtitle("Changes");
         app.displayContracts(date, AccountFilter.starting, true, false);
         app.displayContracts(date, AccountFilter.ending, true, false);
         app.displayContracts(date, AccountFilter.changed, true, false);
         
-        app.subtitle("All Active Contracts");
+        app.printSubtitle("All Active Contracts");
         app.displayContracts(date, AccountFilter.contract, true, true);
         app.displayContracts(date, AccountFilter.project, true, true);
         
@@ -163,7 +164,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws SQLException
    */
   private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics) throws IOException, ParseException, SQLException {
-    app.title("METRICS (contracted, then projects, then total)", connectToDB);
+    app.printTitle("METRICS (contracted, then projects, then total)", connectToDB);
     app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract);
     app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project);
     app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject);

@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, start, end, contractedMonths, type, billingSchema, mrr, fixed, pricing, client_id, client.name, commission_type, commission_base";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -145,6 +144,8 @@ public class ContractDAO extends MySQLDAO {
     Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
     BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
     
+    String currency = rs.getString(column++);
+    
     Double mrr = rs.getDouble(column++);
     if (rs.wasNull()) {
       mrr = null;
@@ -157,10 +158,10 @@ public class ContractDAO extends MySQLDAO {
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
     
-    String c = rs.getString(column++);
-    Double comm = commission(c);
+    String commisionLabel = rs.getString(column++);
+    Double comm = commission(commisionLabel);
     
-    Double cb = rs.getDouble(column++);
+    String commissionee = rs.getString(column++);
     
     Contract a = null;
     if (pricing == null) {
@@ -177,52 +178,11 @@ public class ContractDAO extends MySQLDAO {
       a = new Contract(id, name, type, bs, client_id, start, end, p, comm);
     }
     a.client_name = cname;
-    a.commissionMonthlyBase = cb;
     a.contractedMonths = contracteMonths;
+    a.commissionnee = commissionee;
+    a.currency = Contract.Currency.valueOf(currency);
     
     return a;
-  }
-  
-  /**
-   * @param c
-   * @return updates c.id and returns it
-   * @throws SQLException
-   */
-  public int create(Contract c) throws SQLException {
-    
-    String query = "INSERT INTO contract (" //
-        + "name,start,end,type, mrr, fixed , pricing, client_id, main_profile_id" + ")" + " values(?,?,?,?,?,?,?,?,?)";
-    
-    PreparedStatement p = null;
-    Connection con = null;
-    Integer key = null;
-    try {
-      
-      con = getConnection();
-      p = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-      
-      int i = 1;
-      p.setString(i++, c.name);
-      p.setDate(i++, new java.sql.Date(c.startContract.getTime()));
-      p.setDate(i++, new java.sql.Date(c.endContract.getTime()));
-      p.setString(i++, c.type.toString());
-      p.setString(i++, c.billingSchema == null ? null : c.billingSchema.name());
-      p.setDouble(i++, c.monthlyPrice);
-      p.setDouble(i++, c.fixedPrice);
-      p.setString(i++, c.pricingSchema == null ? null : c.pricingSchema.name);
-      p.setInt(i++, c.client_id);
-      p.setInt(i++, c.main_profile_id);
-      p.executeUpdate();
-      ResultSet rs = p.getGeneratedKeys();
-      rs.next();
-      key = rs.getInt(1);
-      c.id = key;
-      
-    } finally {
-      super.close(p);
-      super.close(con);
-    }
-    return key;
   }
   
   // TODO: replace Queries.initContext by a stand-alone option
@@ -238,6 +198,9 @@ public class ContractDAO extends MySQLDAO {
     } else {
       // load last saved
       contracts = Contracts.load(dumpDataFile);
+      for (Contract c : contracts) {
+        c.initDerived();
+      }
     }
     return contracts;
   }
@@ -253,6 +216,8 @@ public class ContractDAO extends MySQLDAO {
       return 0.1;
     } else if (c.equals("C_30")) {
       return 0.3;
+    } else if (c.equals("C_60")) {
+      return 0.6;
     } else {
       System.out.println("ERROR: unknown commission type: '" + c + "'");
       return 0.;

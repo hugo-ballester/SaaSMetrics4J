@@ -67,7 +67,7 @@ public class Billing {
         return null;
       }
       
-      BilledItem bi = new BilledItem(bp, 0.0, c.name, c.id);
+      BilledItem bi = new BilledItem(bp, 0.0, c.name, c.id, c.currency);
       
       if (!DateUtilsWebsays.isSameDay(billingDate, bp.billDate)) {
         // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
@@ -79,8 +79,6 @@ public class Billing {
         Double monthly = null;
         
         double monthlyPrize = c.getMonthlyPrize(billingDate, true);
-        double monthlyPrizeNoFixed = c.getMonthlyPrize(billingDate, false);
-        double monthlyFixed = monthlyPrize - monthlyPrizeNoFixed;
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
@@ -109,6 +107,13 @@ public class Billing {
         bi.warningChecks(billingDate, c);
       }
       
+      if (c.commissionnee != null) {
+        if (c.commission != null) {
+          double com = c.commission * bi.fee;
+          bi.comissionees.put(c.commissionnee, com);
+        }
+      }
+      
       return bi;
       
     } catch (Exception e) {
@@ -123,7 +128,9 @@ public class Billing {
       logger.error("ERROR: NULL contracts");
       return null;
     }
+    
     TreeMap<String,Bill> ret = new TreeMap<String,Bill>();
+    
     for (Contract c : cs) {
       BilledItem bi = Billing.bill(c, year, month);
       if (bi == null) {
@@ -135,9 +142,25 @@ public class Billing {
         ret.put(c.client_name, bill);
       }
       ret.get(c.client_name).addItem(bi);
+      
     }
     
     return new ArrayList<Bill>(ret.values());
+  }
+  
+  static void addValues(TreeMap<String,Double> modified, final TreeMap<String,Double> added) {
+    if (added == null) {
+      return;
+    }
+    for (String s : added.keySet()) {
+      if (modified.containsKey(s)) {
+        modified.put(s, modified.get(s) + added.get(s));
+      } else {
+        modified.put(s, added.get(s));
+      }
+      return;
+    }
+    
   }
   
 }

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
-import websays.accounting.Metrics;
+import websays.accounting.MonthlyMetrics;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
 import websays.core.utils.DateUtilsWebsays;
@@ -23,7 +23,7 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
-    Logger.getLogger(Metrics.class).setLevel(Level.INFO);
+    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
     
   }
   

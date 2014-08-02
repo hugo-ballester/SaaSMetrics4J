@@ -24,7 +24,7 @@ import org.apache.log4j.SimpleLayout;
 
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
-import websays.accounting.Metrics;
+import websays.accounting.MonthlyMetrics;
 import websays.accounting.connectors.ContractDAO;
 import websays.accounting.connectors.DatabaseManager;
 
@@ -46,7 +46,7 @@ public class BasicCommandLineApp {
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
-    Logger.getLogger(Metrics.class).setLevel(Level.INFO);
+    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
     
   }
   
@@ -110,7 +110,7 @@ public class BasicCommandLineApp {
       contractID = config.getInt("contract");
     }
     connectToDB = !config.getBoolean("offline");
-    debug = config.getBoolean("offline");
+    debug = config.getBoolean("debug");
     
     FileInputStream in;
     try {

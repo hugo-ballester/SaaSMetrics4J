@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.Type;
+import websays.accounting.metrics.Metrics;
 import websays.core.utils.DateUtilsWebsays;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -39,11 +40,11 @@ public class Contracts extends ArrayList<Contract> {
     
     public String whereBoolean() {
       if (this == contract) {
-        return "type='contract'";
+        return "contract.type='contract'";
       } else if (this == project) {
-        return "type='project'";
+        return "contract.type='project'";
       } else if (this == contractedORproject) {
-        return "type='project' OR type='contract'";
+        return "contract.type='project' OR contract.type='contract'";
       } else {
         logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
         return "";
@@ -76,7 +77,7 @@ public class Contracts extends ArrayList<Contract> {
   }
   
   public Contracts getActive(int year, int month, AccountFilter filter, boolean metricDate) throws ParseException {
-    Date date = Metrics.df.parse("1/" + month + "/" + year);
+    Date date = MonthlyMetrics.df.parse("1/" + month + "/" + year);
     return getActive(date, filter, metricDate);
   }
   
@@ -165,7 +166,7 @@ public class Contracts extends ArrayList<Contract> {
             continue;
           }
         } else if (filter == AccountFilter.changed) {
-          if (a.expansion(date) == 0) {
+          if (Metrics.expansion(a, date) == 0) {
             continue;
           }
         } else {

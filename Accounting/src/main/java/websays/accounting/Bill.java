@@ -23,7 +23,6 @@ public class Bill {
   
   public Date date;
   public String clientName;
-  public Double sumFee = 0.0;
   
   public ArrayList<BilledItem> items;
   
@@ -42,12 +41,35 @@ public class Bill {
       items = new ArrayList<BilledItem>();
     }
     items.add(bi);
-    sumFee += bi.fee;
   }
   
   @Override
   public String toString() {
-    return "BILL FOR '" + clientName + "', ON " + sdf.format(date) + ", FOR: " + sumFee;
+    return "BILL FOR '" + clientName + "', ON " + sdf.format(date) + ", FOR: " + getTotalFee();
+  }
+  
+  public double getTotalFee() {
+    if (items == null) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (BilledItem bi : items) {
+      sum += bi.fee;
+    }
+    return sum;
+  }
+  
+  public double getTotalCommission() {
+    if (items == null) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (BilledItem bi : items) {
+      for (Double d : bi.comissionees.values()) {
+        sum += d;
+      }
+    }
+    return sum;
   }
   
   public void mergeBill(Bill b) {

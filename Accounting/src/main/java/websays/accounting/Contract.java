@@ -18,6 +18,31 @@ public class Contract {
   static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final Logger logger = Logger.getLogger(Contract.class);
   
+  public enum Currency {
+    EUR(1.0), USD(0.73);
+    
+    double exchange;
+    
+    Currency(double exchange) {
+      this.exchange = exchange;
+    }
+    
+    @Override
+    public String toString() {
+      if (equals(Currency.EUR)) {
+        return "€";
+      } else if (equals(Currency.USD)) {
+        return "$";
+      } else {
+        return name();
+      }
+    }
+    
+    public double exhangeRateToEU() {
+      return exchange;
+    }
+  };
+  
   public enum BillingSchema {
     MONTHS_1(true, 1), //
     MONTHS_3(true, 3), //
@@ -47,6 +72,7 @@ public class Contract {
     contract, project, pilot, internal, budget, test
   };
   
+  // =============================================
   // DB view:
   public int id;
   public String name;
@@ -70,6 +96,9 @@ public class Contract {
   // quantity from cost.
   public Double commissionMonthlyBase;
   
+  // Commissionee
+  public String commissionnee;
+  
   // Contracts have either fixed prizing or a pricingSchema
   public Pricing pricingSchema;
   
@@ -80,19 +109,20 @@ public class Contract {
   // Optional:
   public Integer main_profile_id;
   
-  // DERIVED:
+  // =============================================
+  // DERIVED fields:
   
   // for "metric" counts, we force contracts to start the first of the month and end the last of the month. This is arbitrarely done by rounding down
-  // up to the
-  // 15th.
+  // up to the 15th.
   public Date startRoundDate, endRoundDate;
-  Integer billedMonths = null;
+  public Integer billedMonths = null;
   
   // from JOIN:
   public String client_name;
   
-  // from COMMISSION %:
-  Double commission;
+  // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema etc.)
+  public Double commission;
+  public Currency currency;
   
   public Contract() {}
   
@@ -108,30 +138,33 @@ public class Contract {
     endContract = end;
     profiles = 0;
     
-    startRoundDate = (DateUtilsWebsays.getDayOfMonth(start) <= 15) ? //
-    DateUtilsWebsays.dateBeginningOfMonth(start)
-        : DateUtilsWebsays.dateBeginningOfMonth(start, 1);
-    
-    // if (endContract != null && !DateUtilsWebsays.isLastDayOfMonth(endContract)) {
-    // logger.warn("CONTRACT ENDING ON A DATE WHICH IS NOT END OF MONTH: " + name + " " + df.format(endContract));
-    // }
-    
     endRoundDate = end;
-    if (endRoundDate != null) {
-      if (!end.after(start)) {
-        endRoundDate = DateUtilsWebsays.dateEndOfMonth(start);
+    
+    initDerived();
+  }
+  
+  public void initDerived() {
+    
+    startRoundDate = (DateUtilsWebsays.getDayOfMonth(startContract) <= 15) ? //
+    DateUtilsWebsays.dateBeginningOfMonth(startContract)
+        : DateUtilsWebsays.dateBeginningOfMonth(startContract, 1);
+    
+    if (endContract != null) {
+      if (!endContract.after(startContract)) {
+        endRoundDate = DateUtilsWebsays.dateEndOfMonth(startContract);
       } else {
-        endRoundDate = (DateUtilsWebsays.getDayOfMonth(end) <= 15) ? //
-        DateUtilsWebsays.dateEndOfMonth(end, -1)
+        endRoundDate = (DateUtilsWebsays.getDayOfMonth(endContract) <= 15) ? //
+        DateUtilsWebsays.dateEndOfMonth(endContract, -1)
             : //
-            DateUtilsWebsays.dateEndOfMonth(end);
+            DateUtilsWebsays.dateEndOfMonth(endContract);
       }
       billedMonths = DateUtilsWebsays.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       if (logger.isDebugEnabled()) {
-        String m = "\n" + df.format(start) + " --> " + df.format(startRoundDate) + "\n" + df.format(end) + " --> "
+        String m = "\n" + df.format(startContract) + " --> " + df.format(startRoundDate) + "\n" + df.format(endContract) + " --> "
             + df.format(endRoundDate) + "   " + billedMonths + "\n\n";
         logger.debug(m);
       }
+      
     }
     
   }
@@ -166,72 +199,6 @@ public class Contract {
     return String.format("%-20s %-12s %s %s (%s %s) %s ", name, client_id, startS, endS, startmS, endmS,
         (pricingSchema != null ? pricingSchema.name : "-") + "\t" + (monthlyPrice != null ? monthlyPrice : "-") + "\t"
             + (fixedPrice != null ? fixedPrice : "-"));
-  }
-  
-  public double mrrChange(Date d, boolean roundDate) {
-    Date newD = DateUtilsWebsays.dateEndOfMonth(d, 0);
-    Date oldD = DateUtilsWebsays.dateEndOfMonth(d, -1);
-    double change = computeMRR(newD, roundDate) - computeMRR(oldD, roundDate);
-    return change;
-  }
-  
-  public double expansion(Date d) {
-    boolean roundDate = true;
-    
-    // if contract ended last month, return 0;
-    Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
-    if (isLastMonth(prevMonth, roundDate)) {
-      return 0;
-    }
-    // if contract started this month, return 0;
-    if (isFirstMonth(d, roundDate)) {
-      return 0;
-    } else {
-      return mrrChange(d, roundDate);
-    }
-  }
-  
-  public double computeCommission(Date d, boolean roundDate) {
-    if (commission == null || commission == 0) {
-      return 0.;
-    } else if (commissionMonthlyBase != null) {
-      return commission * commissionMonthlyBase;
-    } else {
-      return commission * computeMRR(d, roundDate);
-    }
-  }
-  
-  public double computeMRR(Date d, boolean roundDate) {
-    if (d.before(startRoundDate)) {
-      return 0.;
-    }
-    if (roundDate) {
-      if (endRoundDate != null && endRoundDate.before(d)) {
-        return 0;
-      }
-    } else {
-      if (endContract != null && endContract.before(d)) {
-        return 0;
-      }
-    }
-    
-    double p = 0.;
-    
-    p = getMonthlyPrize(d, true);
-    
-    if (fixedPrice != null && fixedPrice > 0) {
-      // Split fix prize evenly through all months, unless no end date is know (in that case put it al in the beginning)
-      if (billedMonths != null) {
-        p += fixedPrice / billedMonths;
-      } else {
-        // add fixed prize at the first month of the project
-        if (fixedPrice != null && isFirstMonth(d, true)) {
-          p += fixedPrice;
-        }
-      }
-    }
-    
-    return p;
   }
   
   /**
@@ -274,6 +241,10 @@ public class Contract {
   
   public boolean isActive(Date d, boolean roundDate) {
     if (roundDate) {
+      if (startRoundDate == null) {
+        logger.error("NULL startRoundDate for d=" + (d == null ? "NULL" : df.format(d)));
+        return false;
+      }
       if (d.before(startRoundDate) || (endRoundDate != null && (endRoundDate.before(d) || endRoundDate.equals(d)))) {
         return false;
       } else {

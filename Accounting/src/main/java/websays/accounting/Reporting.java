@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
+import websays.accounting.metrics.Metrics;
 
 public class Reporting {
   
@@ -37,7 +38,7 @@ public class Reporting {
       System.err.println("ERROR: NULL contracts?");
       return;
     }
-    System.out.println("CONTRACTS  (" + filter.toString() + ") at " + Metrics.df.format(d) + "\n");
+    System.out.println("CONTRACTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.format(d) + "\n");
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0, totCom = 0;
@@ -62,8 +63,8 @@ public class Reporting {
           endS = sdf.format(c.endContract);
         }
       }
-      double mrr = c.computeMRR(d, metricDate);
-      double commission = c.computeCommission(d, metricDate);
+      double mrr = Metrics.getMRR(c, d, metricDate);
+      double commission = Metrics.getCommission(c, d, metricDate);
       System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, commission,
           c.type, c.billingSchema, startS, endS));
       totM += mrr;
@@ -110,7 +111,8 @@ public class Reporting {
   }
   
   public void displayClientMRR(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {
-    System.out.println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + Metrics.df.format(date) + "\n");
+    System.out
+        .println("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + MonthlyMetrics.df.format(date) + "\n");
     if (contracts == null) {
       System.err.println("ERROR: NULL contracts?");
       return;
@@ -126,7 +128,7 @@ public class Reporting {
     
     for (int i = 0; i < lis.size(); i++) {
       Contract c = lis.get(i);
-      double mrr = c.computeMRR(date, metricDate);
+      double mrr = Metrics.getMRR(c, date, metricDate);
       
       if (lastN == null) {
         lastN = c.client_name;
@@ -156,15 +158,17 @@ public class Reporting {
   
   public void displayMetrics(int year, int monthStart, int months) throws ParseException, SQLException {
     System.out.println("displayMetrics");
-    System.out.println("     \t" + Metrics.headersTop());
-    System.out.println("month\t" + Metrics.headers());
+    System.out.println("     \t" + MonthlyMetrics.headersTop());
+    System.out.println("month\t" + MonthlyMetrics.headers());
     double oldmrr = 0, oldchurn = 0;
+    int oldaccs = 0;
     
     for (int i = monthStart; i <= monthStart + months - 1; i++) {
-      Metrics m = Metrics.compute(year, i, null, contracts, oldmrr, oldchurn);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts, oldmrr, oldchurn, oldaccs);
       System.out.println("" + year + "/" + i + "\t" + m.toString());
       oldmrr = m.mrr;
       oldchurn = m.churn;
+      oldaccs = m.oldAccs;
       
     }
     
@@ -174,9 +178,10 @@ public class Reporting {
     
     StringBuffer sb = new StringBuffer();
     sb.append("displayAll   : " + filter.toString() + "\n");
-    sb.append("     \t" + Metrics.headersTop() + "\n");
-    sb.append("month\t" + Metrics.headers() + "\n");
+    sb.append("     \t" + MonthlyMetrics.headersTop() + "\n");
+    sb.append("month\t" + MonthlyMetrics.headers() + "\n");
     double oldmrr = 0, oldchurn = 0;
+    int oldaccs = 0;
     int year = yearStart;
     int month = monthStart - 1;
     for (int i = 0; i < months; i++) {
@@ -186,11 +191,12 @@ public class Reporting {
         year++;
       }
       
-      Metrics m = Metrics.compute(year, month, filter, contracts, oldmrr, oldchurn);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, month, filter, contracts, oldmrr, oldchurn, oldaccs);
       sb.append("" + year + "/" + month + "\t" + m.toString() + "\n");
       
       oldmrr = m.mrr;
       oldchurn = m.churn;
+      oldaccs = m.accounts;
     }
     sb.append("\n");
     System.out.print(sb.toString());

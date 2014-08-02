@@ -20,7 +20,8 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.Billing;
 import websays.accounting.Contracts.AccountFilter;
-import websays.accounting.Metrics;
+import websays.accounting.MonthlyMetrics;
+import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
 import websays.core.utils.DateUtilsWebsays;
@@ -36,12 +37,13 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
-    debug = true;
+    // debug = true;
     if (debug) {
       Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
       Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
-      Logger.getLogger(Metrics.class).setLevel(Level.DEBUG);
+      Logger.getLogger(MonthlyMetrics.class).setLevel(Level.DEBUG);
       Logger.getLogger(Billing.class).setLevel(Level.TRACE);
+      Logger.getLogger(PrinterASCII.class).setLevel(Level.TRACE);
     }
     
     System.out.println("Writing to " + reportingHTMLDir);
@@ -70,6 +72,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     File htmlDir = new File(reportingHTMLDir);
     
     // 1. Write "metrics.html"
+    logger.trace("Metrics");
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
     displayMetrics(app, 2013, 24);
@@ -78,6 +81,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     String indexFile = "<html><body><table cellpadding=\"20\" border=\"1\"  >";
     
     // Billing
+    logger.trace("Billing");
     indexFile += "\n<tr><th>Billing</th><th width=50%>Metrics</th></tr>\n";
     indexFile += "\n<tr><td>";
     indexFile += billing(htmlDir);
@@ -198,7 +202,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
           indexFile += "</td></tr></table>";
         }
         setOutput(new File(htmlDir, file));
-        System.out.println("<html><body><h1>" + file + "</h1><pre>\n");
+        System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
         mbr.execute_String(contracts, byear, bmonth);
       }
     }

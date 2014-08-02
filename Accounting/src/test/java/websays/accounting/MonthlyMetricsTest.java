@@ -17,7 +17,7 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 
-public class MyMetricsTest {
+public class MonthlyMetricsTest {
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
@@ -68,29 +68,36 @@ public class MyMetricsTest {
     m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
     assertEquals(2, m.accounts);
     assertEquals(0, m.accsNew);
-    assertEquals(1, m.accsEnd);
-    assertEquals(100.0, m.churn, d);
+    assertEquals(0, m.accsEnd);
+    assertEquals(0, m.churn, d);
     
     month++; // 6
     m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
     assertEquals(1, m.accounts);
     assertEquals(0, m.accsNew);
-    assertEquals(0, m.accsEnd);
-    assertEquals(0.0, m.churn, d);
+    assertEquals(1, m.accsEnd);
+    assertEquals(100.0, m.churn, d);
     
     month++; // 7
     m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
     assertEquals(1, m.accounts);
     assertEquals(0, m.accsNew);
-    assertEquals(1, m.accsEnd);
-    assertEquals(1000.0, m.churn, d);
+    assertEquals(0, m.accsEnd);
+    assertEquals(0.0, m.churn, d);
     
     month++; // 8
     m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
+    assertEquals(1, m.accsEnd);
+    assertEquals(1000.0, m.churn, d);
+    
+    month++; // 9
+    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    assertEquals(0, m.accounts);
+    assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
-    assertEquals(0.0, m.churn, d);
+    assertEquals(0, m.churn, d);
     
   }
 }

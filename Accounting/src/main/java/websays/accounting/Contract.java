@@ -292,6 +292,10 @@ public class Contract {
     
   }
   
+  /**
+   * true if d is in the last month of this contract
+   * 
+   */
   public boolean isLastMonth(Date d, boolean roundDate) {
     if (roundDate) {
       if (endRoundDate != null && isSameMonth(d, endRoundDate)) {

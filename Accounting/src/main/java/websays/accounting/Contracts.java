@@ -235,6 +235,11 @@ public class Contracts extends ArrayList<Contract> {
     client, contract
   };
   
+  /**
+   * Sort by client anme or by contrct name
+   * 
+   * @param sort
+   */
   public void sort(SortType sort) {
     
     if (sort == SortType.client) {

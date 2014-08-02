@@ -198,9 +198,7 @@ public class ContractDAO extends MySQLDAO {
     } else {
       // load last saved
       contracts = Contracts.load(dumpDataFile);
-      for (Contract c : contracts) {
-        c.initDerived();
-      }
+      
     }
     return contracts;
   }

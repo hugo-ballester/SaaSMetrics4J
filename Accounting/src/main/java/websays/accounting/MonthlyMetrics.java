@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -30,7 +31,7 @@ public class MonthlyMetrics {
   
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   
-  public double oldMrr, oldChurn;
+  public double oldMrr;
   public double mrr, comm;
   int accounts, profiles;
   SequenceStatistics profilesSt = new SequenceStatistics();
@@ -74,23 +75,30 @@ public class MonthlyMetrics {
     
   }
   
-  public static MonthlyMetrics compute(int year, int month, AccountFilter filter, Contracts accounts, double oldMrr, double oldChurn,
-      int oldAccs) throws ParseException {
+  public static MonthlyMetrics compute(int year, int month, AccountFilter filter, Contracts accounts, double oldMrr, int oldAccs)
+      throws ParseException {
     
     boolean metricDate = true;
     
     Date start = df.parse("1/" + month + "/" + year);
     MonthlyMetrics m = new MonthlyMetrics();
     m.oldMrr = oldMrr;
-    m.oldChurn = oldChurn;
     
-    Contracts accsFiltered = accounts.getActive(year, month, filter, metricDate);
-    accsFiltered.sort(websays.accounting.Contracts.SortType.contract);
+    accounts.sort(websays.accounting.Contracts.SortType.contract);
     
-    for (Contract a : accsFiltered) {
+    for (Contract a : accounts) {
+      
       if (!a.isActive(start, true)) {
+        
+        Date prevMonth = DateUtils.addMonths(start, -1);
+        if (a.isLastMonth(prevMonth, metricDate)) {
+          double mrr = Metrics.getMRR(a, prevMonth, metricDate);
+          m.accsEnd++;
+          m.churn += mrr;
+        }
         continue;
       }
+      
       double mrr = Metrics.getMRR(a, start, metricDate);
       m.accounts++;
       m.mrrSt.add(mrr);
@@ -98,10 +106,6 @@ public class MonthlyMetrics {
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += Metrics.expansion(a, start);
       
-      if (a.isLastMonth(start, metricDate)) {
-        m.accsEnd++;
-        m.churn += mrr;
-      }
       if (a.isFirstMonth(start, metricDate)) {
         m.accsNew++;
         m.mrrNew += mrr;
@@ -145,7 +149,7 @@ public class MonthlyMetrics {
     Object[] ret = new Object[] {//
     accounts, accsNew, accsEnd //
         , mrr, mrrDif, mrrRelInc //
-        , mrrNew, oldChurn, expansion, mrrA[3], mrrA[0], mrrA[1], //
+        , mrrNew, churn, expansion, mrrA[3], mrrA[0], mrrA[1], //
         profiles, profA[3], profA[0], profA[1], comm//
     };
     return ret;

@@ -160,14 +160,13 @@ public class Reporting {
     System.out.println("displayMetrics");
     System.out.println("     \t" + MonthlyMetrics.headersTop());
     System.out.println("month\t" + MonthlyMetrics.headers());
-    double oldmrr = 0, oldchurn = 0;
+    double oldmrr = 0;
     int oldaccs = 0;
     
     for (int i = monthStart; i <= monthStart + months - 1; i++) {
-      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts, oldmrr, oldchurn, oldaccs);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts, oldmrr, oldaccs);
       System.out.println("" + year + "/" + i + "\t" + m.toString());
       oldmrr = m.mrr;
-      oldchurn = m.churn;
       oldaccs = m.oldAccs;
       
     }
@@ -180,7 +179,7 @@ public class Reporting {
     sb.append("displayAll   : " + filter.toString() + "\n");
     sb.append("     \t" + MonthlyMetrics.headersTop() + "\n");
     sb.append("month\t" + MonthlyMetrics.headers() + "\n");
-    double oldmrr = 0, oldchurn = 0;
+    double oldmrr = 0;
     int oldaccs = 0;
     int year = yearStart;
     int month = monthStart - 1;
@@ -191,11 +190,10 @@ public class Reporting {
         year++;
       }
       
-      MonthlyMetrics m = MonthlyMetrics.compute(year, month, filter, contracts, oldmrr, oldchurn, oldaccs);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, month, filter, contracts, oldmrr, oldaccs);
       sb.append("" + year + "/" + month + "\t" + m.toString() + "\n");
       
       oldmrr = m.mrr;
-      oldchurn = m.churn;
       oldaccs = m.accounts;
     }
     sb.append("\n");

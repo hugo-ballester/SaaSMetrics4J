@@ -63,6 +63,7 @@ public class Reporting {
           endS = sdf.format(c.endContract);
         }
       }
+      
       double mrr = Metrics.getMRR(c, d, metricDate);
       double commission = Metrics.getCommission(c, d, metricDate);
       System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, commission,
@@ -160,15 +161,15 @@ public class Reporting {
     System.out.println("displayMetrics");
     System.out.println("     \t" + MonthlyMetrics.headersTop());
     System.out.println("month\t" + MonthlyMetrics.headers());
-    double oldmrr = 0;
-    int oldaccs = 0;
-    
+    MonthlyMetrics old = null;
     for (int i = monthStart; i <= monthStart + months - 1; i++) {
-      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts, oldmrr, oldaccs);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts);
+      if (i == 0) {
+        old = m;
+      }
+      m.setOldValues(old);
+      old = m;
       System.out.println("" + year + "/" + i + "\t" + m.toString());
-      oldmrr = m.mrr;
-      oldaccs = m.oldAccs;
-      
     }
     
   }
@@ -179,10 +180,12 @@ public class Reporting {
     sb.append("displayAll   : " + filter.toString() + "\n");
     sb.append("     \t" + MonthlyMetrics.headersTop() + "\n");
     sb.append("month\t" + MonthlyMetrics.headers() + "\n");
-    double oldmrr = 0;
-    int oldaccs = 0;
     int year = yearStart;
     int month = monthStart - 1;
+    
+    MonthlyMetrics old = new MonthlyMetrics();
+    MonthlyMetrics average = new MonthlyMetrics();
+    
     for (int i = 0; i < months; i++) {
       month++;
       if (month == 13) {
@@ -190,11 +193,20 @@ public class Reporting {
         year++;
       }
       
-      MonthlyMetrics m = MonthlyMetrics.compute(year, month, filter, contracts, oldmrr, oldaccs);
-      sb.append("" + year + "/" + month + "\t" + m.toString() + "\n");
+      MonthlyMetrics m = MonthlyMetrics.compute(year, month, filter, contracts);
+      if (i == 0) {
+        old = m;
+      }
+      m.setOldValues(old);
       
-      oldmrr = m.mrr;
-      oldaccs = m.accounts;
+      if (i > 0) {
+        average.addAsNewValueInAverage(m);
+      } else {
+        average = m;
+      }
+      
+      sb.append("" + year + "/" + month + "\t" + m.toString(average) + "\n");
+      old = m;
     }
     sb.append("\n");
     System.out.print(sb.toString());

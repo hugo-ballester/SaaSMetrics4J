@@ -7,7 +7,7 @@ package websays.core.utils.maths;
 
 import java.util.ArrayList;
 
-public class SequenceStatistics extends ArrayList<Double> {
+public class DescriptiveStats extends ArrayList<Double> {
   
   /**
    * 

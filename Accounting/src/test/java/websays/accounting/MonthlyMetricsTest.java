@@ -44,56 +44,56 @@ public class MonthlyMetricsTest {
     double d = 0.0001;
     
     int month = 2;
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 3
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(1, m.accounts);
     assertEquals(1, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 4
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(2, m.accounts);
     assertEquals(1, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 5
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(2, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0, m.churn, d);
     
     month++; // 6
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(1, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(1, m.accsEnd);
     assertEquals(100.0, m.churn, d);
     
     month++; // 7
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(1, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 8
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(1, m.accsEnd);
     assertEquals(1000.0, m.churn, d);
     
     month++; // 9
-    m = MonthlyMetrics.compute(year, month, null, contracts, 0, 0, 0);
+    m = MonthlyMetrics.compute(year, month, null, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);

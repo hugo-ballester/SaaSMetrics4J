@@ -7,3 +7,4 @@ Accounting/bin/
 
 *.properties~
 SaaSMetrics4J.properties
+*.classpath

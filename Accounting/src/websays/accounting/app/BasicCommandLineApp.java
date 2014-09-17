@@ -30,7 +30,6 @@ import websays.accounting.connectors.DatabaseManager;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Switch;
 
@@ -60,7 +59,7 @@ public class BasicCommandLineApp {
   public static int fixYear = 0, fixMonth = 0;
   protected static Integer contractID = null;
   
-  public static void init(String[] args) throws JSAPException {
+  public static void init(String[] args) throws Exception {
     // init log4j
     Logger r = Logger.getRootLogger();
     Appender myAppender;
@@ -97,8 +96,11 @@ public class BasicCommandLineApp {
     
     File propFile = new File(config.getString("params"));
     if (!propFile.exists()) {
-      System.out.println("Cannot find property file: " + args[0]);
-      System.exit(0);
+      String msg = "Cannot find property file: " + args[0];
+      System.out.println(msg);
+      throw new Exception(msg);
+      // System.exit(0);
+      
     }
     
     if (config.contains("year")) {

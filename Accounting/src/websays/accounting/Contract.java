@@ -213,7 +213,7 @@ public class Contract {
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
     }
-    if (monthlyPrice == null && pricingSchema == null && fixedPrice == 0) {
+    if (monthlyPrice == null && pricingSchema == null && fixedPrice == null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize=prizing=NULL and fixPrize=0");
     }
     

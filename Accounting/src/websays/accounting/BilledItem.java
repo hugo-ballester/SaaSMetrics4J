@@ -10,10 +10,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 import websays.accounting.Contract.Currency;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItem {
+  
+  private static final Logger logger = Logger.getLogger(BilledItem.class);
   
   public BilledPeriod period;
   public Double fee;
@@ -52,7 +56,12 @@ public class BilledItem {
   }
   
   public void warningChecks(Date billingDate, Contract c) {
-    if (c.comments_billing != null & c.comments_billing.length() > 0) {
+    if (c == null) {
+      logger.error("Null contract ???");
+      return;
+    }
+    
+    if (c.comments_billing != null && c.comments_billing.length() > 0) {
       notes.add("(BILLING_NOTE: " + c.comments_billing + ")");
     }
     int monthNumber = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate);

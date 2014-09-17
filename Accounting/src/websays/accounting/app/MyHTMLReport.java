@@ -48,7 +48,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     System.out.println("Writing to " + reportingHTMLDir);
     if (reportingHTMLDir != null && reportingHTMLDir.length() > 0) {
-      System.out.println("scp -r " + reportingHTMLDir + " deployer@stage:" + reportingHTMLDirRemote);
+      System.out.println("scp -r " + reportingHTMLDir + "/* deployer@stage:" + reportingHTMLDirRemote);
     }
     
     (new MyHTMLReport()).execute_HTML();

@@ -123,10 +123,10 @@ public class Contract {
   // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema etc.)
   public Double commission;
   public Currency currency;
+  public String comments_billing;
   
-  public Contract() {}
-  
-  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double commission) {
+  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double commission,
+      String comments_billing) {
     super();
     this.id = id;
     this.name = name;
@@ -137,9 +137,8 @@ public class Contract {
     startContract = start;
     endContract = end;
     profiles = 0;
-    
     endRoundDate = end;
-    
+    this.comments_billing = comments_billing;
     initDerived();
   }
   
@@ -171,7 +170,7 @@ public class Contract {
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Pricing pricing,
       Double commission) {
-    this(id, name, type, bs, client_id, start, end, commission);
+    this(id, name, type, bs, client_id, start, end, commission, null);
     pricingSchema = pricing;
     monthlyPrice = null;
     fixedPrice = null;
@@ -179,7 +178,7 @@ public class Contract {
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double monthlyPrize,
       Double fixPrize, Double commission) {
-    this(id, name, type, bs, client_id, start, end, commission);
+    this(id, name, type, bs, client_id, start, end, commission, null);
     monthlyPrice = monthlyPrize;
     fixedPrice = fixPrize != null ? fixPrize : 0.0;
     pricingSchema = null;

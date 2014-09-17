@@ -52,7 +52,9 @@ public class BilledItem {
   }
   
   public void warningChecks(Date billingDate, Contract c) {
-    
+    if (c.comments_billing != null & c.comments_billing.length() > 0) {
+      notes.add("(BILLING_NOTE: " + c.comments_billing + ")");
+    }
     int monthNumber = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate);
     
     if (c.endContract != null) {

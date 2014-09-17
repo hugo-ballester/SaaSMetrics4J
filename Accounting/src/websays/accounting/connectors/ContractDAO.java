@@ -28,7 +28,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -132,6 +132,8 @@ public class ContractDAO extends MySQLDAO {
   }
   
   private Contract readFromResulset(ResultSet rs) throws SQLException {
+    
+    // READ ROW:
     int column = 1;
     int id = rs.getInt(column++);
     String name = rs.getString(column++);
@@ -157,12 +159,13 @@ public class ContractDAO extends MySQLDAO {
     String pricing = rs.getString(column++);
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
-    
     String commisionLabel = rs.getString(column++);
     Double comm = commission(commisionLabel);
-    
     String commissionee = rs.getString(column++);
+    String comments_billing = rs.getString(column++);
+    // ----
     
+    // Build object
     Contract a = null;
     if (pricing == null) {
       a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comm);
@@ -181,6 +184,7 @@ public class ContractDAO extends MySQLDAO {
     a.contractedMonths = contracteMonths;
     a.commissionnee = commissionee;
     a.currency = Contract.Currency.valueOf(currency);
+    a.comments_billing = comments_billing;
     
     return a;
   }

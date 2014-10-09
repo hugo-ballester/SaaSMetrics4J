@@ -28,7 +28,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee,commissionMonthlyBase,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -162,6 +162,7 @@ public class ContractDAO extends MySQLDAO {
     String commisionLabel = rs.getString(column++);
     Double comm = commission(commisionLabel);
     String commissionee = rs.getString(column++);
+    Double cmb = rs.getDouble(column++);
     String comments_billing = rs.getString(column++);
     // ----
     
@@ -183,6 +184,7 @@ public class ContractDAO extends MySQLDAO {
     a.client_name = cname;
     a.contractedMonths = contracteMonths;
     a.commissionnee = commissionee;
+    a.commissionMonthlyBase = cmb;
     a.currency = Contract.Currency.valueOf(currency);
     a.comments_billing = comments_billing;
     

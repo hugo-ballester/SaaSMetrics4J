@@ -51,6 +51,20 @@ public class Contracts extends ArrayList<Contract> {
       }
     }
     
+    public Boolean accept(Contract c) {
+      if (c == null) {
+        return null;
+      } else if (this == contract) {
+        return c.type.equals(Type.contract);
+      } else if (this == contractedORproject) {
+        return c.type.equals(Type.contract) || c.type.equals(Type.project);
+      } else if (this == project) {
+        return c.type.equals(Type.project);
+      } else {
+        logger.error("NOT IMPLEMENTED AccountFilter.accept(" + this + ")");
+      }
+      return null;
+    }
   };
   
   static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");

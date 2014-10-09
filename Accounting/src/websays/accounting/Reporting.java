@@ -96,7 +96,7 @@ public class Reporting {
       return;
     }
     
-    PrinterASCII p = new PrinterASCII();
+    BillingReportPrinter p = new PrinterASCII();
     
     ArrayList<Bill> bs = Billing.bill(contracts, year, month);
     
@@ -106,7 +106,7 @@ public class Reporting {
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
       Date billingDate = bs.get(0).date;
       String invoices = p.printBills(bs, false);
-      System.out.println(PrinterASCII.line + "INVOICES. " + sdf.format(billingDate) + ":\n" + PrinterASCII.line);
+      System.out.println(PrinterASCII.line1 + "INVOICES. " + sdf.format(billingDate) + ":\n" + PrinterASCII.line1);
       System.out.println(invoices);
     }
   }

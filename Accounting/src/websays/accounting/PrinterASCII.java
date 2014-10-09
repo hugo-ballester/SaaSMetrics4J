@@ -15,18 +15,20 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-public class PrinterASCII {
+public class PrinterASCII extends BillingReportPrinter {
+  
+  static String line1 = "=========================================================\n";
+  static String line2 = "---------------------------------------------------------\n";
+  String TAB = "\t";
+  String RET = "\n";
   
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
-  static final String line = "---------------------------------------------\n";
-  static final String line1 = "=========================================================\n";
-  static final String line2 = "---------------------------------------------------------\n";
-  
+  @Override
   public String printBill(Bill b, boolean sumary) {
-    String s = String.format("INVOICE FOR CLIENT: %-30s\t%10s" + b.items.get(0).getCurrencySymbol() + "\n", b.clientName, //
+    String s = String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + b.items.get(0).getCurrencySymbol() + "\n", b.clientName, //
         NumberFormat.getIntegerInstance().format(b.getTotalFee()));
     
     if (!sumary) {
@@ -39,10 +41,10 @@ public class PrinterASCII {
           comms = " C:" + comms.substring(1, comms.length() - 1);
         }
         String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
-        s += String.format("   %-20s\t(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
+        s += String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
             sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee), bi.getCurrencySymbol(), comms);
         if (bi.notes != null && bi.notes.size() > 0) {
-          s += "\t" + StringUtils.join(bi.notes, " | ");
+          s += TAB + StringUtils.join(bi.notes, " | ");
         }
         s += "\n";
       }
@@ -50,11 +52,16 @@ public class PrinterASCII {
     return s;
   }
   
+  /*
+   * (non-Javadoc)
+   * 
+   * @see websays.accounting.BillingReportPrinter#printBills(java.util.ArrayList, boolean)
+   */
+  @Override
   public String printBills(ArrayList<Bill> bills, boolean summary) {
     if (bills.size() == 0) {
       return "\n";
     }
-    StringBuilder sb = new StringBuilder();
     
     // sb.append(line);
     // sb.append(line);
@@ -64,6 +71,8 @@ public class PrinterASCII {
     
     TreeMap<String,Double> comms = new TreeMap<String,Double>();
     
+    // RENDER BILL REPORT:
+    StringBuilder sb = new StringBuilder();
     for (Bill b : bills) {
       
       if (b.getTotalFee() == 0) {
@@ -72,7 +81,8 @@ public class PrinterASCII {
         
         tot += b.getTotalFee();
         totCom += b.getTotalCommission();
-        logger.trace("TOTOCOM: " + totCom + "\t" + b.clientName + ": " + b.getTotalCommission());
+        
+        logger.trace("TOTCOM: " + totCom + TAB + b.clientName + ": " + b.getTotalCommission());
         
         for (BilledItem bi : b.items) { // collect all commissionnees
           Billing.addValues(comms, bi.comissionees);
@@ -85,25 +95,25 @@ public class PrinterASCII {
           billDate = b.date;
         } else {
           if (!billDate.equals(b.date)) {
-            logger.warn("not all bills have same date! " + "\n\t" + b.clientName + ": " + sdf.format(b.date) + " <> "
+            logger.warn("not all bills have same date! " + "\n" + TAB + "" + b.clientName + ": " + sdf.format(b.date) + " <> "
                 + sdf.format(billDate));
           }
         }
       }
     }
-    sb.append("\n" + line2 + "TOTAL INVOICED:\t" + tot + "\n");
+    // RENDER TOTALS:
+    sb.append("\n" + line2 + "TOTAL INVOICED:" + TAB + "" + tot + "\n");
+    sb.append("\n" + line2 + "COMMISSIONS:" + TAB + "" + totCom + "\n");
+    sb.append("\n" + TAB + comms.toString() + "\n");
     
-    sb.append("\n" + line2 + "COMMISSIONS:\t" + totCom + "\n");
-    sb.append("\n\t" + comms.toString() + "\n");
-    
+    // RENDER SERVICES NOT BILLED THIS MONTH:
     sb.append("\n" + line2 + "(Active contracts with no bills this month:)\n\n");
-    
     for (Bill b : noBills) {
       sb.append(printBill(b, summary));
       sb.append("\n");
     }
     
-    // sb.append(line);
+    // DONE.
     return sb.toString();
   }
   

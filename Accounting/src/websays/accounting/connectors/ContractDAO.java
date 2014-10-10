@@ -149,21 +149,18 @@ public class ContractDAO extends MySQLDAO {
     String currency = rs.getString(column++);
     
     Double mrr = rs.getDouble(column++);
-    if (rs.wasNull()) {
-      mrr = null;
-    }
-    Double fix = rs.getDouble(column++);
-    if (rs.wasNull()) {
-      fix = null;
-    }
+    mrr = rs.wasNull() ? null : mrr; // casting trick gave BigDecimal error, strange...
+    
+    Double fix = rs.getDouble(column++); // casting to get the null
     String pricing = rs.getString(column++);
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
     String commisionLabel = rs.getString(column++);
-    Double comm = commission(commisionLabel);
     String commissionee = rs.getString(column++);
-    Double cmb = rs.getDouble(column++);
+    Double cmb = (Double) rs.getObject(column++); // casting to get the null
     String comments_billing = rs.getString(column++);
+    
+    Double comm = commission(commisionLabel);
     // ----
     
     // Build object

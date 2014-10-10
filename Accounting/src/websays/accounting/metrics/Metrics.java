@@ -41,18 +41,6 @@ public class Metrics {
     
     p = c.getMonthlyPrize(d, true);
     
-    if (c.fixedPrice != null && c.fixedPrice > 0) {
-      // Split fix prize evenly through all months, unless no end date is know (in that case put it al in the beginning)
-      if (c.billedMonths != null) {
-        p += c.fixedPrice / c.billedMonths;
-      } else {
-        // add fixed prize at the first month of the project
-        if (c.fixedPrice != null && c.isFirstMonth(d, true)) {
-          p += c.fixedPrice;
-        }
-      }
-    }
-    
     if (c.currency != null && !c.currency.equals(Currency.EUR)) {
       p *= c.currency.exhangeRateToEU();
     }

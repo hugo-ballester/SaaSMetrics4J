@@ -142,6 +142,8 @@ public class Contract {
     initDerived();
   }
   
+  public Contract() {};
+  
   public void initDerived() {
     
     startRoundDate = (DateUtilsWebsays.getDayOfMonth(startContract) <= 15) ? //

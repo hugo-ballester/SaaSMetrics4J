@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -69,28 +70,46 @@ public class MyHTMLReport extends BasicCommandLineApp {
     File htmlDir = new File(reportingHTMLDir);
     
     // 1. Write "metrics.html"
-    logger.trace("Metrics");
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
     displayMetrics(app, 2013, 24);
     
-    // 2. Write "index.html"
-    String indexFile = "<html><body><table cellpadding=\"20\" border=\"1\"  >";
+    String metricChanges = metricChangesPerMonth(htmlDir, app);
     
-    // Billing
-    logger.trace("Billing");
-    indexFile += "\n<tr><th>Billing</th><th width=50%>Metrics</th></tr>\n";
-    indexFile += "\n<tr><td>";
-    indexFile += billing(htmlDir);
-    indexFile += "\n</td>\n";
-    indexFile += "\n<td>\n";
-    indexFile += "<h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n";
+    // 2. Write monthly billing files and get index
+    String billing = billing(htmlDir);
     
-    // Metrics
-    indexFile = metricChangesPerMonth(htmlDir, app, indexFile);
-    indexFile += "\n</td></tr></table>\n";
-    setOutput(new File(htmlDir, "index.html"));
-    System.out.println(indexFile);
+    // 3. Build "index.html"
+    StringBuffer indexFile = new StringBuffer();
+    indexFile.append("<html><body><table cellpadding=\"20\" border=\"1\"  >");
+    indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
+    indexFile.append("\n<tr><td>");
+    indexFile.append(billing);
+    indexFile.append("\n</td>\n");
+    indexFile.append("\n<td>\n");
+    
+    indexFile.append("<h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n");
+    indexFile.append(metricChanges);
+    indexFile.append("\n</td>\n");
+    
+    // 2.C last
+    indexFile.append("\n<td>\n");
+    
+    String lastTitle = "Last Contracts";
+    indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
+    setOutput(new File(htmlDir, "last_1.html"));
+    System.out.println("<h2>" + lastTitle + "</h2><pre>");
+    System.out.println(app.report_last(false));
+    
+    lastTitle += " (new clients only)";
+    indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
+    setOutput(new File(htmlDir, "last_2.html"));
+    System.out.println("<h2>" + lastTitle + "</h2><pre>");
+    System.out.println(app.report_last(true));
+    
+    indexFile.append("\n</td></tr></table>\n");
+    
+    FileUtils.writeStringToFile(new File(htmlDir, "index.html"), indexFile.toString());
     
   }
   
@@ -109,11 +128,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws SQLException
    * @throws FileNotFoundException
    */
-  private String metricChangesPerMonth(File htmlDir, Reporting app, String indexFileContent) throws ParseException, IOException,
-      SQLException, FileNotFoundException {
+  private String metricChangesPerMonth(File htmlDir, Reporting app) throws ParseException, IOException, SQLException, FileNotFoundException {
     
     Date date;
-    
+    String index = "";
     String what = "(Metric)";
     for (int myear : new int[] {2013, 2014}) {
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
@@ -128,7 +146,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         if (thisYear == myear && thisMonth == bmonth) {
           line = "<br/><bf>" + line + "<br/></bf>\n";
         }
-        indexFileContent += line;
+        index += line;
         
         setOutput(new File(htmlDir, file));
         
@@ -148,9 +166,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
         
       }
     }
-    indexFileContent += "</li>\n";
+    index += "</li>\n";
     
-    return indexFileContent;
+    return index;
   }
   
   /**
@@ -176,7 +194,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
-    String indexFile = "\n\n<ul>\n";
+    StringBuffer indexFile = new StringBuffer();
+    indexFile.append("\n\n<ul>\n");
     
     MyMonthlyBillingReport mbr = new MyMonthlyBillingReport();
     
@@ -191,24 +210,23 @@ public class MyHTMLReport extends BasicCommandLineApp {
         String name1 = "billing_" + byear + "_" + bmonth;
         String file = name1 + ".html";
         if (thisMonth) {
-          indexFile += "<table border=1><tr><td>";
+          indexFile.append("<table border=1><tr><td>");
         }
         String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + byear + "</a><br/>\n";
-        indexFile += line;
+        indexFile.append(line);
         if (thisMonth) {
-          indexFile += "</td></tr></table>";
+          indexFile.append("</td></tr></table>");
         }
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
         mbr.execute_String(contracts, byear, bmonth);
       }
     }
-    indexFile += "</ul>";
+    indexFile.append("</ul>");
     
     System.out.println("\n<hr/>\n");
     
-    return indexFile;
-    
+    return indexFile.toString();
   }
   
   String html_header() {

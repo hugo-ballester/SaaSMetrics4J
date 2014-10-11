@@ -28,28 +28,37 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String printBill(Bill b, boolean sumary) {
-    String s = String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + b.items.get(0).getCurrencySymbol() + "\n", b.clientName, //
-        NumberFormat.getIntegerInstance().format(b.getTotalFee()));
+    
+    StringBuilder s = new StringBuilder();
+    
+    s.append(String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + b.items.get(0).getCurrencySymbol() + "\n", b.clientName, //
+        NumberFormat.getIntegerInstance().format(b.getTotalFee())));
     
     if (!sumary) {
       for (int i = 0; i < b.items.size(); i++) {
         BilledItem bi = b.items.get(i);
-        int monthNumber = bi.period.monthNumber(bi.period.billDate);
-        String comms = "";
-        if (bi.comissionees != null && bi.comissionees.size() > 0) {
-          comms = bi.comissionees.toString();
-          comms = " C:" + comms.substring(1, comms.length() - 1);
-        }
-        String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
-        s += String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
-            sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee), bi.getCurrencySymbol(), comms);
-        if (bi.notes != null && bi.notes.size() > 0) {
-          s += TAB + StringUtils.join(bi.notes, " | ");
-        }
-        s += "\n";
+        s.append(displayBilledItemAsLine(bi));
       }
     }
-    return s;
+    return s.toString();
+  }
+  
+  private String displayBilledItemAsLine(BilledItem bi) {
+    StringBuilder s = new StringBuilder();
+    int monthNumber = bi.period.monthNumber(bi.period.billDate);
+    String comms = "";
+    if (bi.comissionees != null && bi.comissionees.size() > 0) {
+      comms = bi.comissionees.toString();
+      comms = " C:" + comms.substring(1, comms.length() - 1);
+    }
+    String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
+    s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
+        sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee), bi.getCurrencySymbol(), comms));
+    if (bi.notes != null && bi.notes.size() > 0) {
+      s.append(TAB + StringUtils.join(bi.notes, " | "));
+    }
+    s.append("\n");
+    return s.toString();
   }
   
   /*

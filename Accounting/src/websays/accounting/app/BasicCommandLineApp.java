@@ -7,6 +7,7 @@ package websays.accounting.app;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -149,8 +150,12 @@ public class BasicCommandLineApp {
   }
   
   public void setOutput(File newFile) throws FileNotFoundException {
-    PrintStream out = new PrintStream(new FileOutputStream(newFile));
-    System.setOut(out);
+    if (newFile == null) {
+      System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+    } else {
+      PrintStream out = new PrintStream(new FileOutputStream(newFile));
+      System.setOut(out);
+    }
   }
   
   public void initContracts() throws Exception {

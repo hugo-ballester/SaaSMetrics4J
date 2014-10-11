@@ -11,13 +11,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 
+/**
+ * Functions to display contracts and bills in different ways...
+ * 
+ * @author hugoz
+ * 
+ */
 public class Reporting {
   
   @SuppressWarnings("unused")
@@ -219,5 +228,32 @@ public class Reporting {
   
   public void printSubtitle(String string) throws IOException {
     PrinterASCII.printSubtitle(string);
+  }
+  
+  public String report_last(boolean onlyFirstOfEachClient) {
+    // sort by reverse date
+    contracts.sort(SortType.date_ASC);
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy");
+    LinkedList<String> lis = new LinkedList<String>();
+    HashSet<String> clients = new HashSet<String>();
+    double sum = 0;
+    for (Contract c : contracts) {
+      if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
+        continue;
+      }
+      double mrr = c.getMonthlyPrize(c.startContract, true);
+      clients.add(c.client_name);
+      String date = (sdf.format(c.startContract)) + (c.endContract != null ? "-" + sdf.format(c.endContract) : "")
+          + ((c.contractedMonths > 0) ? " +" + c.contractedMonths + "M" : "");
+      String line = String.format("%s%50s\t%.0f\t%-25s\n", c.commissionnee, c.name + "(" + c.client_name + ")", mrr //
+          , date //
+          );
+      // c.endContract != null ? sdf.format(c.endContract) :
+      lis.push(line);
+    }
+    
+    return StringUtils.join(lis, "\n");
+    
   }
 }

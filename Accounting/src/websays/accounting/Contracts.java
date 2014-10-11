@@ -246,7 +246,7 @@ public class Contracts extends ArrayList<Contract> {
   }
   
   public enum SortType {
-    client, contract
+    client, contract, date_ASC
   };
   
   /**
@@ -269,6 +269,25 @@ public class Contracts extends ArrayList<Contract> {
             return o1.name.compareTo(o2.name);
           } else {
             return o1.client_name.compareTo(o2.client_name);
+          }
+        }
+      });
+    } else if (sort == SortType.date_ASC) {
+      Collections.sort(this, new Comparator<Contract>() {
+        
+        @Override
+        public int compare(Contract o1, Contract o2) {
+          if (o1 == null || o2 == null || o1.startContract == null || o2.startContract == null) {
+            return 0;
+          }
+          long a = o1.startContract.getTime();
+          long b = o2.startContract.getTime();
+          if (a == b) {
+            return 0;
+          } else if (a > b) {
+            return 1;
+          } else {
+            return -1;
           }
         }
       });

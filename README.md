@@ -18,4 +18,4 @@ After fighting with excel for a year or so and not finding any free tools that s
 
 I hope this library can be of help for other geeks out there trying to keep control of their companies exponential growth ;)
 
-Hugo Zaragoza, websays.com, www.hugo-zaragoza-net.
+Hugo Zaragoza, www.websays.com, www.hugo-zaragoza-net.

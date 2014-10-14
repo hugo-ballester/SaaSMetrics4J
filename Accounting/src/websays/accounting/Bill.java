@@ -59,19 +59,6 @@ public class Bill {
     return sum;
   }
   
-  public double getTotalCommission() {
-    if (items == null) {
-      return 0.0;
-    }
-    double sum = 0.0;
-    for (BilledItem bi : items) {
-      for (Double d : bi.comissionees.values()) {
-        sum += d;
-      }
-    }
-    return sum;
-  }
-  
   public void mergeBill(Bill b) {
     if (b.clientName != null && clientName != null && !b.clientName.equals(clientName)) {
       System.err.println("MERGING TWO BILLS OF DIFFERENT CLIENTS!?");

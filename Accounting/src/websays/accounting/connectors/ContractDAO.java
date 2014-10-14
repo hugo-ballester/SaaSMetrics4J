@@ -16,9 +16,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contracts;
@@ -28,7 +30,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commission_type,commissionnee,commissionMonthlyBase,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -133,6 +135,11 @@ public class ContractDAO extends MySQLDAO {
   
   private Contract readFromResulset(ResultSet rs) throws SQLException {
     
+    // contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema,
+    // contract.currency_id,
+    // mrr, fixed, pricing, client_id, client.name,
+    // commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+    
     // READ ROW:
     int column = 1;
     int id = rs.getInt(column++);
@@ -145,7 +152,6 @@ public class ContractDAO extends MySQLDAO {
     Integer contracteMonths = rs.getInt(column++);
     Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
     BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
-    
     String currency = rs.getString(column++);
     
     Double mrr = rs.getDouble(column++);
@@ -155,18 +161,31 @@ public class ContractDAO extends MySQLDAO {
     String pricing = rs.getString(column++);
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
-    String commisionLabel = rs.getString(column++);
-    String commissionee = rs.getString(column++);
+    
     Double cmb = (Double) rs.getObject(column++); // casting to get the null
+    String commissionee = rs.getString(column++);
+    String commisionLabel = rs.getString(column++);
+    String commissionee2 = rs.getString(column++);
+    String commisionLabel2 = rs.getString(column++);
+    
     String comments_billing = rs.getString(column++);
     
-    Double comm = commission(commisionLabel);
+    ArrayList<Commission> comms = new ArrayList<Commission>();
+    if (commisionLabel != null) {
+      Commission comm = commission(commisionLabel, cmb, commissionee);
+      comms.add(comm);
+      if (commisionLabel2 != null) {
+        Commission comm2 = commission(commisionLabel2, null, commissionee2);
+        comms.add(comm2);
+      }
+    }
+    
     // ----
     
     // Build object
     Contract a = null;
     if (pricing == null) {
-      a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comm);
+      a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comms);
     } else {
       if (pricingSchemaNames == null) {
         logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
@@ -176,12 +195,10 @@ public class ContractDAO extends MySQLDAO {
       if (p == null) {
         logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
       }
-      a = new Contract(id, name, type, bs, client_id, start, end, p, comm);
+      a = new Contract(id, name, type, bs, client_id, start, end, p, comms);
     }
     a.client_name = cname;
     a.contractedMonths = contracteMonths;
-    a.commissionnee = commissionee;
-    a.commissionMonthlyBase = cmb;
     a.currency = Contract.Currency.valueOf(currency);
     a.comments_billing = comments_billing;
     
@@ -210,19 +227,19 @@ public class ContractDAO extends MySQLDAO {
     pricingSchemaNames = loadPriceNames;
   }
   
-  private Double commission(String c) {
-    if (c == null) {
+  private Commission commission(String schema, Double commission_base, String commissionnee) {
+    Double pct = null;
+    if (schema == null) {
       return null;
-    } else if (c.equals("C_10")) {
-      return 0.1;
-    } else if (c.equals("C_30")) {
-      return 0.3;
-    } else if (c.equals("C_60")) {
-      return 0.6;
+    } else if (schema.startsWith("C_")) {
+      Integer i = Integer.parseInt(schema.substring(2));
+      pct = 1.0 * i / 100.0;
     } else {
-      System.out.println("ERROR: unknown commission type: '" + c + "'");
-      return 0.;
+      logger.error("ERROR: unknown commission type");
+      return null;
     }
+    
+    return new Commission(pct, commission_base, commissionnee);
   }
   
   static String file_read(File filename) throws IOException {

@@ -32,22 +32,24 @@ public class MonthlyMetrics {
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   
   public double mrr, comm;
-  int accounts, profiles;
+  public int accounts;
+  
+  public int profiles;
   
   /**
    * MRR from new accounts (accounts starting this month)
    */
-  double mrrNew;
+  public double mrrNew;
   
   /**
    * number of accounts ending this month
    */
-  int accsEnd;
+  public int accsEnd;
   
   /**
    * number of accounts starting this month
    */
-  int accsNew;
+  public int accsNew;
   
   /**
    * Amount of money that we will "loose" next month due to loosing accounts (due to accounts for which this is the current last month)
@@ -72,17 +74,17 @@ public class MonthlyMetrics {
   /**
    * difference with previous MRR
    */
-  private double mrrDif;
+  public double mrrDif;
   
   /**
    * relative difference with previous MRR
    */
-  private double mrrRelInc;
+  public double mrrRelInc;
   
   // Other temporary: -----------------------------------------------
   
-  DescriptiveStats profilesSt = new DescriptiveStats();
-  DescriptiveStats mrrSt = new DescriptiveStats();
+  public DescriptiveStats profilesSt = new DescriptiveStats();
+  public DescriptiveStats mrrSt = new DescriptiveStats();
   
   /**
    * Exponential Smoothing Constant
@@ -114,17 +116,17 @@ public class MonthlyMetrics {
         
         Date prevMonth = DateUtils.addMonths(start, -1);
         if (a.isLastMonth(prevMonth, metricDate)) {
-          double mrr = Metrics.getMRR(a, prevMonth, metricDate);
+          double mrr = Metrics.computeMRR(a, prevMonth, metricDate);
           m.accsEnd++;
           m.churn += mrr;
         }
         continue;
       }
       
-      double mrr = Metrics.getMRR(a, start, metricDate);
+      double mrr = Metrics.computeMRR(a, start, metricDate);
       m.accounts++;
       m.mrrSt.add(mrr);
-      m.comm += Metrics.getCommission(a, start, metricDate);
+      m.comm += Metrics.computeCommission(a, start, metricDate);
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += Metrics.expansion(a, start);
       
@@ -144,59 +146,12 @@ public class MonthlyMetrics {
     return m;
   }
   
-  public static String headers() {
-    
-    return String.format("%s\t%3s\t%3s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%6s\t%3s\t%4s\t%3s\t%3s\t%6s",//
-        "#C", "new", "end" //
-        , "~MRR", "~delta", "~%delta", "~New", "~Churn" //
-        , "MRR", "delta", "%delta" //
-        , "New", "Churn", "Exp", "avg", "min", "max", "#P", "avg", "min", "max", "comm");
-  }
-  
-  public static String headersTop() {
-    String s1 = "[\tCONT.\t]";
-    String s2 = "\t[\t~MRR\t\t\t\t]";
-    String s3 = "  [\tMRR\t\t\t\t\t\t\t]";
-    String s4 = "\t[\tProf.\t\t]";
-    String s5 = "[\tComm.]";
-    
-    return String.format("%s%s%s%s%s", s1, s2, s3, s4, s5);
-  }
-  
   static double checkmrr = 0;
   
   private void setOldMRR(double oldMrr) {
     this.oldMrr = oldMrr;
     mrrDif = mrr - oldMrr;
     mrrRelInc = oldMrr > 0 ? mrrDif / oldMrr * 100. : 0;
-  }
-  
-  public Object[] toRow(MonthlyMetrics average) {
-    double[] mrrA = mrrSt.getMinMaxSumAvg();
-    double[] profA = profilesSt.getMinMaxSumAvg();
-    Object[] ret = new Object[] {//
-    accounts, accsNew, accsEnd //
-        , average.mrr, average.mrrDif, average.mrrRelInc, average.mrrNew, average.churn //
-        , mrr, mrrDif, mrrRelInc //
-        , mrrNew, churn, expansion, mrrA[3], mrrA[0], mrrA[1] //
-        , profiles, profA[3], profA[0], profA[1], comm//
-    };
-    return ret;
-  }
-  
-  public String toString(MonthlyMetrics average) {
-    String ret = String.format(
-    //
-        "%d\t%d\t%d" //
-            + "\t%6.0f\t%6.0f\t%4.1f%%\t%6.0f\t%6.0f" //
-            + "\t%6.0f\t%6.0f\t%4.1f%%" //
-            + "\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f" //
-            + "\t%3d\t%3.0f\t%3.0f\t%3.0f\tC: %6.1f"//
-        , toRow(average));
-    // + //
-    // "\t%6.0f\t%6.0f\t%6.0f%\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%3d\t%4.1f\t%3.0f\t%3.0f\t---%6.0f"
-    //
-    return ret;
   }
   
   public double exponentialSmooth(double value, double oldAvg, double a) {

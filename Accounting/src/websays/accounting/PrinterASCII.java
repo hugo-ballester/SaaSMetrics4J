@@ -10,7 +10,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,6 +18,8 @@ public class PrinterASCII extends BillingReportPrinter {
   
   static String line1 = "=========================================================\n";
   static String line2 = "---------------------------------------------------------\n";
+  static String line2S = "-------------------------------------------------------- :\n";
+  static String line2E = "-------------------------------------------------------- .\n";
   String TAB = "\t";
   String RET = "\n";
   
@@ -47,9 +48,8 @@ public class PrinterASCII extends BillingReportPrinter {
     StringBuilder s = new StringBuilder();
     int monthNumber = bi.period.monthNumber(bi.period.billDate);
     String comms = "";
-    if (bi.comissionees != null && bi.comissionees.size() > 0) {
-      comms = bi.comissionees.toString();
-      comms = " C:" + comms.substring(1, comms.length() - 1);
+    if (bi.commissions != null && bi.commissions.size() > 0) {
+      comms = commissionsShortString(bi.commissions);
     }
     String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
     s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
@@ -59,6 +59,17 @@ public class PrinterASCII extends BillingReportPrinter {
     }
     s.append("\n");
     return s.toString();
+  }
+  
+  private String commissionsShortString(ArrayList<CommissionItem> commissions) {
+    String s = "";
+    if (commissions == null || commissions.size() == 0) {
+      return s;
+    }
+    for (CommissionItem ci : commissions) {
+      s += ci.commissionnee + ":" + ci.commission + ", ";
+    }
+    return "{" + s.substring(0, s.length() - 2) + "}";
   }
   
   /*
@@ -75,10 +86,9 @@ public class PrinterASCII extends BillingReportPrinter {
     // sb.append(line);
     // sb.append(line);
     ArrayList<Bill> noBills = new ArrayList<Bill>();
+    CommissionItemSet comms = new CommissionItemSet();
     Date billDate = null;
     double tot = 0., totCom = 0.;
-    
-    TreeMap<String,Double> comms = new TreeMap<String,Double>();
     
     // RENDER BILL REPORT:
     StringBuilder sb = new StringBuilder();
@@ -89,12 +99,9 @@ public class PrinterASCII extends BillingReportPrinter {
       } else {
         
         tot += b.getTotalFee();
-        totCom += b.getTotalCommission();
-        
-        logger.trace("TOTCOM: " + totCom + TAB + b.clientName + ": " + b.getTotalCommission());
-        
-        for (BilledItem bi : b.items) { // collect all commissionnees
-          Billing.addValues(comms, bi.comissionees);
+        for (BilledItem bi : b.items) {
+          comms.addAll(bi.commissions);
+          totCom += bi.commissions.totalCommission();
         }
         
         sb.append(printBill(b, summary));
@@ -111,16 +118,17 @@ public class PrinterASCII extends BillingReportPrinter {
       }
     }
     // RENDER TOTALS:
-    sb.append("\n" + line2 + "TOTAL INVOICED:" + TAB + "" + tot + "\n");
-    sb.append("\n" + line2 + "COMMISSIONS:" + TAB + "" + totCom + "\n");
-    sb.append("\n" + TAB + comms.toString() + "\n");
+    sb.append("\n" + line2S + "TOTAL INVOICED:" + TAB + tot + "\n" + line2E);
+    sb.append("\n" + line2S + "COMMISSIONS:" + TAB + "" + totCom + "\n");
+    sb.append("\n" + TAB + comms.groupAndSum() + "\n" + line2E);
     
     // RENDER SERVICES NOT BILLED THIS MONTH:
-    sb.append("\n" + line2 + "(Active contracts with no bills this month:)\n\n");
+    sb.append("\n" + line2S + "(Active contracts with no bills this month:)\n\n");
     for (Bill b : noBills) {
       sb.append(printBill(b, summary));
       sb.append("\n");
     }
+    sb.append(line2E);
     
     // DONE.
     return sb.toString();

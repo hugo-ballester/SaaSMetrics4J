@@ -6,6 +6,7 @@
 package websays.accounting;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -92,13 +93,6 @@ public class Contract {
   // fixed total price (will be added to monthlyPrice (dividing by total contract lenght) if both not null)
   public Double fixedPrice;
   
-  // if not null, this is used instead of cost base to compute comision. This is useful when comision is on a different
-  // quantity from cost.
-  public Double commissionMonthlyBase;
-  
-  // Commissionee
-  public String commissionnee;
-  
   // Contracts have either fixed prizing or a pricingSchema
   public Pricing pricingSchema;
   
@@ -106,7 +100,9 @@ public class Contract {
   
   public BillingSchema billingSchema = BillingSchema.MONTHS_1;
   
-  // Optional:
+  public Currency currency;
+  public String comments_billing;
+  
   public Integer main_profile_id;
   
   // =============================================
@@ -120,12 +116,10 @@ public class Contract {
   // from JOIN:
   public String client_name;
   
-  // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema etc.)
-  public Double commission;
-  public Currency currency;
-  public String comments_billing;
+  // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema at DAO time)
+  public ArrayList<Commission> commission = new ArrayList<Commission>();
   
-  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double commission,
+  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, ArrayList<Commission> commission,
       String comments_billing) {
     super();
     this.id = id;
@@ -145,8 +139,8 @@ public class Contract {
   public Contract() {};
   
   public void initDerived() {
-    
-    startRoundDate = (DateUtilsWebsays.getDayOfMonth(startContract) <= 15) ? //
+    int MIDPOINT = 15;
+    startRoundDate = (DateUtilsWebsays.getDayOfMonth(startContract) <= MIDPOINT) ? //
     DateUtilsWebsays.dateBeginningOfMonth(startContract)
         : DateUtilsWebsays.dateBeginningOfMonth(startContract, 1);
     
@@ -154,7 +148,7 @@ public class Contract {
       if (!endContract.after(startContract)) {
         endRoundDate = DateUtilsWebsays.dateEndOfMonth(startContract);
       } else {
-        endRoundDate = (DateUtilsWebsays.getDayOfMonth(endContract) <= 15) ? //
+        endRoundDate = (DateUtilsWebsays.getDayOfMonth(endContract) <= MIDPOINT) ? //
         DateUtilsWebsays.dateEndOfMonth(endContract, -1)
             : //
             DateUtilsWebsays.dateEndOfMonth(endContract);
@@ -171,7 +165,7 @@ public class Contract {
   }
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Pricing pricing,
-      Double commission) {
+      ArrayList<Commission> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
     pricingSchema = pricing;
     monthlyPrice = null;
@@ -179,7 +173,7 @@ public class Contract {
   }
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double monthlyPrize,
-      Double fixPrize, Double commission) {
+      Double fixPrize, ArrayList<Commission> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
     monthlyPrice = monthlyPrize;
     fixedPrice = fixPrize != null ? fixPrize : 0.0;
@@ -209,7 +203,7 @@ public class Contract {
    *          only needd for pricing schemas that depend on date, otherwise can be null
    * @return
    */
-  public double getMonthlyPrize(Date d, boolean addFixedPrize) {
+  public double getMonthlyPrize(Date d, boolean addFixedPrize, boolean roundDate) {
     double p = 0;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
@@ -233,7 +227,12 @@ public class Contract {
         System.err.println("ERROR: fixedPrize but no endContract date !? " + name + ": " + fixedPrice);
         return 0;
       }
-      int months = DateUtilsWebsays.getHowManyMonths(startContract, endContract) + 1;
+      int months = 0;
+      if (roundDate) {
+        months = DateUtilsWebsays.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+      } else {
+        months = DateUtilsWebsays.getHowManyMonths(startContract, endContract) + 1;
+      }
       p += fixedPrice / months;
     }
     

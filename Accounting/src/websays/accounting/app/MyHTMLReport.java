@@ -72,7 +72,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     // 1. Write "metrics.html"
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
-    displayMetrics(app, 2013, 24);
+    displayMetrics(app, 2013, 24, new File(htmlDir, "metrics.tsv"));
     
     String metricChanges = metricChangesPerMonth(htmlDir, app);
     
@@ -182,11 +182,17 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws ParseException
    * @throws SQLException
    */
-  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics) throws IOException, ParseException, SQLException {
+  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut) throws IOException, ParseException,
+      SQLException {
     app.printTitle("METRICS (contracted, then projects, then total)", connectToDB);
-    app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract);
-    app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project);
-    app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject);
+    
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject, true));
+    
+    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject, false);
+    FileUtils.writeStringToFile(tsvOut, tsv);
+    
   }
   
   private String billing(File htmlDir) throws FileNotFoundException, Exception {

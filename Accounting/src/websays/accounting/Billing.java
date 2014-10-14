@@ -78,7 +78,7 @@ public class Billing {
         BillingSchema bs = c.billingSchema;
         Double monthly = null;
         
-        double monthlyPrize = c.getMonthlyPrize(billingDate, true);
+        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
@@ -107,10 +107,15 @@ public class Billing {
         bi.warningChecks(billingDate, c);
       }
       
-      if (c.commissionnee != null) {
-        if (c.commission != null) {
-          double com = c.commission * bi.fee;
-          bi.comissionees.put(c.commissionnee, com);
+      if (c.commission != null) {
+        for (Commission com : c.commission) {
+          if (com == null) {
+            logger.error("ERROR null Commission for contract " + c.name + " (#" + c.id + ")");
+            continue;
+          }
+          
+          CommissionItem ci = com.createCommissionItem(bi);
+          bi.commissions.add(ci);
         }
       }
       
@@ -146,21 +151,6 @@ public class Billing {
     }
     
     return new ArrayList<Bill>(ret.values());
-  }
-  
-  static void addValues(TreeMap<String,Double> modified, final TreeMap<String,Double> added) {
-    if (added == null) {
-      return;
-    }
-    for (String s : added.keySet()) {
-      if (modified.containsKey(s)) {
-        modified.put(s, modified.get(s) + added.get(s));
-      } else {
-        modified.put(s, added.get(s));
-      }
-      return;
-    }
-    
   }
   
 }

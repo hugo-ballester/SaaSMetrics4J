@@ -8,7 +8,6 @@ package websays.accounting;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +25,7 @@ public class BilledItem {
   public int contract_id;
   public ArrayList<String> notes = new ArrayList<String>(0);
   
-  public TreeMap<String,Double> comissionees = new TreeMap<String,Double>();
+  public CommissionItemSet commissions = new CommissionItemSet();
   private Contract.Currency currency = Currency.EUR;
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");

@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
+import websays.accounting.reporting.CSVMetricsReport;
 
 /**
  * Functions to display contracts and bills in different ways...
@@ -35,6 +36,8 @@ public class Reporting {
   Contracts contracts;
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  
+  CSVMetricsReport reporter = new CSVMetricsReport(); // for now hardcoded here
   
   public boolean showInvoicesHeadlineWhenNone = true;
   
@@ -73,8 +76,8 @@ public class Reporting {
         }
       }
       
-      double mrr = Metrics.getMRR(c, d, metricDate);
-      double commission = Metrics.getCommission(c, d, metricDate);
+      double mrr = Metrics.computeMRR(c, d, metricDate);
+      double commission = Metrics.computeCommission(c, d, metricDate);
       System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, commission,
           c.type, c.billingSchema, startS, endS));
       totM += mrr;
@@ -114,8 +117,8 @@ public class Reporting {
     
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
       Date billingDate = bs.get(0).date;
-      String invoices = p.printBills(bs, false);
       System.out.println(PrinterASCII.line1 + "INVOICES. " + sdf.format(billingDate) + ":\n" + PrinterASCII.line1);
+      String invoices = p.printBills(bs, false);
       System.out.println(invoices);
     }
   }
@@ -138,7 +141,7 @@ public class Reporting {
     
     for (int i = 0; i < lis.size(); i++) {
       Contract c = lis.get(i);
-      double mrr = Metrics.getMRR(c, date, metricDate);
+      double mrr = Metrics.computeMRR(c, date, metricDate);
       
       if (lastN == null) {
         lastN = c.client_name;
@@ -166,29 +169,13 @@ public class Reporting {
     
   }
   
-  public void displayMetrics(int year, int monthStart, int months) throws ParseException, SQLException {
-    System.out.println("displayMetrics");
-    System.out.println("     \t" + MonthlyMetrics.headersTop());
-    System.out.println("month\t" + MonthlyMetrics.headers());
-    MonthlyMetrics old = null;
-    for (int i = monthStart; i <= monthStart + months - 1; i++) {
-      MonthlyMetrics m = MonthlyMetrics.compute(year, i, null, contracts);
-      if (i == 0) {
-        old = m;
-      }
-      m.setOldValues(old);
-      old = m;
-      System.out.println("" + year + "/" + i + "\t" + m.toString());
-    }
-    
-  }
-  
-  public void displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter) throws ParseException, SQLException {
+  public String displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter, boolean completeDetail)
+      throws ParseException, SQLException {
     
     StringBuffer sb = new StringBuffer();
     sb.append("displayAll   : " + filter.toString() + "\n");
-    sb.append("     \t" + MonthlyMetrics.headersTop() + "\n");
-    sb.append("month\t" + MonthlyMetrics.headers() + "\n");
+    sb.append("     \t" + reporter.headersTop(completeDetail) + "\n");
+    sb.append("month\t" + reporter.headers(completeDetail) + "\n");
     int year = yearStart;
     int month = monthStart - 1;
     
@@ -214,11 +201,11 @@ public class Reporting {
         average = m;
       }
       
-      sb.append("" + year + "/" + month + "\t" + m.toString(average) + "\n");
+      sb.append("" + year + "/" + month + "\t" + reporter.toStringLine1(m, average, completeDetail) + "\n");
       old = m;
     }
     sb.append("\n");
-    System.out.print(sb.toString());
+    return sb.toString();
     
   }
   
@@ -230,6 +217,13 @@ public class Reporting {
     PrinterASCII.printSubtitle(string);
   }
   
+  /**
+   * Print new contracts, in reverse chronological order
+   * 
+   * @param onlyFirstOfEachClient
+   *          show only contracts for new clients
+   * @return
+   */
   public String report_last(boolean onlyFirstOfEachClient) {
     // sort by reverse date
     contracts.sort(SortType.date_ASC);
@@ -242,12 +236,15 @@ public class Reporting {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
         continue;
       }
-      double mrr = c.getMonthlyPrize(c.startContract, true);
+      double mrr = c.getMonthlyPrize(c.startContract, true, false);
       clients.add(c.client_name);
       String date = (sdf.format(c.startContract)) + (c.endContract != null ? "-" + sdf.format(c.endContract) : "")
           + ((c.contractedMonths > 0) ? " +" + c.contractedMonths + "M" : "");
-      String line = String.format("%s%50s\t%.0f\t%-25s\n", c.commissionnee, c.name + "(" + c.client_name + ")", mrr //
-          , date //
+      
+      String line = String.format("%s%50s\t%.0f\t%-25s\n", //
+          toStringShort_commissionees(c), //
+          (c.name == null ? "" : c.name) + ("(" + c.client_name == null ? "" : c.client_name + ")"), //
+          mrr, date //
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       lis.push(line);
@@ -255,5 +252,23 @@ public class Reporting {
     
     return StringUtils.join(lis, "\n");
     
+  }
+  
+  private static String printAndStripLastComma(String s) {
+    if (s == null) {
+      return "";
+    } else if (s.endsWith(", ")) {
+      return s.substring(0, s.length() - 2);
+    } else {
+      return s;
+    }
+  }
+  
+  private String toStringShort_commissionees(Contract c) {
+    String ret = "";
+    for (Commission com : c.commission) {
+      ret += (com == null ? "" : com.commissionnee) + ", ";
+    }
+    return printAndStripLastComma(ret);
   }
 }

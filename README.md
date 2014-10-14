@@ -1,7 +1,7 @@
 SaaSMetrics4J
 =============
 
-The SaaS revenue model, based on recurrent revenue and sales expansion, is a simple, intuitive and powerful model and an ally for young startups. It provides clear KPIs for growth and forces you to concentrate on what matters: sustainable exponential growth.
+The SaaS revenue model, based on recurrent revenue and sales expansion, is a simple, intuitive and powerful model and an ally for young startups. It provides clear KPIs for growth and forces you to concentrate on what matters: sustainable growth.
 
 However computing the actual KPIs of your business, and generally keeping track of what really matters, can be hard. You'll need to do a LOT of NASTY Excel before obtaining those KIPs, and you'll leave in fear of error. Examples of things that get messy:
 - sorting thru the different payment and billing schemes

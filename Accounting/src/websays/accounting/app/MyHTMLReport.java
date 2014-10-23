@@ -49,13 +49,16 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     System.out.println("Writing to " + reportingHTMLDir);
     
-    (new MyHTMLReport()).execute_HTML();
+    int[] years = new int[] {2013, 2014, 2015};
+    
+    (new MyHTMLReport()).execute_HTML(years);
+    
     System.setOut(oldOut);
     
     System.out.println("DONE.");
   }
   
-  public void execute_HTML() throws Exception {
+  public void execute_HTML(int[] years) throws Exception {
     
     if (reportingHTMLDir == null) {
       System.out.println("You need to define parameter reportingHtmlDir in properties file");
@@ -77,23 +80,23 @@ public class MyHTMLReport extends BasicCommandLineApp {
     String metricChanges = metricChangesPerMonth(htmlDir, app);
     
     // 2. Write monthly billing files and get index
-    String billing = billing(htmlDir);
+    String billing = billing(htmlDir, years);
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
     indexFile.append("<html><body><table cellpadding=\"20\" border=\"1\"  >");
     indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
-    indexFile.append("\n<tr><td>");
+    indexFile.append("\n<tr><td valign=\"top\">");
     indexFile.append(billing);
     indexFile.append("\n</td>\n");
-    indexFile.append("\n<td>\n");
+    indexFile.append("\n<td valign=\"top\">\n");
     
     indexFile.append("<h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n");
     indexFile.append(metricChanges);
     indexFile.append("\n</td>\n");
     
     // 2.C last
-    indexFile.append("\n<td>\n");
+    indexFile.append("\n<td valign=\"top\">\n");
     
     String lastTitle = "Last Contracts";
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
@@ -195,19 +198,20 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
   }
   
-  private String billing(File htmlDir) throws FileNotFoundException, Exception {
+  private String billing(File htmlDir, int[] years) throws FileNotFoundException, Exception {
     if (fixYear > 0) {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
     StringBuffer indexFile = new StringBuffer();
-    indexFile.append("\n\n<ul>\n");
     
     MyMonthlyBillingReport mbr = new MyMonthlyBillingReport();
     
     Calendar cal = Calendar.getInstance();
     
-    for (int byear : new int[] {2013, 2014}) {
+    for (int byear : years) {
+      indexFile.append("\n\n<bf>" + byear + "</bf><ul>\n");
+      
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
         if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
@@ -227,8 +231,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
         System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
         mbr.execute_String(contracts, byear, bmonth);
       }
+      
+      indexFile.append("\n</ul>\n");
+      
     }
-    indexFile.append("</ul>");
     
     System.out.println("\n<hr/>\n");
     

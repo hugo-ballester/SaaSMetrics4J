@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -162,7 +163,8 @@ public class ContractDAO extends MySQLDAO {
     Integer client_id = rs.getInt(column++);
     String cname = rs.getString(column++);
     
-    Double cmb = (Double) rs.getObject(column++); // casting to get the null
+    BigDecimal bd = (BigDecimal) rs.getObject(column++);
+    Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
     String commissionee = rs.getString(column++);
     String commisionLabel = rs.getString(column++);
     String commissionee2 = rs.getString(column++);

@@ -97,7 +97,7 @@ public class BasicCommandLineApp {
     
     File propFile = new File(config.getString("params"));
     if (!propFile.exists()) {
-      String msg = "Cannot find property file: " + args[0];
+      String msg = "Cannot find property file: " + config.getString("params");
       System.out.println(msg);
       throw new Exception(msg);
       // System.exit(0);

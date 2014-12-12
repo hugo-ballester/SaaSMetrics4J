@@ -14,6 +14,12 @@ import org.apache.log4j.Logger;
 
 import websays.core.utils.DateUtilsWebsays;
 
+/**
+ * Represents a contract
+ * 
+ * @author hugoz
+ *
+ */
 public class Contract {
   
   static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");

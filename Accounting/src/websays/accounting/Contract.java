@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import websays.core.utils.DateUtilsWebsays;
 
 /**
- * Represents a contract
+ * Represents a contract with a client (will genereate bills)
  * 
  * @author hugoz
  *

@@ -155,8 +155,8 @@ public class ContractDAO extends MySQLDAO {
     BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
     String currency = rs.getString(column++);
     
-    Double mrr = rs.getDouble(column++);
-    mrr = rs.wasNull() ? null : mrr; // casting trick gave BigDecimal error, strange...
+    BigDecimal mrrBD = rs.getBigDecimal(column++);
+    Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
     
     Double fix = rs.getDouble(column++); // casting to get the null
     String pricing = rs.getString(column++);

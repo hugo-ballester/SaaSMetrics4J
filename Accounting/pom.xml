@@ -3,6 +3,12 @@
   <groupId>Accounting</groupId>
   <artifactId>Accounting</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+ 
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -60,11 +66,18 @@
 		<version>4.4</version>
     </dependency>
 
-
+<!-- 
     <dependency>
     	<groupId>org.apache.commons</groupId>
     	<artifactId>commons-io</artifactId>
     	<version>1.3.2</version>
     </dependency>
+    -->
+     <dependency>
+    	<groupId>commons-io</groupId>
+    	<artifactId>commons-io</artifactId>
+    	<version>1.3.2</version>
+    </dependency>
+    
   </dependencies>
 </project>

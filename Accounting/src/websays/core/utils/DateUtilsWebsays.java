@@ -88,26 +88,6 @@ public class DateUtilsWebsays {
   // TIME AND DATES:
   // ============================
   
-  public static String toSOLRDate(Date date) {
-    if (date == null) {
-      return null;
-    }
-    return "" + format(SOLR_DATE_FORMAT1, date) + "T" + format(SOLR_DATE_FORMAT2, date) + "Z";
-  }
-  
-  public static Date fromSOLRDate(String solrDate) {
-    // TODO: do this properly
-    int i = solrDate.indexOf("T");
-    String s1 = solrDate.substring(0, i);
-    String s2 = solrDate.substring(i + 1, solrDate.length() - 1);
-    String s3 = s1 + "-" + s2;
-    try {
-      return parse(SOLR_DATE_FORMAT1 + "-" + SOLR_DATE_FORMAT2, s3);
-    } catch (ParseException e) {
-      return null;
-    }
-  }
-  
   public static void calToStartOfDay(Calendar c) {
     c.set(Calendar.HOUR_OF_DAY, 0);
     c.set(Calendar.MINUTE, 0);

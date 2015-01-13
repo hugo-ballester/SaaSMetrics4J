@@ -91,7 +91,7 @@ public class Contract {
   
   // agreed periods by contract (only used to warn when a contract is near the end). NOTE: this does not replace endContract, it is only an indication
   // since contracts may end early or auto-extend
-  public int contractedMonths = 0;
+  public Integer contractedMonths = null;
   
   // base recurring prize
   public Double monthlyPrice;

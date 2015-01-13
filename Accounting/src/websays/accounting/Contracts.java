@@ -98,14 +98,24 @@ public class Contracts extends ArrayList<Contract> {
   public Contracts getEndingThisMonth(Date date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
+      
       Date d = a.endContract;
       if (metricDate) {
         d = a.endRoundDate;
       }
-      if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
-        continue;
+      if (d == null && a.contractedMonths != null) { // construct end date based on contractedMonths
+        d = a.startContract;
+        if (metricDate) {
+          d = a.startRoundDate;
+        }
+        d = DateUtilsWebsays.addMonths(d, a.contractedMonths);
+        d = DateUtilsWebsays.addDays(d, -1);
       }
-      ret.add(a);
+      if (d != null && DateUtilsWebsays.isSameMonth(date, d)) {
+        ret.add(a);
+      } else {
+        
+      }
     }
     return ret;
   }

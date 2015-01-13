@@ -21,10 +21,8 @@ public class MonthlyMetricsTest {
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
-  @Test
-  public void computeTest() throws ParseException {
+  public Contracts init1(int year) throws ParseException {
     Contracts contracts = new Contracts();
-    int year = 2010;
     
     Date start1 = sdf.parse("25/02/" + year); // will be rounded to 1/3/year
     Date end1 = DateUtils.addDays(start1, 31 + 30 + 31);
@@ -39,6 +37,14 @@ public class MonthlyMetricsTest {
     int id = 0;
     contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
     contracts.add(new Contract(++id, "second", Type.contract, BillingSchema.MONTHS_1, 1, start2, end2, 1000., null, null));
+    
+    return contracts;
+  }
+  
+  @Test
+  public void computeTest() throws ParseException {
+    int year = 2010;
+    Contracts contracts = init1(year);
     
     MonthlyMetrics m = null;
     double d = 0.0001;

@@ -37,7 +37,6 @@ import com.martiansoftware.jsap.Switch;
 public class BasicCommandLineApp {
   
   public static boolean connectToDB = true;
-  public static boolean debug = false;
   
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
   public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -113,7 +112,6 @@ public class BasicCommandLineApp {
       contractID = config.getInt("contract");
     }
     connectToDB = !config.getBoolean("offline");
-    debug = config.getBoolean("debug");
     
     FileInputStream in;
     try {

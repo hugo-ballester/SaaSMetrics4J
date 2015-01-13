@@ -16,13 +16,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import websays.accounting.Billing;
 import websays.accounting.Contracts.AccountFilter;
-import websays.accounting.MonthlyMetrics;
-import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
 import websays.core.utils.DateUtilsWebsays;
@@ -38,16 +34,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
-    // debug = true;
-    if (debug) {
-      Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
-      Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
-      Logger.getLogger(MonthlyMetrics.class).setLevel(Level.DEBUG);
-      Logger.getLogger(Billing.class).setLevel(Level.TRACE);
-      Logger.getLogger(PrinterASCII.class).setLevel(Level.TRACE);
-    }
+    // Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
+    // Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
+    // Logger.getLogger(MonthlyMetrics.class).setLevel(Level.DEBUG);
+    // Logger.getLogger(Billing.class).setLevel(Level.TRACE);
+    // Logger.getLogger(PrinterASCII.class).setLevel(Level.TRACE);
     
-    System.out.println("Writing to " + reportingHTMLDir);
+    String msg = "Writing to " + reportingHTMLDir;
+    System.out.println(msg);
     
     int[] years = new int[] {2013, 2014, 2015};
     
@@ -95,7 +89,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     indexFile.append(metricChanges);
     indexFile.append("\n</td>\n");
     
-    // 2.C last
+    // 2. Build "Last" files
     indexFile.append("\n<td valign=\"top\">\n");
     
     String lastTitle = "Last Contracts";

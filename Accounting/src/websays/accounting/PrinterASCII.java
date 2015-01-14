@@ -10,6 +10,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,15 +26,31 @@ public class PrinterASCII extends BillingReportPrinter {
   
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
-  static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  private static final NumberFormat NF = NumberFormat.getIntegerInstance(Locale.UK);
+  
+  public synchronized static String euros(double x, boolean round) {
+    return money(x, round, '€');
+  }
+  
+  public synchronized static String euros(double x) {
+    return money(x, false, '€');
+  }
+  
+  public synchronized static String money(double x, boolean round, char currency) {
+    if (round) {
+      x = Math.round(x);
+    }
+    return NF.format(x) + currency;
+  }
   
   @Override
   public String printBill(Bill b, boolean sumary) {
     
     StringBuilder s = new StringBuilder();
     
-    s.append(String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + b.items.get(0).getCurrencySymbol() + "\n", b.clientName, //
-        NumberFormat.getIntegerInstance().format(b.getTotalFee())));
+    s.append(String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + "\n", //
+        b.clientName, money(b.getTotalFee(), false, b.items.get(0).getCurrencySymbol())));
     
     if (!sumary) {
       for (int i = 0; i < b.items.size(); i++) {
@@ -136,14 +153,15 @@ public class PrinterASCII extends BillingReportPrinter {
   
   public static void printTitle(String string, boolean connectToDB) throws IOException {
     String msg = "\n\n" + line1;
+    msg += string + "\n" + line1;
     if (!connectToDB) {
       msg += "WARNING! NOT CONNECTED TO DB!!!\n";
     }
-    msg += string + "\n" + line1 + "\n";
+    msg += "\n";
     System.out.print(msg);
   }
   
-  public static void printSubtitle(String string) throws IOException {
+  public static void printSubtitle(String string) {
     String msg = "\n\n" + line2;
     msg += string + "\n" + line2 + "\n";
     System.out.print(msg);

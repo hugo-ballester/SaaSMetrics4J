@@ -36,7 +36,10 @@ public class Contracts extends ArrayList<Contract> {
   static Logger logger = Logger.getLogger(Contracts.class);
   
   public enum AccountFilter {
-    contract, project, contractedORproject, starting, ending, changed;
+    contract, project, contractedORproject, //
+    starting, // starting at a given supplied date
+    ending, // ending at a given supplied date (because {@code endContract} or because {@code contractedMonths})
+    changed; // changed at a given supplied date
     
     public String whereBoolean() {
       if (this == contract) {

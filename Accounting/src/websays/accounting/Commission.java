@@ -24,6 +24,8 @@ public class Commission {
     this.commission_base = commission_base;
   }
   
+  public Commission() {};
+  
   public double computeCommission(double fee) {
     return fee * pct;
   }

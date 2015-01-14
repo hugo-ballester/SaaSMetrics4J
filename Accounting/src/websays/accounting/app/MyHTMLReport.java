@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contracts.AccountFilter;
+import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
 import websays.core.utils.DateUtilsWebsays;
@@ -150,14 +151,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
         System.out.println("<html><body><pre>\n");
         
         date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
-        app.printTitle("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
+        PrinterASCII.printTitle("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
         
-        app.printSubtitle("Changes");
+        PrinterASCII.printSubtitle("Changes");
         app.displayContracts(date, AccountFilter.starting, true, false);
         app.displayContracts(date, AccountFilter.ending, true, false);
         app.displayContracts(date, AccountFilter.changed, true, false);
         
-        app.printSubtitle("All Active Contracts");
+        PrinterASCII.printSubtitle("All Active Contracts");
         app.displayContracts(date, AccountFilter.contract, true, true);
         app.displayContracts(date, AccountFilter.project, true, true);
         
@@ -181,7 +182,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
    */
   private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut) throws IOException, ParseException,
       SQLException {
-    app.printTitle("METRICS (contracted, then projects, then total)", connectToDB);
+    PrinterASCII.printTitle("METRICS (contracted, then projects, then total)", connectToDB);
     
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract, true));
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project, true));

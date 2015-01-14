@@ -5,7 +5,6 @@
  */
 package websays.accounting;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -117,7 +116,7 @@ public class Reporting {
     
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
       Date billingDate = bs.get(0).date;
-      System.out.println(PrinterASCII.line1 + "INVOICES. " + sdf.format(billingDate) + ":\n" + PrinterASCII.line1);
+      PrinterASCII.printSubtitle("INVOICES. " + sdf.format(billingDate));
       String invoices = p.printBills(bs, false);
       System.out.println(invoices);
     }
@@ -209,14 +208,6 @@ public class Reporting {
     
   }
   
-  public void printTitle(String string, boolean connectToDB) throws IOException {
-    PrinterASCII.printTitle(string, connectToDB);
-  }
-  
-  public void printSubtitle(String string) throws IOException {
-    PrinterASCII.printSubtitle(string);
-  }
-  
   /**
    * Print new contracts, in reverse chronological order
    * 
@@ -231,7 +222,7 @@ public class Reporting {
     SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy");
     LinkedList<String> lis = new LinkedList<String>();
     HashSet<String> clients = new HashSet<String>();
-    double sum = 0;
+    
     for (Contract c : contracts) {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
         continue;
@@ -270,5 +261,29 @@ public class Reporting {
       ret += (com == null ? "" : com.commissionnee) + ", ";
     }
     return printAndStripLastComma(ret);
+  }
+  
+  public void displayTotals(Date date, AccountFilter filter, boolean metricDate) throws ParseException, SQLException {
+    System.out.println("TOTALS  (" + filter.toString() + ") at " + MonthlyMetrics.df.format(date) + "\n");
+    if (contracts == null) {
+      System.err.println("ERROR: NULL contracts?");
+      return;
+    }
+    
+    Contracts lis = contracts.getActive(date, filter, metricDate);
+    HashSet<Integer> clients = new HashSet<Integer>();
+    double totMRR = 0;
+    
+    for (int i = 0; i < lis.size(); i++) {
+      Contract c = lis.get(i);
+      double mrr = Metrics.computeMRR(c, date, metricDate);
+      totMRR += mrr;
+      clients.add(c.client_id);
+    }
+    
+    System.out.println("  Active Contracts:\t" + lis.size());
+    System.out.println("  Active Clients:\t" + clients.size());
+    System.out.println("  Total MRR:     \t" + PrinterASCII.euros(totMRR, true));
+    System.out.println();
   }
 }

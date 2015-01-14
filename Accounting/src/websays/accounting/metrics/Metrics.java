@@ -45,6 +45,16 @@ public class Metrics {
     return ret;
   }
   
+  /**
+   * Returns monthly revenue from contract (at given date)
+   * 
+   * Converts all currencies to euros.
+   * 
+   * @param c
+   * @param d
+   * @param roundDate
+   * @return
+   */
   public static double computeMRR(Contract c, Date d, boolean roundDate) {
     if (d.before(c.startRoundDate)) {
       return 0.;

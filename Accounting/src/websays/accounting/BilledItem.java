@@ -90,8 +90,8 @@ public class BilledItem {
     
   }
   
-  public String getCurrencySymbol() {
-    return currency.toString();
+  public char getCurrencySymbol() {
+    return currency.toChar();
   }
   
 }

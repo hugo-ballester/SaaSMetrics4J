@@ -34,14 +34,13 @@ public class Contract {
       this.exchange = exchange;
     }
     
-    @Override
-    public String toString() {
+    public char toChar() {
       if (equals(Currency.EUR)) {
-        return "€";
+        return '€';
       } else if (equals(Currency.USD)) {
-        return "$";
+        return '$';
       } else {
-        return name();
+        return '?';
       }
     }
     

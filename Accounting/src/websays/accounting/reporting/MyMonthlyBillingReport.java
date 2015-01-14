@@ -15,6 +15,7 @@ import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.MonthlyMetrics;
+import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
 import websays.core.utils.DateUtilsWebsays;
@@ -44,18 +45,19 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     // app.displayMetrics(2013, 1, 12, "Damm");
     // System.exit(-1);
     
-    app.printTitle("BILLING", connectToDB);
+    PrinterASCII.printTitle("BILLING", connectToDB);
     app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
     
-    app.printTitle("Starting, Ending & Changing contracts:", connectToDB);
+    PrinterASCII.printTitle("Total, Starting, Ending & Changing contracts:", connectToDB);
+    app.displayTotals(date, AccountFilter.contractedORproject, false);
     app.displayContracts(date, AccountFilter.starting, false, false);
     app.displayContracts(date, AccountFilter.ending, false, false);
     app.displayContracts(date, AccountFilter.changed, false, false);
     
-    app.printTitle("Total MRR per Client, then list of contracts with MRR", connectToDB);
+    PrinterASCII.printTitle("Total MRR per Client, then list of contracts with MRR", connectToDB);
     app.displayClientMRR(date, AccountFilter.contractedORproject, false);
     
-    app.printTitle("All active contracts:", connectToDB);
+    PrinterASCII.printTitle("All active contracts:", connectToDB);
     app.displayContracts(date, AccountFilter.contract, false, false);
     app.displayContracts(date, AccountFilter.project, false, false);
     

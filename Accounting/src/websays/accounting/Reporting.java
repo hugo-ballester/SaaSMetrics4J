@@ -231,13 +231,12 @@ public class Reporting {
       }
       double mrr = c.getMonthlyPrize(c.startContract, true, false);
       clients.add(c.client_name);
-      String date = (sdf.format(c.startContract)) + (c.endContract != null ? "-" + sdf.format(c.endContract) : "")
-          + ((c.contractedMonths > 0) ? " +" + c.contractedMonths + "M" : "");
       
-      String line = String.format("%s%50s\t%.0f\t%-25s\n", //
+      String line = String.format("%4s\t%30s\t%20s\t%10s\t%-25s\n", //
           toStringShort_commissionees(c), //
-          (c.name == null ? "" : c.name) + ("(" + c.client_name == null ? "" : c.client_name + ")"), //
-          mrr, date //
+          (c.name == null ? "" : c.name), //
+          ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //
+          BillingReportPrinter.money(mrr, true, c.currency.toChar()), printer.stringPeriod(c) //
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       lis.push(line);

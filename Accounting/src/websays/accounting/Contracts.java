@@ -38,7 +38,8 @@ public class Contracts extends ArrayList<Contract> {
   public enum AccountFilter {
     contract, project, contractedORproject, //
     starting, // starting at a given supplied date
-    ending, // ending at a given supplied date (because {@code endContract} or because {@code contractedMonths})
+    ending, // ending at a given supplied date (because {@code endContract})
+    renewing, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
     changed; // changed at a given supplied date
     
     public String whereBoolean() {
@@ -98,6 +99,32 @@ public class Contracts extends ArrayList<Contract> {
     return getActive(date, filter, metricDate);
   }
   
+  public Contracts getRenewThisMonth(Date date, boolean metricDate) {
+    Contracts ret = new Contracts();
+    for (Contract a : this) {
+      
+      Date d = a.endContract;
+      if (metricDate) {
+        d = a.endRoundDate;
+      }
+      
+      if (d == null && a.contractedMonths != null) { // construct end date based on contractedMonths
+        d = a.startContract;
+        if (metricDate) {
+          d = a.startRoundDate;
+        }
+        // renewing next month, so adding a full month:
+        d = DateUtilsWebsays.addMonths(d, a.contractedMonths);
+        
+        if (d != null && DateUtilsWebsays.isSameMonth(date, d)) {
+          ret.add(a);
+        }
+      }
+      
+    }
+    return ret;
+  }
+  
   public Contracts getEndingThisMonth(Date date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
@@ -106,18 +133,9 @@ public class Contracts extends ArrayList<Contract> {
       if (metricDate) {
         d = a.endRoundDate;
       }
-      if (d == null && a.contractedMonths != null) { // construct end date based on contractedMonths
-        d = a.startContract;
-        if (metricDate) {
-          d = a.startRoundDate;
-        }
-        d = DateUtilsWebsays.addMonths(d, a.contractedMonths);
-        d = DateUtilsWebsays.addDays(d, -1);
-      }
+      
       if (d != null && DateUtilsWebsays.isSameMonth(date, d)) {
         ret.add(a);
-      } else {
-        
       }
     }
     return ret;
@@ -172,6 +190,8 @@ public class Contracts extends ArrayList<Contract> {
       return getEndingThisMonth(date, metricDate);
     } else if (filter.equals(AccountFilter.starting)) {
       return getStartingThisMonth(date, metricDate);
+    } else if (filter.equals(AccountFilter.renewing)) {
+      return getRenewThisMonth(date, metricDate);
     }
     
     for (Contract a : this) {

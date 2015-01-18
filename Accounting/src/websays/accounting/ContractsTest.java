@@ -16,6 +16,7 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts.AccountFilter;
+import websays.core.utils.DateUtilsWebsays;
 
 public class ContractsTest {
   
@@ -28,18 +29,18 @@ public class ContractsTest {
     int months = 3;
     
     int id = 0;
-    Contracts contracts = new Contracts();
     
     // ------------------------------
     // 1. Start and End
     
     // INIT:
-    System.out.println("2.");
-    Date start1 = sdf.parse("5/" + startMonth + "/" + year); // will be rounded to 1/month/year in metric
-    Date end1 = DateUtils.addMonths(start1, months);
-    contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
+    System.out.println("1.");
+    Contracts contracts = new Contracts();
+    Date start1 = sdf.parse("1/" + startMonth + "/" + year); // will be rounded to 1/month/year in metric
+    Date end1 = DateUtilsWebsays.addDays(DateUtils.addMonths(start1, months), -1);
     
-    _monthSequenceTest(year, startMonth, contracts);
+    contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
+    _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 1, 0}, new int[] {0, 0, 0, 0, 0});
     
     // ------------------------------
     // 2. Start and Duration (no end)
@@ -49,57 +50,32 @@ public class ContractsTest {
         BillingSchema.MONTHS_1, 1, start1, null, 100., null, null);
     contracts.add(c);
     c.contractedMonths = months;
-    _monthSequenceTest(year, startMonth, contracts);
-    
-    _monthSequenceTest(year, startMonth, contracts);
+    _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 0, 0}, new int[] {0, 0, 0, 0, 1});
     
   }
   
-  private void _monthSequenceTest(int year, int startMonth, Contracts contracts) throws ParseException {
-    Contracts cS;
-    Contracts cE;
-    int month = -1;
+  private void _monthSequenceTest(int year, int startMonth, Contracts contracts, //
+      int[] starts, int[] ends, int[] renews //
+  ) throws ParseException {
+    Contracts cS, cE, cR;
+    
+    int month = 0;
     
     // iterate over months and check:
     Date date = sdf.parse("1/" + startMonth + "/" + year);
-    
-    date = DateUtils.addMonths(date, -1); // nothing on previous month
-    cS = contracts.getActive(date, AccountFilter.starting, true);
-    cE = contracts.getActive(date, AccountFilter.ending, true);
-    Assert.assertEquals("START month:" + month, 0, cS.size());
-    Assert.assertEquals("END month:" + month, 0, cE.size());
-    month++;
-    
-    date = DateUtils.addMonths(date, 1); // start (M1)
-    cS = contracts.getActive(date, AccountFilter.starting, true);
-    cE = contracts.getActive(date, AccountFilter.ending, true);
-    Assert.assertEquals("START month:" + month, 1, cS.size());
-    Assert.assertEquals("END month:" + month, 0, cE.size());
-    month++;
-    
-    System.out.println("Month 1");
-    date = DateUtils.addMonths(date, 1); // (M2)
-    cS = contracts.getActive(date, AccountFilter.starting, true);
-    cE = contracts.getActive(date, AccountFilter.ending, true);
-    Assert.assertEquals("START month:" + month, 0, cS.size());
-    Assert.assertEquals("END month:" + month, 0, cE.size());
-    month++;
-    
-    System.out.println("Month 2");
-    date = DateUtils.addMonths(date, 1); // end (M3)
-    cS = contracts.getActive(date, AccountFilter.starting, true);
-    cE = contracts.getActive(date, AccountFilter.ending, true);
-    Assert.assertEquals("START month:" + month, 0, cS.size());
-    Assert.assertEquals("END month:" + month, 1, cE.size());
-    month++;
-    
-    System.out.println("Month 3");
-    date = DateUtils.addMonths(date, 1); // nothing
-    cS = contracts.getActive(date, AccountFilter.starting, true);
-    cE = contracts.getActive(date, AccountFilter.ending, true);
-    Assert.assertEquals("START month:" + month, 0, cS.size());
-    Assert.assertEquals("END month:" + month, 0, cE.size());
-    month++;
+    for (int i = 0; i < starts.length; i++) {
+      System.out.println("Month " + i);
+      
+      cS = contracts.getActive(date, AccountFilter.starting, true);
+      cE = contracts.getActive(date, AccountFilter.ending, true);
+      cR = contracts.getActive(date, AccountFilter.renewing, true);
+      
+      Assert.assertEquals("START month:" + month, starts[month], cS.size());
+      Assert.assertEquals("END month  :" + month, ends[month], cE.size());
+      Assert.assertEquals("RENEW month:" + month, renews[month], cR.size());
+      month++;
+      date = DateUtils.addMonths(date, 1); // nothing on previous month
+    }
     
   }
 }

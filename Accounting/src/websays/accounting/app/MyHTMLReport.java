@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
@@ -26,10 +26,14 @@ import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
+  String VERSION = "v7.7";
+  
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   int thisYear = DateUtilsWebsays.getYear(new Date());
   int thisMonth = DateUtilsWebsays.getMonth(new Date());
+  
+  static BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
     PrintStream oldOut = System.out;
@@ -63,7 +67,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
     if (contracts == null) {
       initContracts();
     }
-    Reporting app = new Reporting(contracts);
+    
+    Reporting app = new Reporting(contracts, new PrinterASCII());
     
     File htmlDir = new File(reportingHTMLDir);
     
@@ -75,7 +80,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     String metricChanges = metricChangesPerMonth(htmlDir, app);
     
     // 2. Write monthly billing files and get index
-    String billing = billing(htmlDir, years);
+    String billing = monthlyBillingReport(htmlDir, years);
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
@@ -151,14 +156,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
         System.out.println("<html><body><pre>\n");
         
         date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
-        PrinterASCII.printTitle("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB);
+        System.out.println(printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB));
         
-        PrinterASCII.printSubtitle("Changes");
+        System.out.println(printer.subtitle("Changes"));
         app.displayContracts(date, AccountFilter.starting, true, false);
         app.displayContracts(date, AccountFilter.ending, true, false);
         app.displayContracts(date, AccountFilter.changed, true, false);
         
-        PrinterASCII.printSubtitle("All Active Contracts");
+        System.out.println(printer.subtitle("All Active Contracts"));
         app.displayContracts(date, AccountFilter.contract, true, true);
         app.displayContracts(date, AccountFilter.project, true, true);
         
@@ -182,7 +187,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
    */
   private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut) throws IOException, ParseException,
       SQLException {
-    PrinterASCII.printTitle("METRICS (contracted, then projects, then total)", connectToDB);
+    System.out.println(printer.title("METRICS (contracted, then projects, then total)", connectToDB));
     
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract, true));
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project, true));
@@ -193,14 +198,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
   }
   
-  private String billing(File htmlDir, int[] years) throws FileNotFoundException, Exception {
+  private String monthlyBillingReport(File htmlDir, int[] years) throws FileNotFoundException, Exception {
     if (fixYear > 0) {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
     StringBuffer indexFile = new StringBuffer();
     
-    MyMonthlyBillingReport mbr = new MyMonthlyBillingReport();
+    MyMonthlyBillingReport mbr = new MyMonthlyBillingReport(printer);
     
     Calendar cal = Calendar.getInstance();
     
@@ -224,7 +229,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         }
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
-        mbr.execute_String(contracts, byear, bmonth);
+        mbr.report(contracts, byear, bmonth);
       }
       
       indexFile.append("\n</ul>\n");
@@ -236,15 +241,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     return indexFile.toString();
   }
   
-  String html_header() {
-    
-    SimpleDateFormat sd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    return "SaaS4J Metrics Report. Generated on " + sd.format(new Date()) + "<hr/>\n\n";
-  }
-  
   @Override
   public void setOutput(File file) throws FileNotFoundException {
     super.setOutput(file);
-    System.out.println(html_header());
+    System.out.println(printer.header(VERSION));
   }
 }

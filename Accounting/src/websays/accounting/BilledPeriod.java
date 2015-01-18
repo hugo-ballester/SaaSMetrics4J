@@ -27,7 +27,7 @@ public class BilledPeriod {
   int period; // 1,2,... one per billed service span
   
   /**
-   * Creates first billedperiod from contract
+   * Creates first billed period from contract
    * 
    * @param contracStart
    * @param contractEnd
@@ -43,6 +43,10 @@ public class BilledPeriod {
     
     setPeriodEnd();
     setBillingDate();
+  }
+  
+  public BilledPeriod(BilledPeriod bp) {
+    this(bp.contractStart, bp.contractEnd, bp.billingSchema);
   }
   
   private void setPeriodEnd() {

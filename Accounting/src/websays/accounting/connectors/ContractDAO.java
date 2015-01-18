@@ -24,6 +24,7 @@ import java.util.HashMap;
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
+import websays.accounting.Contract.ContractDocument;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Pricing;
@@ -31,7 +32,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
@@ -120,9 +121,11 @@ public class ContractDAO extends MySQLDAO {
       r = p.executeQuery();
       while (r.next()) {
         Contract c = readFromResulset(r);
-        accs.add(c);
-        if (getNumberOfProfiles) {
-          c.profiles = getNumberOfProfiles(c.id);
+        if (c != null) {
+          accs.add(c);
+          if (getNumberOfProfiles) {
+            c.profiles = getNumberOfProfiles(c.id);
+          }
         }
       }
     } finally {
@@ -134,77 +137,88 @@ public class ContractDAO extends MySQLDAO {
     return accs;
   }
   
-  private Contract readFromResulset(ResultSet rs) throws SQLException {
-    
-    // contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.billingSchema,
-    // contract.currency_id,
-    // mrr, fixed, pricing, client_id, client.name,
-    // commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
-    
-    // READ ROW:
-    int column = 1;
-    int id = rs.getInt(column++);
-    String name = rs.getString(column++);
-    Date start = rs.getDate(column++);
-    Date end = null;
-    if (rs.getInt(column++) != 0) {
-      end = rs.getDate(column - 1);
-    }
-    Integer contracteMonths = rs.getInt(column++);
-    Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
-    BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
-    String currency = rs.getString(column++);
-    
-    BigDecimal mrrBD = rs.getBigDecimal(column++);
-    Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
-    
-    Double fix = rs.getDouble(column++); // casting to get the null
-    String pricing = rs.getString(column++);
-    Integer client_id = rs.getInt(column++);
-    String cname = rs.getString(column++);
-    
-    BigDecimal bd = (BigDecimal) rs.getObject(column++);
-    Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
-    String commissionee = rs.getString(column++);
-    String commisionLabel = rs.getString(column++);
-    String commissionee2 = rs.getString(column++);
-    String commisionLabel2 = rs.getString(column++);
-    
-    String comments_billing = rs.getString(column++);
-    
-    ArrayList<Commission> comms = new ArrayList<Commission>();
-    if (commisionLabel != null) {
-      Commission comm = commission(commisionLabel, cmb, commissionee);
-      comms.add(comm);
-      if (commisionLabel2 != null) {
-        Commission comm2 = commission(commisionLabel2, null, commissionee2);
-        comms.add(comm2);
+  private Contract readFromResulset(ResultSet rs) {
+    Integer id = null;
+    try {
+      
+      // READ ROW:
+      int column = 1;
+      id = rs.getInt(column++);
+      String name = rs.getString(column++);
+      Date start = rs.getDate(column++);
+      Date end = null;
+      if (rs.getInt(column++) != 0) {
+        end = rs.getDate(column - 1);
       }
+      Integer contracteMonths = rs.getInt(column++);
+      Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
+      Contract.ContractDocument contractDocument = ContractDocument.valueOf(rs.getString(column++));
+      
+      BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
+      String currency = rs.getString(column++);
+      
+      BigDecimal mrrBD = rs.getBigDecimal(column++);
+      Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
+      
+      Double fix = rs.getDouble(column++); // casting to get the null
+      String pricing = rs.getString(column++);
+      Integer client_id = rs.getInt(column++);
+      String cname = rs.getString(column++);
+      
+      BigDecimal bd = (BigDecimal) rs.getObject(column++);
+      Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
+      String commissionee = rs.getString(column++);
+      String commisionLabel = rs.getString(column++);
+      String commissionee2 = rs.getString(column++);
+      String commisionLabel2 = rs.getString(column++);
+      
+      String comments_billing = rs.getString(column++);
+      
+      ArrayList<Commission> comms = new ArrayList<Commission>();
+      if (commisionLabel != null) {
+        Commission comm = commission(commisionLabel, cmb, commissionee);
+        comms.add(comm);
+        if (commisionLabel2 != null) {
+          Commission comm2 = commission(commisionLabel2, null, commissionee2);
+          comms.add(comm2);
+        }
+      }
+      
+      // ----
+      
+      // Build object
+      Contract a = null;
+      if (pricing == null) {
+        a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comms);
+      } else {
+        if (pricingSchemaNames == null) {
+          logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
+          return null;
+        }
+        Pricing p = pricingSchemaNames.get(pricing);
+        if (p == null) {
+          logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
+        }
+        a = new Contract(id, name, type, bs, client_id, start, end, p, comms);
+      }
+      a.contractDocument = contractDocument;
+      a.client_name = cname;
+      a.contractedMonths = contracteMonths;
+      a.currency = Contract.Currency.valueOf(currency);
+      a.comments_billing = comments_billing;
+      
+      return a;
+    } catch (Exception e) {
+      String msg = null;
+      if (id != null) {
+        msg = "ERROR reading contract id=" + id + " (skipping)";
+        logger.error(msg, e);
+      } else {
+        logger.error(msg, e);
+      }
+      return null;
     }
     
-    // ----
-    
-    // Build object
-    Contract a = null;
-    if (pricing == null) {
-      a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comms);
-    } else {
-      if (pricingSchemaNames == null) {
-        logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
-        return null;
-      }
-      Pricing p = pricingSchemaNames.get(pricing);
-      if (p == null) {
-        logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
-      }
-      a = new Contract(id, name, type, bs, client_id, start, end, p, comms);
-    }
-    a.client_name = cname;
-    a.contractedMonths = contracteMonths;
-    a.currency = Contract.Currency.valueOf(currency);
-    a.comments_billing = comments_billing;
-    
-    return a;
   }
   
   // TODO: replace Queries.initContext by a stand-alone option

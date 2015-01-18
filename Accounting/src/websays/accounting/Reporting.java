@@ -36,12 +36,14 @@ public class Reporting {
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
+  private BillingReportPrinter printer;
   CSVMetricsReport reporter = new CSVMetricsReport(); // for now hardcoded here
   
   public boolean showInvoicesHeadlineWhenNone = true;
   
-  public Reporting(Contracts contracts) {
+  public Reporting(Contracts contracts, BillingReportPrinter printer) {
     this.contracts = contracts;
+    this.printer = printer;
   }
   
   public void displayContracts(Date d, AccountFilter filter, boolean metricDate, boolean colheader) {
@@ -116,7 +118,7 @@ public class Reporting {
     
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
       Date billingDate = bs.get(0).date;
-      PrinterASCII.printSubtitle("INVOICES. " + sdf.format(billingDate));
+      System.out.println(printer.subtitle("INVOICES. " + sdf.format(billingDate)));
       String invoices = p.printBills(bs, false);
       System.out.println(invoices);
     }
@@ -285,5 +287,22 @@ public class Reporting {
     System.out.println("  Active Clients:\t" + clients.size());
     System.out.println("  Total MRR:     \t" + PrinterASCII.euros(totMRR, true));
     System.out.println();
+  }
+  
+  public void displayEndingSoon(Date date, AccountFilter filter) {
+    
+    Contracts lis = contracts.getActive(date, filter, false);
+    for (int i = 0; i < lis.size(); i++) {
+      Contract c = lis.get(i);
+      int left = c.getMonthsRemaining(date);
+      if (left == 0) {
+        System.out.println("CONTRACT ENDING NOW   : " + c.name + "\t" + printer.stringPeriod(c));
+      } else if (left < 0) {
+        System.out.println("CONTRACT ENDED ALREADY: " + c.name + "\t" + printer.stringPeriod(c));
+      } else if (left < 3) {
+        System.out.println("CONTRACT ENDING SOON  : " + c.name + "\t" + printer.stringPeriod(c));
+      }
+      
+    }
   }
 }

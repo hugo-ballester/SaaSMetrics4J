@@ -5,51 +5,36 @@
  */
 package websays.accounting;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class PrinterASCII extends BillingReportPrinter {
   
-  static String line1 = "=========================================================\n";
-  static String line2 = "---------------------------------------------------------\n";
-  static String line2S = "-------------------------------------------------------- :\n";
-  static String line2E = "-------------------------------------------------------- .\n";
+  static String line1 = "===========================================\n";
+  static String line2 = "-------------------------------------------\n\n";
+  static String line2S = "-------------------------------------------:\n\n";
+  static String line2E = "-------------------------------------------.\n\n";
   String TAB = "\t";
   String RET = "\n";
+  
+  SimpleDateFormat sd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
   
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
-  private static final NumberFormat NF = NumberFormat.getIntegerInstance(Locale.UK);
-  
-  public synchronized static String euros(double x, boolean round) {
-    return money(x, round, '€');
-  }
-  
-  public synchronized static String euros(double x) {
-    return money(x, false, '€');
-  }
-  
-  public synchronized static String money(double x, boolean round, char currency) {
-    if (round) {
-      x = Math.round(x);
-    }
-    return NF.format(x) + currency;
-  }
   
   @Override
   public String printBill(Bill b, boolean sumary) {
     
     StringBuilder s = new StringBuilder();
     
-    s.append(String.format("INVOICE FOR CLIENT: %-30s" + TAB + "%10s" + "\n", //
+    s.append(String.format("%-30s" + TAB + "%10s" + "\n", //
         b.clientName, money(b.getTotalFee(), false, b.items.get(0).getCurrencySymbol())));
     
     if (!sumary) {
@@ -84,7 +69,7 @@ public class PrinterASCII extends BillingReportPrinter {
       return s;
     }
     for (CommissionItem ci : commissions) {
-      s += ci.commissionnee + ":" + ci.commission + ", ";
+      s += String.format("%s:%.2f,", ci.commissionnee, ci.commission);
     }
     return "{" + s.substring(0, s.length() - 2) + "}";
   }
@@ -135,36 +120,52 @@ public class PrinterASCII extends BillingReportPrinter {
       }
     }
     // RENDER TOTALS:
-    sb.append("\n" + line2S + "TOTAL INVOICED:" + TAB + tot + "\n" + line2E);
-    sb.append("\n" + line2S + "COMMISSIONS:" + TAB + "" + totCom + "\n");
-    sb.append("\n" + TAB + comms.groupAndSum() + "\n" + line2E);
+    sb.append("\n" + "TOTAL INVOICED:" + TAB + tot + "\n");
+    sb.append("\n" + "COMMISSIONS:" + TAB + totCom + "\n");
+    sb.append(TAB + joinMoney(comms.groupAndSum()) + "\n");
     
     // RENDER SERVICES NOT BILLED THIS MONTH:
-    sb.append("\n" + line2S + "(Active contracts with no bills this month:)\n\n");
+    sb.append(subtitle("Active contracts with no bills this month:"));
     for (Bill b : noBills) {
       sb.append(printBill(b, summary));
       sb.append("\n");
     }
-    sb.append(line2E);
-    
     // DONE.
     return sb.toString();
   }
   
-  public static void printTitle(String string, boolean connectToDB) throws IOException {
-    String msg = "\n\n" + line1;
-    msg += string + "\n" + line1;
-    if (!connectToDB) {
-      msg += "WARNING! NOT CONNECTED TO DB!!!\n";
+  private String joinMoney(HashMap<String,Double> groupAndSum) {
+    StringBuffer str = new StringBuffer();
+    str.append("{");
+    for (java.util.Map.Entry<String,Double> e : groupAndSum.entrySet()) {
+      str.append(e.getKey() + ":" + money(e.getValue(), false, '€') + ", ");
     }
-    msg += "\n";
-    System.out.print(msg);
+    if (str.length() > 0) {
+      str.setLength(str.length() - 2);
+    }
+    str.append("}");
+    return str.toString();
   }
   
-  public static void printSubtitle(String string) {
-    String msg = "\n\n" + line2;
-    msg += string + "\n" + line2 + "\n";
-    System.out.print(msg);
+  @Override
+  public String title(String string, boolean connectToDB) {
+    String db = connectToDB ? "" : "(!OFFLINE)";
+    String msg = "<hl/><h2>" + string + db + "</h2>";
+    return msg;
+  }
+  
+  @Override
+  public String subtitle(String string) {
+    String msg = "<h4>" + string + "</h4>";
+    return msg;
+  }
+  
+  @Override
+  public String header(String version) {
+    String msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+    msg += "\n<head></head>\n";
+    msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + sd.format(new Date()) + "</h4><hr/>\n\n";
+    return msg;
   }
   
 }

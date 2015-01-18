@@ -11,10 +11,15 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import websays.accounting.Contract.ContractDocument;
 import websays.accounting.Contract.Currency;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItem {
+  
+  static final String AUTORENEWED = "AUTORENEWED WITHOUT CLIENT AGREEMENT?";
+  static final String WILL_RENEW_NEXT_MONTH = "WILL RENEW NEXT MONTH";
+  static final String WILL_RENEW_2MONTHS = "TWO MONTHS TO AUTORENEW";
   
   private static final Logger logger = Logger.getLogger(BilledItem.class);
   
@@ -50,6 +55,10 @@ public class BilledItem {
     this.currency = currency;
   }
   
+  public BilledItem(BilledItem bi) {
+    this(new BilledPeriod(bi.period), new Double(bi.fee), bi.contract_name, bi.contract_id, bi.currency);
+  }
+  
   public Date getDate() {
     return period.billDate;
   }
@@ -61,30 +70,36 @@ public class BilledItem {
     }
     
     if (c.comments_billing != null && c.comments_billing.length() > 0) {
-      notes.add("(BILLING_NOTE: " + c.comments_billing + ")");
+      notes.add(c.comments_billing);
     }
-    int monthNumber = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate);
+    
+    if (c.contractDocument.equals(ContractDocument.missing)) {
+      notes.add("!!!MISSING CONTRACT");
+    }
+    
+    int monthNumber1 = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate);
     
     if (c.endContract != null) {
       if (period.inPeriod(c.endContract)) {
-        notes.add("\t\t\t! Last bill as agreed (end contract:" + sdf.format(c.endContract) + ")");
+        notes.add("Last bill as agreed (end contract:" + sdf.format(c.endContract) + ")");
       } else {
         int months = DateUtilsWebsays.getHowManyMonths(billingDate, c.endContract);
+        if (months < 0) {
+          notes.add("WARNING contract has ended! (end contract: " + sdf.format(c.endContract) + ")");
+        }
         if (months >= 0 && months < 2) {
-          notes.add("\t\t\t! Contract ending soon as agreed (end contract: " + sdf.format(c.endContract) + ")");
+          notes.add("Contract ending soon as agreed (end contract: " + sdf.format(c.endContract) + ")");
         }
       }
-    } else {
-      
-      if (c.contractedMonths > 0) {
-        if (monthNumber + 1 == c.contractedMonths) {
-          notes.add("\t\t\t!!! ONE BEFORE LAST MONTH OF CONTRACT AGREED");
-        } else if (monthNumber == c.contractedMonths) {
-          notes.add("\t\t\t!!! LAST MONTH OF CONTRACT AGREED");
-        } else if (monthNumber > c.contractedMonths) {
-          // you should increment "contractedPeriods" field when this happens because auto-renewal
-          notes.add("\t\t\t!!! PASSED LAST MONTH OF CONTRACT AGREED");
-        }
+    } else if (c.contractedMonths != null) {
+      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1);
+      int left = DateUtilsWebsays.getHowManyMonths(billingDate, end);
+      if (left == 1) {
+        notes.add(WILL_RENEW_2MONTHS);
+      } else if (left == 0) {
+        notes.add(WILL_RENEW_NEXT_MONTH);
+      } else if (left < 0) {
+        notes.add(AUTORENEWED);
       }
     }
     

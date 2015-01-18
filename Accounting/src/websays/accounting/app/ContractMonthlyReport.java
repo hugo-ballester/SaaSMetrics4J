@@ -9,8 +9,10 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 
+import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
+import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.core.utils.DateUtilsWebsays;
 
@@ -18,6 +20,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   
   final int M = Calendar.MONTH;
   final int Y = Calendar.YEAR;
+  BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
     init(args);
@@ -62,7 +65,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     int m, y;
     Contracts contracts = new Contracts();
     contracts.add(c);
-    Reporting r = new Reporting(contracts);
+    Reporting r = new Reporting(contracts, printer);
     r.showInvoicesHeadlineWhenNone = false;
     
     do {

@@ -290,10 +290,9 @@ public class DateUtilsWebsays {
   }
   
   /**
-   * Return the number of months in between. If start and end are of same months, returns 0
    * 
-   * @param gap
-   * @return
+   * @return number of months from start to end (ignoring day of the month!). E.g. if start and end are any date in Feburary: returns 0, if end is any
+   *         date in March: returns 1, etc.
    * @throws ParseException
    */
   public static int getHowManyMonths(Date start, Date end) {
@@ -319,6 +318,15 @@ public class DateUtilsWebsays {
     cal.setTime(start);
     cal.add(Calendar.MONTH, months);
     return cal.getTime();
+  }
+  
+  public static Date addMonthsAndDays(Date start, int months, int days) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(start);
+    cal.add(Calendar.MONTH, months);
+    cal.add(Calendar.DAY_OF_YEAR, days);
+    return cal.getTime();
+    
   }
   
   public static int getDayOfMonth(Date start) {

@@ -49,6 +49,10 @@ public class Contract {
     }
   };
   
+  public enum ContractDocument {
+    none, missing, signed
+  }
+  
   public enum BillingSchema {
     MONTHS_1(true, 1), //
     MONTHS_3(true, 3), //
@@ -100,6 +104,8 @@ public class Contract {
   
   // Contracts have either fixed prizing or a pricingSchema
   public Pricing pricingSchema;
+  
+  public ContractDocument contractDocument = ContractDocument.none;
   
   public int profiles;
   
@@ -339,6 +345,23 @@ public class Contract {
   
   public BilledPeriod getFirstBilledPeriod() {
     return new BilledPeriod(startContract, endContract, billingSchema);
+  }
+  
+  /**
+   * Ignores DAY_OF_MONTH 0 if contracts ends same month as d, 1 if contract ends following month, etc.
+   * 
+   * @return
+   */
+  public int getMonthsRemaining(Date d) {
+    int months = 0;
+    if (endContract != null) {
+      return months = DateUtilsWebsays.getHowManyMonths(d, endContract);
+    } else if (contractedMonths != null) {
+      Date s = DateUtilsWebsays.addMonthsAndDays(startContract, contractedMonths, -1);
+      return months = DateUtilsWebsays.getHowManyMonths(d, s);
+    } else {
+      return 0;
+    }
   }
   
 }

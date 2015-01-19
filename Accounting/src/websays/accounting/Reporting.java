@@ -20,6 +20,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 import websays.accounting.reporting.CSVMetricsReport;
+import websays.core.utils.DateUtilsWebsays;
 
 /**
  * Functions to display contracts and bills in different ways...
@@ -221,18 +222,20 @@ public class Reporting {
     // sort by reverse date
     contracts.sort(SortType.date_ASC);
     
-    SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy");
-    LinkedList<String> lis = new LinkedList<String>();
+    LinkedList<String> lis = new LinkedList<String>(); // used to revert order of print (newest at the top)
     HashSet<String> clients = new HashSet<String>();
-    
+    int lastmonth = -1;
     for (Contract c : contracts) {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
         continue;
       }
       double mrr = c.getMonthlyPrize(c.startContract, true, false);
       clients.add(c.client_name);
-      
-      String line = String.format("%4s\t%30s\t%20s\t%10s\t%-25s\n", //
+      if (DateUtilsWebsays.getMonth(c.startContract) != lastmonth) {
+        lis.push("\n");
+        lastmonth = DateUtilsWebsays.getMonth(c.startContract);
+      }
+      String line = String.format("%4s\t%30s\t%20s\t%10s\t%-25s", //
           toStringShort_commissionees(c), //
           (c.name == null ? "" : c.name), //
           ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //

@@ -99,9 +99,7 @@ public class BasicCommandLineApp {
       String msg = "Cannot find property file: " + config.getString("params");
       System.out.println(msg);
       throw new Exception(msg);
-      // System.exit(0);
-      
-    }
+    } else {}
     
     if (config.contains("year")) {
       fixYear = config.getInt("year");

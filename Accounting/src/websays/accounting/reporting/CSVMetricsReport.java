@@ -26,12 +26,15 @@ public class CSVMetricsReport {
   
   public String headers(boolean completeDetail) {
     return String.format("%s\t%3s\t%3s\t" + //
-        "%6s\t%6s\t%6s\t%6s\t%6s\t" + //
-        "%6s\t%6s\t%6s\t" + //
-        "%3s\t%4s\t%3s\t%3s\t%6s",//
+        "%6s\t%6s\t%6s" + //
+        "\t%6s\t%6s\t%6s\t%6s\t%6s\t" //
+        + "%6s\t%6s\t%6s\t%6s\t%6s\t%6s"//
+        + "%6s\t%6s\t%6s\t%6s\t%6s",//
         "#C", "new", "end" //
         , "MRR", "delta", "%delta" //
-        , "New", "Churn", "Exp", "avg", "min", "max", "#P", "avg", "min", "max", "comm");
+        , "New", "Churn", "MRR", "delta", "%delta" //
+        , "New", "Churn", "Exp", "avg", "min", "max", //
+        "#P", "avg", "min", "max", "comm");
   }
   
   public String headersTop(boolean completeDetail) {

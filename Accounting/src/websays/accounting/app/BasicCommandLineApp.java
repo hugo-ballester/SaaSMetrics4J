@@ -14,15 +14,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
 
+import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.MonthlyMetrics;
@@ -43,29 +42,24 @@ public class BasicCommandLineApp {
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
   protected Contracts contracts;
   
-  {
-    Logger.getLogger(Contract.class).setLevel(Level.INFO);
-    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
-    
-  }
-  
   public static Properties props = new Properties();
   public static String pricingFile;
   public static String reportingHTMLDir;
   public static String reportingHTMLDirRemote;
   public static String dumpDataFile;
   public static String reportingTxtFile;
+  public static int commission_months;
   
   public static int fixYear = 0, fixMonth = 0;
   protected static Integer contractID = null;
   
+  {
+    Logger.getLogger(Contract.class).setLevel(Level.INFO);
+    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
+    
+  }
+  
   public static void init(String[] args) throws Exception {
-    // init log4j
-    Logger r = Logger.getRootLogger();
-    Appender myAppender;
-    r.setLevel(Level.INFO);
-    myAppender = new ConsoleAppender(new SimpleLayout());
-    r.addAppender(myAppender);
     
     // argument parser:
     JSAP jsap = new JSAP();
@@ -126,6 +120,8 @@ public class BasicCommandLineApp {
     reportingHTMLDir = props.getProperty("reportingHTMLDir", null);
     reportingHTMLDirRemote = props.getProperty("reportingHTMLDirRemote", null);
     reportingTxtFile = props.getProperty("reportingTxtFile", null);
+    commission_months = Integer.parseInt(props.getProperty("commission_months", "12"));
+    Commission.COMMISSION_MONTHS = commission_months;
     
     if (connectToDB) {
       DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")),
@@ -137,6 +133,10 @@ public class BasicCommandLineApp {
     if (reportingHTMLDir != null && !(new File(reportingHTMLDir).exists())) {
       (new File(reportingHTMLDir)).mkdir();
     }
+    
+    String[] showParams = new String[] {"pricingFile", "dumpDataFile", "reportingHTMLDir", "reportingHTMLDirRemote", "reportingTxtFile",
+        "commission_months"};
+    logger.info("Started with the following params:\n" + showFields(showParams));
     
   }
   
@@ -158,6 +158,19 @@ public class BasicCommandLineApp {
     
     contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
         pricingFile) : null);
+  }
+  
+  public static String showFields(String[] names) throws Exception {
+    String ret = "";
+    for (String s : names) {
+      ret += s + ":\t" + getField(s) + "\n";
+    }
+    return ret;
+  }
+  
+  public static String getField(String name) throws Exception {
+    Field f = BasicCommandLineApp.class.getField(name);
+    return f.get(BasicCommandLineApp.class).toString();
   }
   
 }

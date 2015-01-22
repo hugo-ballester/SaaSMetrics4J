@@ -9,10 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-
-import websays.core.utils.DateUtilsWebsays;
 
 /**
  * Represents a contract with a client (will genereate bills)
@@ -22,6 +22,7 @@ import websays.core.utils.DateUtilsWebsays;
  */
 public class Contract {
   
+  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final Logger logger = Logger.getLogger(Contract.class);
   
@@ -151,20 +152,20 @@ public class Contract {
   
   public void initDerived() {
     int MIDPOINT = 15;
-    startRoundDate = (DateUtilsWebsays.getDayOfMonth(startContract) <= MIDPOINT) ? //
-    DateUtilsWebsays.dateBeginningOfMonth(startContract)
-        : DateUtilsWebsays.dateBeginningOfMonth(startContract, 1);
+    startRoundDate = (calendar.getDayOfMonth(startContract) <= MIDPOINT) ? //
+    calendar.dateBeginningOfMonth(startContract, 0)
+        : calendar.dateBeginningOfMonth(startContract, 1);
     
     if (endContract != null) {
       if (!endContract.after(startContract)) {
-        endRoundDate = DateUtilsWebsays.dateEndOfMonth(startContract);
+        endRoundDate = calendar.dateEndOfMonth(startContract);
       } else {
-        endRoundDate = (DateUtilsWebsays.getDayOfMonth(endContract) <= MIDPOINT) ? //
-        DateUtilsWebsays.dateEndOfMonth(endContract, -1)
+        endRoundDate = (calendar.getDayOfMonth(endContract) <= MIDPOINT) ? //
+        calendar.dateEndOfMonth(endContract, -1)
             : //
-            DateUtilsWebsays.dateEndOfMonth(endContract);
+            calendar.dateEndOfMonth(endContract);
       }
-      billedMonths = DateUtilsWebsays.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+      billedMonths = calendar.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       if (logger.isDebugEnabled()) {
         String m = "\n" + df.format(startContract) + " --> " + df.format(startRoundDate) + "\n" + df.format(endContract) + " --> "
             + df.format(endRoundDate) + "   " + billedMonths + "\n\n";
@@ -240,9 +241,9 @@ public class Contract {
       }
       int months = 0;
       if (roundDate) {
-        months = DateUtilsWebsays.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+        months = calendar.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       } else {
-        months = DateUtilsWebsays.getHowManyMonths(startContract, endContract) + 1;
+        months = calendar.getHowManyMonths(startContract, endContract) + 1;
       }
       p += fixedPrice / months;
     }
@@ -280,7 +281,7 @@ public class Contract {
     if (d.before(startContract)) {
       return false;
     }
-    if (endContract != null && !DateUtilsWebsays.isSameMonth(endContract, d) && d.after(endContract)) {
+    if (endContract != null && !calendar.isSameMonth(endContract, d) && d.after(endContract)) {
       return false;
     }
     return true;
@@ -336,10 +337,10 @@ public class Contract {
   }
   
   public boolean isFirstFullMonth(Date d, boolean b) {
-    if (DateUtilsWebsays.getDayOfMonth(startContract) == 1) {
+    if (calendar.getDayOfMonth(startContract) == 1) {
       return isSameMonth(d, startContract);
     } else {
-      return (DateUtilsWebsays.getHowManyMonths(startContract, d) == 1);
+      return (calendar.getHowManyMonths(startContract, d) == 1);
     }
   }
   
@@ -355,10 +356,10 @@ public class Contract {
   public int getMonthsRemaining(Date d) {
     int months = 0;
     if (endContract != null) {
-      return months = DateUtilsWebsays.getHowManyMonths(d, endContract);
+      return months = calendar.getHowManyMonths(d, endContract);
     } else if (contractedMonths != null) {
-      Date s = DateUtilsWebsays.addMonthsAndDays(startContract, contractedMonths, -1);
-      return months = DateUtilsWebsays.getHowManyMonths(d, s);
+      Date s = calendar.addMonthsAndDays(startContract, contractedMonths, -1);
+      return months = calendar.getHowManyMonths(d, s);
     } else {
       return 0;
     }

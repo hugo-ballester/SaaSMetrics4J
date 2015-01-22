@@ -10,12 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import websays.core.utils.DateUtilsWebsays;
 
 public class BillingReportPrinter {
   
-  static final SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy");
+  TimeZone tz = TimeZone.getDefault();
+  SimpleDateFormat dateFormat1;
   
   private static final NumberFormat NF = NumberFormat.getNumberInstance(Locale.UK);
   
@@ -62,7 +64,7 @@ public class BillingReportPrinter {
   public String stringPeriod(Contract c) {
     String cont = null;
     if (c.contractedMonths != null && c.contractedMonths > 0 && c.startContract != null) {
-      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1);
+      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1, tz);
       cont = "+" + c.contractedMonths + "M=" + dateFormat1.format(end);
     }
     

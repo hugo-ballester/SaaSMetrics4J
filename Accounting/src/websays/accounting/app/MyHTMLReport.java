@@ -13,16 +13,18 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import websays.accounting.BillingReportPrinter;
+import websays.accounting.CalendarWebsays;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
-import websays.core.utils.DateUtilsWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
@@ -30,20 +32,17 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
-  int thisYear = DateUtilsWebsays.getYear(new Date());
-  int thisMonth = DateUtilsWebsays.getMonth(new Date());
+  // dont change timezone here, change default instead, since many use this.
+  final static CalendarWebsays cal = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  
+  int thisYear = cal.getYear(new Date());
+  int thisMonth = cal.getMonth(new Date());
   
   static BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
     PrintStream oldOut = System.out;
     init(args);
-    
-    // Logger.getLogger(MyHTMLReport.class).setLevel(Level.DEBUG);
-    // Logger.getLogger(Reporting.class).setLevel(Level.DEBUG);
-    // Logger.getLogger(MonthlyMetrics.class).setLevel(Level.DEBUG);
-    // Logger.getLogger(Billing.class).setLevel(Level.TRACE);
-    // Logger.getLogger(PrinterASCII.class).setLevel(Level.TRACE);
     
     String msg = "Writing to " + reportingHTMLDir;
     System.out.println(msg);
@@ -86,6 +85,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     StringBuffer indexFile = new StringBuffer();
     indexFile.append("<html><body><table cellpadding=\"20\" border=\"1\"  >");
     indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
+    
     indexFile.append("\n<tr><td valign=\"top\">");
     indexFile.append(billing);
     indexFile.append("\n</td>\n");
@@ -110,6 +110,15 @@ public class MyHTMLReport extends BasicCommandLineApp {
     System.out.println("<h2>" + lastTitle + "</h2><pre>");
     System.out.println(app.report_last(true));
     
+    lastTitle = "Commissions";
+    indexFile.append("<a href=\"commissions.html\">" + lastTitle + "</a><br/>");
+    setOutput(new File(htmlDir, "commissions.html"));
+    System.out.println("<h2>" + lastTitle + "</h2><pre>");
+    String[] commssionnees = contracts.getCommissionnees();
+    for (int year : new int[] {2013, 2014, 2015}) {
+      System.out.println("<h4>" + lastTitle + " " + year + "</h2><pre>");
+      System.out.println(app.report_comm(year, commssionnees));
+    }
     indexFile.append("\n</td></tr></table>\n");
     
     FileUtils.writeStringToFile(new File(htmlDir, "index.html"), indexFile.toString());
@@ -213,6 +222,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       indexFile.append("\n\n<bf>" + byear + "</bf><ul>\n");
       
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
+        logger.debug("YEAR: " + byear + ", MONTH: " + bmonth);
         if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
         }

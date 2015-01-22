@@ -7,13 +7,17 @@ package websays.accounting.metrics;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import websays.accounting.CalendarWebsays;
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.Currency;
-import websays.core.utils.DateUtilsWebsays;
 
 public class Metrics {
+  
+  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   /**
    * 
@@ -81,8 +85,8 @@ public class Metrics {
   }
   
   public static double mrrChange(Contract c, Date d, boolean roundDate) {
-    Date newD = DateUtilsWebsays.dateEndOfMonth(d, 0);
-    Date oldD = DateUtilsWebsays.dateEndOfMonth(d, -1);
+    Date newD = calendar.dateEndOfMonth(d, 0);
+    Date oldD = calendar.dateEndOfMonth(d, -1);
     double change = computeMRR(c, newD, roundDate) - computeMRR(c, oldD, roundDate);
     return change;
   }
@@ -91,7 +95,7 @@ public class Metrics {
     boolean roundDate = true;
     
     // if contract ended last month, return 0;
-    Date prevMonth = DateUtilsWebsays.dateBeginningOfMonth(d, -1);
+    Date prevMonth = calendar.dateBeginningOfMonth(d, -1);
     if (c.isLastMonth(prevMonth, roundDate)) {
       return 0;
     }

@@ -12,10 +12,14 @@ import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +27,6 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
-import websays.core.utils.DateUtilsWebsays;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -32,6 +35,7 @@ import com.esotericsoftware.kryo.io.Output;
 public class Contracts extends ArrayList<Contract> {
   
   private static final long serialVersionUID = 1L;
+  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static Logger logger = Logger.getLogger(Contracts.class);
   
@@ -114,9 +118,9 @@ public class Contracts extends ArrayList<Contract> {
           d = a.startRoundDate;
         }
         // renewing next month, so adding a full month:
-        d = DateUtilsWebsays.addMonths(d, a.contractedMonths);
+        d = calendar.addMonths(d, a.contractedMonths);
         
-        if (d != null && DateUtilsWebsays.isSameMonth(date, d)) {
+        if (d != null && calendar.isSameMonth(date, d)) {
           ret.add(a);
         }
       }
@@ -134,7 +138,7 @@ public class Contracts extends ArrayList<Contract> {
         d = a.endRoundDate;
       }
       
-      if (d != null && DateUtilsWebsays.isSameMonth(date, d)) {
+      if (d != null && calendar.isSameMonth(date, d)) {
         ret.add(a);
       }
     }
@@ -148,7 +152,7 @@ public class Contracts extends ArrayList<Contract> {
       if (metricDate) {
         d = a.startRoundDate;
       }
-      if (d == null || !DateUtilsWebsays.isSameMonth(date, d)) {
+      if (d == null || !calendar.isSameMonth(date, d)) {
         continue;
       }
       ret.add(a);
@@ -353,4 +357,17 @@ public class Contracts extends ArrayList<Contract> {
     return ret;
   }
   
+  public String[] getCommissionnees() {
+    HashSet<String> ret = new HashSet<String>();
+    for (Contract c : this) {
+      for (Commission com : c.commission) {
+        if (com.commissionnee != null) {
+          ret.add(com.commissionnee);
+        }
+      }
+    }
+    String[] rett = ret.toArray(new String[ret.size()]);
+    Arrays.sort(rett);
+    return rett;
+  }
 }

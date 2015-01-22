@@ -34,6 +34,7 @@ public class ContractDAO extends MySQLDAO {
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
+  
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
   public ContractDAO(File pricingFile) {
@@ -176,10 +177,10 @@ public class ContractDAO extends MySQLDAO {
       
       ArrayList<Commission> comms = new ArrayList<Commission>();
       if (commisionLabel != null) {
-        Commission comm = commission(commisionLabel, cmb, commissionee);
+        Commission comm = Commission.commissionFromSchema(commisionLabel, cmb, commissionee);
         comms.add(comm);
         if (commisionLabel2 != null) {
-          Commission comm2 = commission(commisionLabel2, null, commissionee2);
+          Commission comm2 = Commission.commissionFromSchema(commisionLabel2, null, commissionee2);
           comms.add(comm2);
         }
       }
@@ -241,21 +242,6 @@ public class ContractDAO extends MySQLDAO {
   
   private void setPricing(HashMap<String,Pricing> loadPriceNames) {
     pricingSchemaNames = loadPriceNames;
-  }
-  
-  private Commission commission(String schema, Double commission_base, String commissionnee) {
-    Double pct = null;
-    if (schema == null) {
-      return null;
-    } else if (schema.startsWith("C_")) {
-      Integer i = Integer.parseInt(schema.substring(2));
-      pct = 1.0 * i / 100.0;
-    } else {
-      logger.error("ERROR: unknown commission type");
-      return null;
-    }
-    
-    return new Commission(pct, commission_base, commissionnee);
   }
   
   static String file_read(File filename) throws IOException {

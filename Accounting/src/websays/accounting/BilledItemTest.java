@@ -8,6 +8,8 @@ package websays.accounting;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -17,13 +19,14 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Currency;
 import websays.accounting.Contract.Type;
-import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItemTest {
   
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   private static final Logger logger = Logger.getLogger(BilledItemTest.class);
+  
+  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   @Test
   public void testWarnings() throws ParseException {
@@ -36,7 +39,7 @@ public class BilledItemTest {
     Date d;
     
     Date start1 = sdf.parse("1/" + startMonth + "/" + year); // will be rounded to 1/month/year in metric
-    Date end2 = DateUtilsWebsays.addDays(DateUtils.addMonths(start1, months), -1);
+    Date end2 = calendar.addDays(DateUtils.addMonths(start1, months), -1);
     
     Contract c = new Contract(0, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end2, 100., null, null);
     
@@ -51,7 +54,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -59,7 +62,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -67,7 +70,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -75,7 +78,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -95,7 +98,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size()); // month 2
@@ -103,7 +106,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1); // month 3: last
+    d = calendar.addMonths(d, 1); // month 3: last
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -111,7 +114,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1); // month 4: autorenewd
+    d = calendar.addMonths(d, 1); // month 4: autorenewd
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());
@@ -119,7 +122,7 @@ public class BilledItemTest {
     
     bi.notes.clear();
     bi.period.next();
-    d = DateUtilsWebsays.addMonths(d, 1);
+    d = calendar.addMonths(d, 1);
     bi.warningChecks(d, c);
     System.out.println(bi.notes);
     Assert.assertEquals(1, bi.notes.size());

@@ -7,21 +7,24 @@ package websays.accounting.reporting;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import websays.accounting.BillingReportPrinter;
+import websays.accounting.CalendarWebsays;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.MonthlyMetrics;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
-import websays.core.utils.DateUtilsWebsays;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
+  private static final CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   private BillingReportPrinter printer;
   
   {
@@ -44,7 +47,7 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
     Reporting app = new Reporting(contracts, printer);
     
-    Calendar cal = DateUtilsWebsays.getCalendar(year, month, 1);
+    Calendar cal = calendar.getCalendar(year, month, 1);
     Date date = cal.getTime();
     
     // title("DEBUG Contract");
@@ -54,8 +57,8 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     title("BILLING", connectToDB);
     app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
     
-    Date endOfM = DateUtilsWebsays.dateEndOfMonth(date);
-    Date begNextM = DateUtilsWebsays.addDays(DateUtilsWebsays.dateEndOfMonth(date), 1);
+    Date endOfM = calendar.dateEndOfMonth(date);
+    Date begNextM = calendar.addDays(calendar.dateEndOfMonth(date), 1);
     
     title("Contracts ending soon:", connectToDB);
     app.displayEndingSoon(date, AccountFilter.contractedORproject);

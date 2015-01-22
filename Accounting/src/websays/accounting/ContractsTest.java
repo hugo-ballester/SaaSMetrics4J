@@ -8,6 +8,8 @@ package websays.accounting;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
@@ -16,10 +18,10 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts.AccountFilter;
-import websays.core.utils.DateUtilsWebsays;
 
 public class ContractsTest {
   
+  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   @Test
@@ -37,7 +39,7 @@ public class ContractsTest {
     System.out.println("1.");
     Contracts contracts = new Contracts();
     Date start1 = sdf.parse("1/" + startMonth + "/" + year); // will be rounded to 1/month/year in metric
-    Date end1 = DateUtilsWebsays.addDays(DateUtils.addMonths(start1, months), -1);
+    Date end1 = calendar.addDays(DateUtils.addMonths(start1, months), -1);
     
     contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
     _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 1, 0}, new int[] {0, 0, 0, 0, 0});

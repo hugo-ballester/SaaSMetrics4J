@@ -5,7 +5,6 @@
  */
 package websays.accounting;
 
-
 /**
  * A Billed Item may have a CommissionItem associated indicated commission on this item
  * 
@@ -18,8 +17,8 @@ public class CommissionItem {
   double commission;
   
   // back references in case they are needed
-  Commission com;
-  BilledItem bi;
+  transient Commission com;
+  transient BilledItem bi;
   
   public CommissionItem(String commissionnee, double commission, Commission com, BilledItem bi) {
     super();

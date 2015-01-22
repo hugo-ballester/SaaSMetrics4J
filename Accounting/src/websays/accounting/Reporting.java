@@ -9,10 +9,15 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import org.apache.commons.collections4.map.DefaultedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -20,7 +25,6 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 import websays.accounting.reporting.CSVMetricsReport;
-import websays.core.utils.DateUtilsWebsays;
 
 /**
  * Functions to display contracts and bills in different ways...
@@ -32,6 +36,7 @@ public class Reporting {
   
   @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(Reporting.class);
+  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   Contracts contracts;
   
@@ -231,9 +236,9 @@ public class Reporting {
       }
       double mrr = c.getMonthlyPrize(c.startContract, true, false);
       clients.add(c.client_name);
-      if (DateUtilsWebsays.getMonth(c.startContract) != lastmonth) {
+      if (calendar.getMonth(c.startContract) != lastmonth) {
         lis.push("\n");
-        lastmonth = DateUtilsWebsays.getMonth(c.startContract);
+        lastmonth = calendar.getMonth(c.startContract);
       }
       String line = String.format("%4s\t%30s\t%20s\t%10s\t%-25s", //
           toStringShort_commissionees(c), //
@@ -247,6 +252,67 @@ public class Reporting {
     
     return StringUtils.join(lis, "\n");
     
+  }
+  
+  /**
+   * Print commissions
+   * 
+   * @param onlyFirstOfEachClient
+   *          show only contracts for new clients
+   * @return
+   */
+  public String report_comm(int year, String[] names) {
+    StringBuffer ret = new StringBuffer();
+    DefaultedMap<String,Double> mapMonth = new DefaultedMap<String,Double>(0.0);
+    DefaultedMap<String,Double> mapYear = new DefaultedMap<String,Double>(0.0);
+    ArrayList<String> rows = new ArrayList<String>(); // to keep them in order for the rows
+    
+    for (int month = 1; month <= 12; month++) {
+      mapMonth.clear();
+      
+      ArrayList<Bill> bs = Billing.bill(contracts, year, month);
+      
+      for (Bill b : bs) {
+        for (BilledItem bi : b.items) {
+          for (CommissionItem c : bi.commissions) {
+            if (c.commissionnee != null) {
+              mapMonth.put(c.commissionnee, mapMonth.get(c.commissionnee) + c.commission);
+              mapYear.put(c.commissionnee, mapYear.get(c.commissionnee) + c.commission);
+              
+            }
+          }
+        }
+      }
+      
+      ArrayList<String> row = new ArrayList<String>(names.length + 5);
+      row.add(month + "/" + year);
+      for (String s : names) {
+        row.add(PrinterASCII.euros(mapMonth.get(s)));
+      }
+      rows.add(join(row));
+      
+    }
+    
+    ret.append(String.format("%10s", "month") + "\t" + join(Arrays.asList(names)) + "\n");
+    
+    ret.append(StringUtils.join(rows, "\n"));
+    
+    ret.append("\n");
+    ret.append(String.format("\n%10s", "Total"));
+    for (String s : names) {
+      ret.append(String.format("\t%10s", PrinterASCII.euros(mapYear.get(s))));
+    }
+    
+    return ret.toString();
+  }
+  
+  private String join(Collection<String> names) {
+    final String format = "%10s";
+    StringBuffer ret = new StringBuffer();
+    for (String s : names) {
+      ret.append(String.format(format + "\t", s));
+    }
+    return ret.toString();
   }
   
   private static String printAndStripLastComma(String s) {

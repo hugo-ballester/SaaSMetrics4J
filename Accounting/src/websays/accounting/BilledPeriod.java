@@ -7,15 +7,24 @@ package websays.accounting;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.BillingSchema;
-import websays.core.utils.DateUtilsWebsays;
 
+/**
+ * 
+ * Not multi-threaded!
+ * 
+ * @author hugoz
+ *
+ */
 public class BilledPeriod {
   
   private static final Logger logger = Logger.getLogger(BilledPeriod.class);
+  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static int billingDayOfMonth = 28;
   
@@ -52,10 +61,7 @@ public class BilledPeriod {
   private void setPeriodEnd() {
     
     if (billingSchema.isPeriodic()) {
-      Calendar cal = DateUtilsWebsays.getCalendar(periodStart);
-      cal.add(Calendar.MONTH, billingSchema.getMonths());
-      cal.add(Calendar.DAY_OF_MONTH, -1);
-      periodEnd = cal.getTime();
+      periodEnd = calendar.addMonthsAndDays(periodStart, billingSchema.getMonths(), -1);
     } else if (billingSchema.equals(BillingSchema.FULL_1)) {
       if (contractEnd == null) {
         logger.error("BilledPeriod init issue: null date for non-periodic billing");
@@ -67,8 +73,8 @@ public class BilledPeriod {
   }
   
   public void setBillingDate() {
-    Calendar cal = DateUtilsWebsays.getCalendar(periodStart);
-    int day = DateUtilsWebsays.getDayOfMonth(periodStart);
+    Calendar cal = calendar.getCalendar(periodStart);
+    int day = calendar.getDayOfMonth(periodStart);
     if (day > billingDayOfMonth) {
       cal.add(Calendar.MONTH, 1);
     }
@@ -83,7 +89,7 @@ public class BilledPeriod {
     }
     period++;
     int step = billingSchema.getMonths();
-    periodStart = DateUtilsWebsays.addMonths(periodStart, step);
+    periodStart = calendar.addMonths(periodStart, step);
     setPeriodEnd();
     setBillingDate();
     if (contractEnd != null && periodStart.after(contractEnd)) {
@@ -94,15 +100,15 @@ public class BilledPeriod {
   
   @Override
   public String toString() {
-    String d = "#" + period + ": " + DateUtilsWebsays.dateFormat1.format(billDate) + " ["
-        + DateUtilsWebsays.dateFormat1.format(periodStart) + "-" + DateUtilsWebsays.dateFormat1.format(periodEnd) + "]";
+    String d = "#" + period + ": " + calendar.dateFormat1.format(billDate) + " [" + calendar.dateFormat1.format(periodStart) + "-"
+        + calendar.dateFormat1.format(periodEnd) + "]";
     return d;
   }
   
   // public static void main(String[] args) throws ParseException {
   //
-  // Date start = DateUtilsWebsays.dateFormat1.parse("21/01/2010");
-  // Date end = DateUtilsWebsays.dateFormat1.parse("31/01/2012");
+  // Date start = calendar.dateFormat1.parse("21/01/2010");
+  // Date end = calendar.dateFormat1.parse("31/01/2012");
   // Contract c = new Contract(1, "C1", Type.contract, BillingSchema.MONTHS_3, 0, start, end, null, 10.);
   // BilledPeriod bs = new BilledPeriod(c.startContract, c.endContract, c.billingSchema);
   // for (int i = 0; i < 10; i++) {
@@ -113,7 +119,7 @@ public class BilledPeriod {
   //
   // bs = new BilledPeriod(c.startContract, c.endContract, c.billingSchema);
   // System.out.println(bs);
-  // Date to = DateUtilsWebsays.addMonths(c.startContract, 5);
+  // Date to = calendar.addMonths(c.startContract, 5);
   // bs.moveForwardTo(to);
   // System.out.println("-----------------");
   //
@@ -122,10 +128,10 @@ public class BilledPeriod {
   // }
   
   public boolean inPeriod(Date d) {
-    Calendar dC = DateUtilsWebsays.getCalendar(d);
-    Calendar staC = DateUtilsWebsays.getCalendar(periodStart);
-    Calendar endC = DateUtilsWebsays.getCalendar(periodEnd);
-    return DateUtilsWebsays.isInPeriod_Day(dC, staC, endC);
+    Calendar dC = calendar.getCalendar(d);
+    Calendar staC = calendar.getCalendar(periodStart);
+    Calendar endC = calendar.getCalendar(periodEnd);
+    return calendar.isInPeriod(dC, staC, endC);
   }
   
   public boolean isAfterPeriod(Date d) {
@@ -152,7 +158,7 @@ public class BilledPeriod {
   }
   
   public int monthNumber(Date d) {
-    return DateUtilsWebsays.getHowManyMonths(contractStart, d) + 1;
+    return calendar.getHowManyMonths(contractStart, d) + 1;
   }
   
 }

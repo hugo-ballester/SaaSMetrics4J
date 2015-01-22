@@ -10,11 +10,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class PrinterASCII extends BillingReportPrinter {
+  
+  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static String line1 = "===========================================\n";
   static String line2 = "-------------------------------------------\n\n";
@@ -23,11 +27,14 @@ public class PrinterASCII extends BillingReportPrinter {
   String TAB = "\t";
   String RET = "\n";
   
-  SimpleDateFormat sd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+  SimpleDateFormat dateFormat2;
   
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
-  public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  public PrinterASCII() {
+    super.dateFormat1 = calendar.getSimpleDateFormat("dd/MM/yyyy");
+    this.dateFormat2 = calendar.getSimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+  }
   
   @Override
   public String printBill(Bill b, boolean sumary) {
@@ -54,8 +61,8 @@ public class PrinterASCII extends BillingReportPrinter {
       comms = commissionsShortString(bi.commissions);
     }
     String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
-    s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, sdf.format(bi.period.periodStart),
-        sdf.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee), bi.getCurrencySymbol(), comms));
+    s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s%s%s)", bi.contract_name, per, dateFormat2.format(bi.period.periodStart),
+        dateFormat1.format(bi.period.periodEnd), NumberFormat.getIntegerInstance().format(bi.fee), bi.getCurrencySymbol(), comms));
     if (bi.notes != null && bi.notes.size() > 0) {
       s.append(TAB + StringUtils.join(bi.notes, " | "));
     }
@@ -113,8 +120,8 @@ public class PrinterASCII extends BillingReportPrinter {
           billDate = b.date;
         } else {
           if (!billDate.equals(b.date)) {
-            logger.warn("not all bills have same date! " + "\n" + TAB + "" + b.clientName + ": " + sdf.format(b.date) + " <> "
-                + sdf.format(billDate));
+            logger.warn("not all bills have same date! " + "\n" + TAB + "" + b.clientName + ": " + dateFormat1.format(b.date) + " <> "
+                + dateFormat1.format(billDate));
           }
         }
       }
@@ -140,7 +147,7 @@ public class PrinterASCII extends BillingReportPrinter {
     for (java.util.Map.Entry<String,Double> e : groupAndSum.entrySet()) {
       str.append(e.getKey() + ":" + money(e.getValue(), false, '€') + ", ");
     }
-    if (str.length() > 0) {
+    if (str.length() >= 2) {
       str.setLength(str.length() - 2);
     }
     str.append("}");
@@ -164,7 +171,7 @@ public class PrinterASCII extends BillingReportPrinter {
   public String header(String version) {
     String msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
     msg += "\n<head></head>\n";
-    msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + sd.format(new Date()) + "</h4><hr/>\n\n";
+    msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + dateFormat2.format(new Date()) + "</h4><hr/>\n\n";
     return msg;
   }
   

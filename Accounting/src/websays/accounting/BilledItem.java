@@ -8,6 +8,7 @@ package websays.accounting;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
@@ -34,6 +35,7 @@ public class BilledItem {
   private Contract.Currency currency = Currency.EUR;
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  private static final TimeZone tz = TimeZone.getDefault();
   
   /**
    * 
@@ -77,13 +79,13 @@ public class BilledItem {
       notes.add("!!!MISSING CONTRACT");
     }
     
-    int monthNumber1 = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate);
+    int monthNumber1 = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate, tz);
     
     if (c.endContract != null) {
       if (period.inPeriod(c.endContract)) {
         notes.add("Last bill as agreed (end contract:" + sdf.format(c.endContract) + ")");
       } else {
-        int months = DateUtilsWebsays.getHowManyMonths(billingDate, c.endContract);
+        int months = DateUtilsWebsays.getHowManyMonths(billingDate, c.endContract, tz);
         if (months < 0) {
           notes.add("WARNING contract has ended! (end contract: " + sdf.format(c.endContract) + ")");
         }
@@ -92,8 +94,8 @@ public class BilledItem {
         }
       }
     } else if (c.contractedMonths != null) {
-      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1);
-      int left = DateUtilsWebsays.getHowManyMonths(billingDate, end);
+      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1, tz);
+      int left = DateUtilsWebsays.getHowManyMonths(billingDate, end, tz);
       if (left == 1) {
         notes.add(WILL_RENEW_2MONTHS);
       } else if (left == 0) {

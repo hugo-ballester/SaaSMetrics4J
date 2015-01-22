@@ -8,12 +8,13 @@ package websays.accounting;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.BillingSchema;
-import websays.core.utils.DateUtilsWebsays;
 
 /**
  * 
@@ -24,24 +25,25 @@ public class Billing {
   
   private static final String error1 = "DONT KNOW HOW TO COMPUTE BILLING: ";
   private static final Logger logger = Logger.getLogger(Billing.class);
+  private static final CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static public void error(String s) {
     logger.error(error1 + s);
   }
   
   public static Calendar getBillingDate(int year, int month) {
-    Calendar billingDate = DateUtilsWebsays.getCalendar(year, month, BilledPeriod.billingDayOfMonth);
+    Calendar billingDate = calendar.getCalendar(year, month, BilledPeriod.billingDayOfMonth);
     return billingDate;
   }
   
   /**
    * The actual date depends on BilledPeriod.billingDayOfMonth
    * 
-   * from Calendar use: return bill(c, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
    * 
    * @param c
    * @param year
    * @param month
+   *          1-12
    * @return
    */
   public static BilledItem bill(Contract c, int year, int month) {
@@ -59,7 +61,7 @@ public class Billing {
         logger.trace("Contract not active: " + c.name);
         return null;
       }
-      logger.trace("Contract ACTIVE: " + c.name);
+      logger.debug("Contract ACTIVE: " + c.name);
       
       BilledPeriod bp = c.getFirstBilledPeriod();
       boolean ok = bp.moveForwardTo(billingDate);
@@ -69,7 +71,7 @@ public class Billing {
       
       BilledItem bi = new BilledItem(bp, 0.0, c.name, c.id, c.currency);
       
-      if (!DateUtilsWebsays.isSameDay(billingDate, bp.billDate)) {
+      if (!calendar.isSameDay(billingDate, bp.billDate)) {
         // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
         bi.fee = 0.0;
       } else {

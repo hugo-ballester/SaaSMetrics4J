@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -19,6 +20,7 @@ import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
+import websays.core.utils.DateUtilsWebsays;
 
 public class MetricsTest1 {
   
@@ -26,9 +28,14 @@ public class MetricsTest1 {
   
   @Test
   public void testCommissions() {
+    int commission_months = 10000; // TODO: write unit tests for commission_months, set to infinity for now
     int cid = 10;
     int cnt = 0;
-    Date start = new Date();
+    
+    Calendar cal = DateUtilsWebsays.getCalendar(2010, 10, 20, TimeZone.getDefault());
+    Date start = cal.getTime();
+    cal.add(Calendar.DAY_OF_YEAR, 200); // sometime in the future
+    Date test = cal.getTime();
     
     // Simple MRR Contract with no Commission
     Type type = Type.contract;
@@ -38,25 +45,25 @@ public class MetricsTest1 {
     
     Contract c = new Contract(++cnt, "" + cnt, type, bschema, cid, start, null, mrr, 0.0, commission);
     
-    assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
-    assertEquals(0.0, Metrics.computeCommission(c, start, true), eps);
+    assertEquals(mrr, Metrics.computeMRR(c, test, true), eps);
+    assertEquals(0.0, Metrics.computeCommission(c, test, true), eps);
     
     // Simple MRR Contract with one Commissions
-    Commission c1 = new Commission(.10, null, "T1");
+    Commission c1 = new Commission(.10, null, commission_months, "T1");
     
     c.commission.add(c1);
-    assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
-    assertEquals(c1.pct * mrr, Metrics.computeCommission(c, start, true), eps);
+    assertEquals(mrr, Metrics.computeMRR(c, test, true), eps);
+    assertEquals(c1.pct * mrr, Metrics.computeCommission(c, test, true), eps);
     
     // Simple MRR Contract with two compounded Commissions
-    Commission c2 = new Commission(.20, null, "T2");
+    Commission c2 = new Commission(.20, null, commission_months, "T2");
     c.commission.add(c2);
-    assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
+    assertEquals(mrr, Metrics.computeMRR(c, test, true), eps);
     assertEquals(c1.pct * mrr + (mrr - (c1.pct * mrr)) * c2.pct, Metrics.computeCommission(c, start, true), eps);
     
     // Change commission base:
     c1.commission_base = mrr / 2.0;
-    assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
+    assertEquals(mrr, Metrics.computeMRR(c, test, true), eps);
     assertEquals(c1.pct * mrr / 2 + (mrr / 2 - (c1.pct * mrr / 2)) * c2.pct, Metrics.computeCommission(c, start, true), eps);
     
   }

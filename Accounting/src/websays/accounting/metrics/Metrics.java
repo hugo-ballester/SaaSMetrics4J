@@ -10,14 +10,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import websays.accounting.CalendarWebsays;
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.Currency;
+import websays.core.utils.TimeWebsays;
 
 public class Metrics {
   
-  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   /**
    * 

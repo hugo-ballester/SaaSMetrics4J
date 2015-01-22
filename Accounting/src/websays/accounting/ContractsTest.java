@@ -18,10 +18,11 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts.AccountFilter;
+import websays.core.utils.TimeWebsays;
 
 public class ContractsTest {
   
-  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   @Test

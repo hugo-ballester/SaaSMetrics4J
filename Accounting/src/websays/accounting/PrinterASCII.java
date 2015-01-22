@@ -16,9 +16,11 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import websays.core.utils.TimeWebsays;
+
 public class PrinterASCII extends BillingReportPrinter {
   
-  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static String line1 = "===========================================\n";
   static String line2 = "-------------------------------------------\n\n";

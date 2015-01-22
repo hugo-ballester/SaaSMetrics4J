@@ -3,7 +3,7 @@
  *
  *    Hugo Zaragoza, Websays.
  */
-package websays.accounting;
+package websays.core.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -11,15 +11,13 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import websays.core.utils.DateUtilsWebsays;
-
-public class CalendarWebsays extends DateUtilsWebsays {
+public class TimeWebsays extends DateUtilsWebsays {
   
   private TimeZone timezone;
   private Locale locale;
   public SimpleDateFormat dateFormat1;
   
-  public CalendarWebsays(Locale locale, TimeZone timezone) {
+  public TimeWebsays(Locale locale, TimeZone timezone) {
     if (locale == null) {
       this.locale = Locale.getDefault();
     } else {

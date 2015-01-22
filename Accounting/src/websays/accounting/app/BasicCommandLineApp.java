@@ -60,7 +60,6 @@ public class BasicCommandLineApp {
   }
   
   public static void init(String[] args) throws Exception {
-    
     // argument parser:
     JSAP jsap = new JSAP();
     

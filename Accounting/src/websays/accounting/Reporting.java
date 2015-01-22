@@ -25,6 +25,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 import websays.accounting.reporting.CSVMetricsReport;
+import websays.core.utils.TimeWebsays;
 
 /**
  * Functions to display contracts and bills in different ways...
@@ -36,7 +37,7 @@ public class Reporting {
   
   @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(Reporting.class);
-  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   Contracts contracts;
   

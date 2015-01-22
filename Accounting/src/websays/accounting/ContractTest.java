@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
+import websays.core.utils.TimeWebsays;
 
 /**
  * 
@@ -23,7 +24,7 @@ import websays.accounting.Contract.Type;
  */
 public class ContractTest {
   
-  private CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   @Test
   public void testMonthsRemaining() throws ParseException {

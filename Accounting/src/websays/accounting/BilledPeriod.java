@@ -13,6 +13,7 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.BillingSchema;
+import websays.core.utils.TimeWebsays;
 
 /**
  * 
@@ -24,7 +25,7 @@ import websays.accounting.Contract.BillingSchema;
 public class BilledPeriod {
   
   private static final Logger logger = Logger.getLogger(BilledPeriod.class);
-  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static int billingDayOfMonth = 28;
   

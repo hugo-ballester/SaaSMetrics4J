@@ -14,6 +14,8 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import websays.core.utils.TimeWebsays;
+
 /**
  * Represents a contract with a client (will genereate bills)
  * 
@@ -22,7 +24,8 @@ import org.apache.log4j.Logger;
  */
 public class Contract {
   
-  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static TimeWebsays time = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
+  
   static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final Logger logger = Logger.getLogger(Contract.class);
   
@@ -152,20 +155,20 @@ public class Contract {
   
   public void initDerived() {
     int MIDPOINT = 15;
-    startRoundDate = (calendar.getDayOfMonth(startContract) <= MIDPOINT) ? //
-    calendar.dateBeginningOfMonth(startContract, 0)
-        : calendar.dateBeginningOfMonth(startContract, 1);
+    startRoundDate = (time.getDayOfMonth(startContract) <= MIDPOINT) ? //
+    time.dateBeginningOfMonth(startContract, 0)
+        : time.dateBeginningOfMonth(startContract, 1);
     
     if (endContract != null) {
       if (!endContract.after(startContract)) {
-        endRoundDate = calendar.dateEndOfMonth(startContract);
+        endRoundDate = time.dateEndOfMonth(startContract);
       } else {
-        endRoundDate = (calendar.getDayOfMonth(endContract) <= MIDPOINT) ? //
-        calendar.dateEndOfMonth(endContract, -1)
+        endRoundDate = (time.getDayOfMonth(endContract) <= MIDPOINT) ? //
+        time.dateEndOfMonth(endContract, -1)
             : //
-            calendar.dateEndOfMonth(endContract);
+            time.dateEndOfMonth(endContract);
       }
-      billedMonths = calendar.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+      billedMonths = time.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       if (logger.isDebugEnabled()) {
         String m = "\n" + df.format(startContract) + " --> " + df.format(startRoundDate) + "\n" + df.format(endContract) + " --> "
             + df.format(endRoundDate) + "   " + billedMonths + "\n\n";
@@ -241,9 +244,9 @@ public class Contract {
       }
       int months = 0;
       if (roundDate) {
-        months = calendar.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+        months = time.getHowManyMonths(startRoundDate, endRoundDate) + 1;
       } else {
-        months = calendar.getHowManyMonths(startContract, endContract) + 1;
+        months = time.getHowManyMonths(startContract, endContract) + 1;
       }
       p += fixedPrice / months;
     }
@@ -281,7 +284,7 @@ public class Contract {
     if (d.before(startContract)) {
       return false;
     }
-    if (endContract != null && !calendar.isSameMonth(endContract, d) && d.after(endContract)) {
+    if (endContract != null && !time.isSameMonth(endContract, d) && d.after(endContract)) {
       return false;
     }
     return true;
@@ -337,10 +340,10 @@ public class Contract {
   }
   
   public boolean isFirstFullMonth(Date d, boolean b) {
-    if (calendar.getDayOfMonth(startContract) == 1) {
+    if (time.getDayOfMonth(startContract) == 1) {
       return isSameMonth(d, startContract);
     } else {
-      return (calendar.getHowManyMonths(startContract, d) == 1);
+      return (time.getHowManyMonths(startContract, d) == 1);
     }
   }
   
@@ -356,10 +359,10 @@ public class Contract {
   public int getMonthsRemaining(Date d) {
     int months = 0;
     if (endContract != null) {
-      return months = calendar.getHowManyMonths(d, endContract);
+      return months = time.getHowManyMonths(d, endContract);
     } else if (contractedMonths != null) {
-      Date s = calendar.addMonthsAndDays(startContract, contractedMonths, -1);
-      return months = calendar.getHowManyMonths(d, s);
+      Date s = time.addMonthsAndDays(startContract, contractedMonths, -1);
+      return months = time.getHowManyMonths(d, s);
     } else {
       return 0;
     }

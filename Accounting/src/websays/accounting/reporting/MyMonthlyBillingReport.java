@@ -14,17 +14,17 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import websays.accounting.BillingReportPrinter;
-import websays.accounting.CalendarWebsays;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.MonthlyMetrics;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
+import websays.core.utils.TimeWebsays;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
-  private static final CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static final TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   private BillingReportPrinter printer;
   
   {

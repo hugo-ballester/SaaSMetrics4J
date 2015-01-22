@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.BillingSchema;
+import websays.core.utils.TimeWebsays;
 
 /**
  * 
@@ -25,7 +26,7 @@ public class Billing {
   
   private static final String error1 = "DONT KNOW HOW TO COMPUTE BILLING: ";
   private static final Logger logger = Logger.getLogger(Billing.class);
-  private static final CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static final TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static public void error(String s) {
     logger.error(error1 + s);

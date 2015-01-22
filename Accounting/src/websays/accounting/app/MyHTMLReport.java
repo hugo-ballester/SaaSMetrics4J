@@ -20,20 +20,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import websays.accounting.BillingReportPrinter;
-import websays.accounting.CalendarWebsays;
 import websays.accounting.Contracts.AccountFilter;
+import websays.accounting.GlobalConstants;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
+import websays.core.utils.TimeWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
-  
-  String VERSION = "v7.7";
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   // dont change timezone here, change default instead, since many use this.
-  final static CalendarWebsays cal = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  final static TimeWebsays cal = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   int thisYear = cal.getYear(new Date());
   int thisMonth = cal.getMonth(new Date());
@@ -41,11 +40,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
   static BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
+    logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : START");
+    
     PrintStream oldOut = System.out;
     init(args);
-    
-    String msg = "Writing to " + reportingHTMLDir;
-    System.out.println(msg);
     
     int[] years = new int[] {2013, 2014, 2015};
     
@@ -53,7 +51,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     System.setOut(oldOut);
     
-    System.out.println("DONE.");
+    logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : END");
   }
   
   public void execute_HTML(int[] years) throws Exception {
@@ -254,6 +252,6 @@ public class MyHTMLReport extends BasicCommandLineApp {
   @Override
   public void setOutput(File file) throws FileNotFoundException {
     super.setOutput(file);
-    System.out.println(printer.header(VERSION));
+    System.out.println(printer.header(GlobalConstants.VERSION));
   }
 }

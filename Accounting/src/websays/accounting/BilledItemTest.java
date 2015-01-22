@@ -19,6 +19,7 @@ import org.junit.Test;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Currency;
 import websays.accounting.Contract.Type;
+import websays.core.utils.TimeWebsays;
 
 public class BilledItemTest {
   
@@ -26,7 +27,7 @@ public class BilledItemTest {
   
   private static final Logger logger = Logger.getLogger(BilledItemTest.class);
   
-  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   @Test
   public void testWarnings() throws ParseException {

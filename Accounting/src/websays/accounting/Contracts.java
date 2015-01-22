@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
+import websays.core.utils.TimeWebsays;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -35,7 +36,7 @@ import com.esotericsoftware.kryo.io.Output;
 public class Contracts extends ArrayList<Contract> {
   
   private static final long serialVersionUID = 1L;
-  private static CalendarWebsays calendar = new CalendarWebsays(Locale.getDefault(), TimeZone.getDefault());
+  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static Logger logger = Logger.getLogger(Contracts.class);
   

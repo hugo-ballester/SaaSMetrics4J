@@ -21,9 +21,9 @@ import java.util.Properties;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
+import websays.accounting.GlobalConstants;
 import websays.accounting.MonthlyMetrics;
 import websays.accounting.connectors.ContractDAO;
 import websays.accounting.connectors.DatabaseManager;
@@ -114,13 +114,13 @@ public class BasicCommandLineApp {
       System.exit(0);
     }
     
+    GlobalConstants.load(props);
+    
     pricingFile = props.getProperty("pricingFile", null);
     dumpDataFile = props.getProperty("dumpDBFile", null);
     reportingHTMLDir = props.getProperty("reportingHTMLDir", null);
     reportingHTMLDirRemote = props.getProperty("reportingHTMLDirRemote", null);
     reportingTxtFile = props.getProperty("reportingTxtFile", null);
-    commission_months = Integer.parseInt(props.getProperty("commission_months", "12"));
-    Commission.COMMISSION_MONTHS = commission_months;
     
     if (connectToDB) {
       DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")),
@@ -133,8 +133,7 @@ public class BasicCommandLineApp {
       (new File(reportingHTMLDir)).mkdir();
     }
     
-    String[] showParams = new String[] {"pricingFile", "dumpDataFile", "reportingHTMLDir", "reportingHTMLDirRemote", "reportingTxtFile",
-        "commission_months"};
+    String[] showParams = new String[] {"pricingFile", "dumpDataFile", "reportingHTMLDir", "reportingHTMLDirRemote", "reportingTxtFile"};
     logger.info("Started with the following params:\n" + showFields(showParams));
     
   }

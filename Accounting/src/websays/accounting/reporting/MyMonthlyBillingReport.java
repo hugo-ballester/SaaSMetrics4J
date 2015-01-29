@@ -61,21 +61,21 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     Date begNextM = calendar.addDays(calendar.dateEndOfMonth(date), 1);
     
     title("Contracts ending soon:", connectToDB);
-    app.displayEndingSoon(date, AccountFilter.contractedORproject);
+    app.displayEndingSoon(date, AccountFilter.CONTRACTED_OR_PROJECT);
     
     title("Total, Starting, Ending & Changing contracts:", connectToDB);
-    app.displayTotals(date, AccountFilter.contractedORproject, false);
-    app.displayContracts(date, AccountFilter.starting, false, false);
-    app.displayContracts(endOfM, AccountFilter.ending, false, false);
-    app.displayContracts(date, AccountFilter.renewing, false, false);
-    app.displayContracts(date, AccountFilter.changed, false, false);
+    app.displayTotals(date, AccountFilter.CONTRACTED_OR_PROJECT, false);
+    app.displayContracts(date, AccountFilter.STARTING, false, false);
+    app.displayContracts(endOfM, AccountFilter.ENDING, false, false);
+    app.displayContracts(date, AccountFilter.AUTORENEW, false, false);
+    app.displayContracts(date, AccountFilter.CHANGED, false, false);
     
     title("Total MRR per Client", connectToDB);
-    app.displayClientMRR(date, AccountFilter.contractedORproject, false);
+    app.displayClientMRR(date, AccountFilter.CONTRACTED_OR_PROJECT, false);
     
     title("All active contracts:", connectToDB);
-    app.displayContracts(date, AccountFilter.contract, false, false);
-    app.displayContracts(date, AccountFilter.project, false, false);
+    app.displayContracts(date, AccountFilter.CONTRACT, false, false);
+    app.displayContracts(date, AccountFilter.PROJECT, false, false);
     
   }
   

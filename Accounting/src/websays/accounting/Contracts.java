@@ -41,18 +41,20 @@ public class Contracts extends ArrayList<Contract> {
   static Logger logger = Logger.getLogger(Contracts.class);
   
   public enum AccountFilter {
-    contract, project, contractedORproject, //
-    starting, // starting at a given supplied date
-    ending, // ending at a given supplied date (because {@code endContract})
-    renewing, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
-    changed; // changed at a given supplied date
+    CONTRACT, //
+    PROJECT, //
+    CONTRACTED_OR_PROJECT, //
+    STARTING, // starting at a given supplied date
+    ENDING, // ending at a given supplied date (because {@code endContract})
+    AUTORENEW, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
+    CHANGED; // changed at a given supplied date
     
     public String whereBoolean() {
-      if (this == contract) {
+      if (this == CONTRACT) {
         return "contract.type='contract'";
-      } else if (this == project) {
+      } else if (this == PROJECT) {
         return "contract.type='project'";
-      } else if (this == contractedORproject) {
+      } else if (this == CONTRACTED_OR_PROJECT) {
         return "contract.type='project' OR contract.type='contract'";
       } else {
         logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
@@ -63,11 +65,11 @@ public class Contracts extends ArrayList<Contract> {
     public Boolean accept(Contract c) {
       if (c == null) {
         return null;
-      } else if (this == contract) {
+      } else if (this == CONTRACT) {
         return c.type.equals(Type.contract);
-      } else if (this == contractedORproject) {
+      } else if (this == CONTRACTED_OR_PROJECT) {
         return c.type.equals(Type.contract) || c.type.equals(Type.project);
-      } else if (this == project) {
+      } else if (this == PROJECT) {
         return c.type.equals(Type.project);
       } else {
         logger.error("NOT IMPLEMENTED AccountFilter.accept(" + this + ")");
@@ -191,11 +193,11 @@ public class Contracts extends ArrayList<Contract> {
     
     Contracts ret = new Contracts();
     
-    if (filter.equals(AccountFilter.ending)) {
+    if (filter.equals(AccountFilter.ENDING)) {
       return getEndingThisMonth(date, metricDate);
-    } else if (filter.equals(AccountFilter.starting)) {
+    } else if (filter.equals(AccountFilter.STARTING)) {
       return getStartingThisMonth(date, metricDate);
-    } else if (filter.equals(AccountFilter.renewing)) {
+    } else if (filter.equals(AccountFilter.AUTORENEW)) {
       return getRenewThisMonth(date, metricDate);
     }
     
@@ -205,19 +207,19 @@ public class Contracts extends ArrayList<Contract> {
       }
       
       if (filter != null) {
-        if (filter == AccountFilter.contract) {
+        if (filter == AccountFilter.CONTRACT) {
           if (a.type != Type.contract) {
             continue;
           }
-        } else if (filter == AccountFilter.project) {
+        } else if (filter == AccountFilter.PROJECT) {
           if (a.type != Type.project) {
             continue;
           }
-        } else if (filter == AccountFilter.contractedORproject) {
+        } else if (filter == AccountFilter.CONTRACTED_OR_PROJECT) {
           if (a.type != Type.project && a.type != Type.contract) {
             continue;
           }
-        } else if (filter == AccountFilter.changed) {
+        } else if (filter == AccountFilter.CHANGED) {
           if (Metrics.expansion(a, date) == 0) {
             continue;
           }

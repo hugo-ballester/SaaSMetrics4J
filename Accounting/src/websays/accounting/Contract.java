@@ -89,6 +89,8 @@ public class Contract {
   // =============================================
   // DB view:
   public int id;
+  // public Integer continuation_from_id; // when this contract is a continuation of a previous one, this indicated id of previous
+  
   public String name;
   public Type type;
   public Integer client_id;
@@ -357,7 +359,7 @@ public class Contract {
    * @return
    */
   public int getMonthsRemaining(Date d) {
-    int months = 0;
+    int months;
     if (endContract != null) {
       return months = time.getHowManyMonths(d, endContract);
     } else if (contractedMonths != null) {

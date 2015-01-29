@@ -32,7 +32,7 @@ public class ContractTest {
     // CONTRACT: [ 1 MAR - 31 MAR | APR | MAY | JUNE | 1 JULY - 31 JULY ]
     
     int months = 5;
-    Date start = Constants.dateFormat2.parse("01/03/2010");
+    Date start = GlobalConstants.dateFormat2.parse("01/03/2010");
     Date end = calendar.addMonthsAndDays(start, months, -1);
     Contract c = new Contract(0, "test", Type.contract, BillingSchema.MONTHS_12, 1, start, end, 100., null, null);
     

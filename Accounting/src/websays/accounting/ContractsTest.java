@@ -69,9 +69,9 @@ public class ContractsTest {
     for (int i = 0; i < starts.length; i++) {
       System.out.println("Month " + i);
       
-      cS = contracts.getActive(date, AccountFilter.starting, true);
-      cE = contracts.getActive(date, AccountFilter.ending, true);
-      cR = contracts.getActive(date, AccountFilter.renewing, true);
+      cS = contracts.getActive(date, AccountFilter.STARTING, true);
+      cE = contracts.getActive(date, AccountFilter.ENDING, true);
+      cR = contracts.getActive(date, AccountFilter.AUTORENEW, true);
       
       Assert.assertEquals("START month:" + month, starts[month], cS.size());
       Assert.assertEquals("END month  :" + month, ends[month], cE.size());

@@ -16,7 +16,6 @@ public class Commission {
   
   static Logger logger = Logger.getLogger(ContractDAO.class);
   
-  public static int COMMISSION_MONTHS = 12;
   int commission_months;
   public String commissionnee;
   public double pct;
@@ -39,11 +38,12 @@ public class Commission {
   public Commission() {};
   
   public double computeCommission(double fee, int month) {
+    double commBase = fee * pct;
     if (month <= commission_months) {
-      return fee * pct;
-    } else {
-      return 0.;
+      commBase *= GlobalConstants.COMMMISSION_REMAINING;
     }
+    return commBase;
+    
   }
   
   public CommissionItem createCommissionItem(BilledItem bi) {
@@ -64,7 +64,7 @@ public class Commission {
     } else if (schema.startsWith("C_")) {
       Integer i = Integer.parseInt(schema.substring(2));
       pct = 1.0 * i / 100.0;
-      commission_months = COMMISSION_MONTHS;
+      commission_months = GlobalConstants.COMMMISSION_MONTHS;
     } else {
       logger.error("ERROR: unknown commission type");
       return null;

@@ -227,7 +227,7 @@ public class ContractDAO extends MySQLDAO {
     Contracts contracts;
     if (connectToDB) {
       ContractDAO adao = new ContractDAO(pricingFile);
-      contracts = adao.getAccounts(AccountFilter.contractedORproject, true);
+      contracts = adao.getAccounts(AccountFilter.CONTRACTED_OR_PROJECT, true);
       
       if (dumpDataFile != null) { // save for future use without Internet connection.
         contracts.save(dumpDataFile);

@@ -166,13 +166,13 @@ public class MyHTMLReport extends BasicCommandLineApp {
         System.out.println(printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB));
         
         System.out.println(printer.subtitle("Changes"));
-        app.displayContracts(date, AccountFilter.starting, true, false);
-        app.displayContracts(date, AccountFilter.ending, true, false);
-        app.displayContracts(date, AccountFilter.changed, true, false);
+        app.displayContracts(date, AccountFilter.STARTING, true, false);
+        app.displayContracts(date, AccountFilter.ENDING, true, false);
+        app.displayContracts(date, AccountFilter.CHANGED, true, false);
         
         System.out.println(printer.subtitle("All Active Contracts"));
-        app.displayContracts(date, AccountFilter.contract, true, true);
-        app.displayContracts(date, AccountFilter.project, true, true);
+        app.displayContracts(date, AccountFilter.CONTRACT, true, true);
+        app.displayContracts(date, AccountFilter.PROJECT, true, true);
         
       }
     }
@@ -196,11 +196,11 @@ public class MyHTMLReport extends BasicCommandLineApp {
       SQLException {
     System.out.println(printer.title("METRICS (contracted, then projects, then total)", connectToDB));
     
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contract, true));
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.project, true));
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PROJECT, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, true));
     
-    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.contractedORproject, false);
+    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, false);
     FileUtils.writeStringToFile(tsvOut, tsv);
     
   }

@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class GlobalConstants {
   
-  public static final String VERSION = "v7.9";
+  public static final String VERSION = "v7.10";
   
   public static final SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
   public static final SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy");

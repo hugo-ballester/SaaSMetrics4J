@@ -42,8 +42,9 @@ public class BilledPeriod {
    * @param contracStart
    * @param contractEnd
    * @param billingSchema
+   * @throws Exception
    */
-  public BilledPeriod(Date contracStart, Date contractEnd, BillingSchema billingSchema) {
+  public BilledPeriod(Date contracStart, Date contractEnd, BillingSchema billingSchema) throws Exception {
     super();
     period = 1;
     contractStart = contracStart;
@@ -55,21 +56,21 @@ public class BilledPeriod {
     setBillingDate();
   }
   
-  public BilledPeriod(BilledPeriod bp) {
+  public BilledPeriod(BilledPeriod bp) throws Exception {
     this(bp.contractStart, bp.contractEnd, bp.billingSchema);
   }
   
-  private void setPeriodEnd() {
+  private void setPeriodEnd() throws Exception {
     
     if (billingSchema.isPeriodic()) {
       periodEnd = calendar.addMonthsAndDays(periodStart, billingSchema.getMonths(), -1);
     } else if (billingSchema.equals(BillingSchema.FULL_1)) {
       if (contractEnd == null) {
-        logger.error("BilledPeriod init issue: null date for non-periodic billing");
+        throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
       }
       periodEnd = (Date) contractEnd.clone();
     } else {
-      logger.error("BilledPeriod init issue: unrecognized BillingSchema '" + billingSchema + "'");
+      throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
     }
   }
   
@@ -83,7 +84,7 @@ public class BilledPeriod {
     billDate = cal.getTime();
   }
   
-  public boolean next() {
+  public boolean next() throws Exception {
     if (!billingSchema.isPeriodic()) {
       logger.warn("Calling next on a non-periodic BillingSchema?!");
       return false;
@@ -139,7 +140,7 @@ public class BilledPeriod {
     return d.after(periodEnd);
   }
   
-  public boolean moveForwardTo(Date d) {
+  public boolean moveForwardTo(Date d) throws Exception {
     if (inPeriod(d)) {
       return true;
     }

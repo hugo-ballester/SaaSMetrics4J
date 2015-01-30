@@ -7,13 +7,13 @@ package websays.accounting;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.ContractDocument;
-import websays.accounting.Contract.Currency;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItem {
@@ -32,7 +32,7 @@ public class BilledItem {
   public ArrayList<String> notes = new ArrayList<String>(0);
   
   public CommissionItemSet commissions = new CommissionItemSet();
-  private Contract.Currency currency = Currency.EUR;
+  private Currency currency;
   
   static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   private static final TimeZone tz = TimeZone.getDefault();
@@ -57,7 +57,7 @@ public class BilledItem {
     this.currency = currency;
   }
   
-  public BilledItem(BilledItem bi) {
+  public BilledItem(BilledItem bi) throws Exception {
     this(new BilledPeriod(bi.period), new Double(bi.fee), bi.contract_name, bi.contract_id, bi.currency);
   }
   
@@ -107,8 +107,8 @@ public class BilledItem {
     
   }
   
-  public char getCurrencySymbol() {
-    return currency.toChar();
+  public Currency getCurrency() {
+    return currency;
   }
   
 }

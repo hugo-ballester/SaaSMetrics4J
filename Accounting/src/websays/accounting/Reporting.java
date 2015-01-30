@@ -245,7 +245,7 @@ public class Reporting {
           toStringShort_commissionees(c), //
           (c.name == null ? "" : c.name), //
           ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //
-          BillingReportPrinter.money(mrr, true, c.currency.toChar()), printer.stringPeriod(c) //
+          BillingReportPrinter.money(mrr, true, c.currency), printer.stringPeriod(c) //
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       lis.push(line);

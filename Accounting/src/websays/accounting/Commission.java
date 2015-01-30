@@ -39,7 +39,7 @@ public class Commission {
   
   public double computeCommission(double fee, int month) {
     double commBase = fee * pct;
-    if (month <= commission_months) {
+    if (month > commission_months) {
       commBase *= GlobalConstants.COMMMISSION_REMAINING;
     }
     return commBase;
@@ -52,24 +52,11 @@ public class Commission {
     int months = DateUtilsWebsays.getHowManyMonths(contractStart, billDate, null);
     double fee = 0;
     fee = computeCommission(bi.fee, months);
+    if (!bi.getCurrency().equals(GlobalConstants.EUR)) {
+      fee *= GlobalConstants.exhangeRateToEU(bi.getCurrency());
+    }
     
     return new CommissionItem(commissionnee, fee, this, bi);
-  }
-  
-  public static Commission commissionFromSchema(String schema, Double commission_base, String commissionnee) {
-    Double pct = null;
-    int commission_months = 0;
-    if (schema == null) {
-      return null;
-    } else if (schema.startsWith("C_")) {
-      Integer i = Integer.parseInt(schema.substring(2));
-      pct = 1.0 * i / 100.0;
-      commission_months = GlobalConstants.COMMMISSION_MONTHS;
-    } else {
-      logger.error("ERROR: unknown commission type");
-      return null;
-    }
-    return new Commission(pct, commission_base, commission_months, commissionnee);
   }
   
 }

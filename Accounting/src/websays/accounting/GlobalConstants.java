@@ -6,6 +6,7 @@
 package websays.accounting;
 
 import java.text.SimpleDateFormat;
+import java.util.Currency;
 import java.util.Properties;
 
 public class GlobalConstants {
@@ -14,6 +15,10 @@ public class GlobalConstants {
   
   public static final SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
   public static final SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy");
+  
+  public static final Currency EUR = Currency.getInstance("EUR");
+  public static final Currency USD = Currency.getInstance("USD");
+  public static final Currency GBP = Currency.getInstance("GBP");
   
   /**
    * number of months of normal commission before it is discounted
@@ -28,5 +33,25 @@ public class GlobalConstants {
   public static void load(Properties props) {
     COMMMISSION_MONTHS = Integer.parseInt(props.getProperty("commission_months"));
     COMMMISSION_REMAINING = Double.parseDouble(props.getProperty("commission_remaining"));
+  }
+  
+  public static double exhangeRateToEU(Currency currency) {
+    if (currency.equals(USD)) {
+      return 0.88;
+    } else if (currency.equals(GBP)) {
+      return 1.33;
+    } else {
+      return 0;
+    }
+  }
+  
+  public static String getCurrencySymbol(Currency currency) {
+    if (currency.equals(EUR)) {
+      return "€";
+    } else if (currency.equals(GBP)) {
+      return "£ (!!! GBP !!!)";
+    } else {
+      return "$ (!!! USD !!!)";
+    }
   }
 }

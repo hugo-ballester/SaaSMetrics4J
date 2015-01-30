@@ -18,13 +18,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.ContractDocument;
+import websays.accounting.ContractFactory;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Pricing;
@@ -177,12 +180,12 @@ public class ContractDAO extends MySQLDAO {
       
       ArrayList<Commission> comms = new ArrayList<Commission>();
       if (commisionLabel != null) {
-        Commission comm = Commission.commissionFromSchema(commisionLabel, cmb, commissionee);
-        comms.add(comm);
-        if (commisionLabel2 != null) {
-          Commission comm2 = Commission.commissionFromSchema(commisionLabel2, null, commissionee2);
-          comms.add(comm2);
-        }
+        List<Commission> comm = ContractFactory.commissionFromSchema(commisionLabel, cmb, commissionee);
+        comms.addAll(comm);
+      }
+      if (commisionLabel2 != null) {
+        List<Commission> comm = ContractFactory.commissionFromSchema(commisionLabel2, null, commissionee2);
+        comms.addAll(comm);
       }
       
       // ----
@@ -205,7 +208,7 @@ public class ContractDAO extends MySQLDAO {
       a.contractDocument = contractDocument;
       a.client_name = cname;
       a.contractedMonths = contracteMonths;
-      a.currency = Contract.Currency.valueOf(currency);
+      a.currency = Currency.getInstance(currency);
       a.comments_billing = comments_billing;
       
       return a;

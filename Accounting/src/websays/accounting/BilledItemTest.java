@@ -5,7 +5,6 @@
  */
 package websays.accounting;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -17,7 +16,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import websays.accounting.Contract.BillingSchema;
-import websays.accounting.Contract.Currency;
 import websays.accounting.Contract.Type;
 import websays.core.utils.TimeWebsays;
 
@@ -30,7 +28,7 @@ public class BilledItemTest {
   private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   @Test
-  public void testWarnings() throws ParseException {
+  public void testWarnings() throws Exception {
     
     int year = 2010;
     int startMonth = 3;
@@ -47,7 +45,7 @@ public class BilledItemTest {
     BilledPeriod bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
     // 1. Contract with defined end date
-    BilledItem bi = new BilledItem(bp, 100., "name", 0, Currency.EUR);
+    BilledItem bi = new BilledItem(bp, 100., "name", 0, GlobalConstants.EUR);
     
     d = start1;
     bi.warningChecks(d, c);
@@ -91,7 +89,7 @@ public class BilledItemTest {
     
     bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
-    bi = new BilledItem(bp, 100., "name", 0, Currency.EUR);
+    bi = new BilledItem(bp, 100., "name", 0, GlobalConstants.EUR);
     
     d = start1;
     bi.warningChecks(d, c);

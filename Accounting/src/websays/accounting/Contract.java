@@ -8,6 +8,7 @@ package websays.accounting;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -28,30 +29,6 @@ public class Contract {
   
   static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final Logger logger = Logger.getLogger(Contract.class);
-  
-  public enum Currency {
-    EUR(1.0), USD(0.73);
-    
-    double exchange;
-    
-    Currency(double exchange) {
-      this.exchange = exchange;
-    }
-    
-    public char toChar() {
-      if (equals(Currency.EUR)) {
-        return '€';
-      } else if (equals(Currency.USD)) {
-        return '$';
-      } else {
-        return '?';
-      }
-    }
-    
-    public double exhangeRateToEU() {
-      return exchange;
-    }
-  };
   
   public enum ContractDocument {
     none, missing, signed
@@ -199,6 +176,10 @@ public class Contract {
   
   public int getId() {
     return id;
+  }
+  
+  public String toStringShortName() {
+    return String.format("[%d] %s", id, name);
   }
   
   @Override
@@ -350,7 +331,12 @@ public class Contract {
   }
   
   public BilledPeriod getFirstBilledPeriod() {
-    return new BilledPeriod(startContract, endContract, billingSchema);
+    try {
+      return new BilledPeriod(startContract, endContract, billingSchema);
+    } catch (Exception e) {
+      logger.error("ERROR with contract " + toStringShortName() + ":\n  " + e.getMessage());
+      return null;
+    }
   }
   
   /**

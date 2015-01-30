@@ -8,6 +8,7 @@ package websays.accounting;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -20,6 +21,7 @@ public class BillingReportPrinter {
   SimpleDateFormat dateFormat1;
   
   private static final NumberFormat NF = NumberFormat.getNumberInstance(Locale.UK);
+  private static final Currency EUROS = Currency.getInstance("EUR");
   
   {
     NF.setMinimumFractionDigits(2);
@@ -35,18 +37,18 @@ public class BillingReportPrinter {
   };
   
   public synchronized static String euros(double x, boolean round) {
-    return money(x, round, '€');
+    return money(x, round, EUROS);
   }
   
   public synchronized static String euros(double x) {
-    return money(x, false, '€');
+    return money(x, false, EUROS);
   }
   
-  public synchronized static String money(double x, boolean round, char currency) {
+  public synchronized static String money(double x, boolean round, Currency currency) {
     if (round) {
       x = Math.round(x);
     }
-    return NF.format(x) + currency;
+    return NF.format(x) + GlobalConstants.getCurrencySymbol( currency );
   }
   
   public String title(String string, boolean connectToDB) {

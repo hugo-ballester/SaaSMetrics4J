@@ -86,8 +86,8 @@ public class Reporting {
       
       double mrr = Metrics.computeMRR(c, d, metricDate);
       double commission = Metrics.computeCommission(c, d, metricDate);
-      System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", c.getId(), c.name, c.client_name, mrr, commission,
-          c.type, c.billingSchema, startS, endS));
+      System.out.println(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s", //
+          c.getId(), c.name, c.client_name, mrr, commission, c.type, c.billingSchema, startS, endS));
       totM += mrr;
       totCom += commission;
       totC++;
@@ -119,9 +119,6 @@ public class Reporting {
     BillingReportPrinter p = new PrinterASCII();
     
     ArrayList<Bill> bs = Billing.bill(contracts, year, month);
-    
-    // System.out.println(p.line + "SUMMARY\n" + p.line);
-    // System.out.println(p.printBills(bs, true));
     
     if (bs.size() > 0 || showInvoicesHeadlineWhenNone) {
       Date billingDate = bs.get(0).date;
@@ -231,17 +228,15 @@ public class Reporting {
     LinkedList<String> lis = new LinkedList<String>(); // used to revert order of print (newest at the top)
     HashSet<String> clients = new HashSet<String>();
     int lastmonth = -1;
+    double total = 0;
     for (Contract c : contracts) {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
         continue;
       }
       double mrr = c.getMonthlyPrize(c.startContract, true, false);
       clients.add(c.client_name);
-      if (calendar.getMonth(c.startContract) != lastmonth) {
-        lis.push("\n");
-        lastmonth = calendar.getMonth(c.startContract);
-      }
-      String line = String.format("%4s\t%30s\t%20s\t%10s\t%-25s", //
+      String format = "%4s\t%30s\t%20s\t%10s\t%-25s";
+      String line = String.format(format, //
           toStringShort_commissionees(c), //
           (c.name == null ? "" : c.name), //
           ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //
@@ -249,6 +244,15 @@ public class Reporting {
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       lis.push(line);
+      total += mrr;
+      if (calendar.getMonth(c.startContract) != lastmonth) {
+        String month = "MONTH " + lastmonth;
+        line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, GlobalConstants.EUR), month);
+        lis.push(line);
+        total = 0.;
+        lastmonth = calendar.getMonth(c.startContract);
+      }
+      
     }
     
     return StringUtils.join(lis, "\n");

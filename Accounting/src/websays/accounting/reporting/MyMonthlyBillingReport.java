@@ -48,34 +48,33 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     Reporting app = new Reporting(contracts, printer);
     
     Calendar cal = calendar.getCalendar(year, month, 1);
-    Date date = cal.getTime();
-    
-    // title("DEBUG Contract");
-    // app.displayMetrics(2013, 1, 12, "Damm");
-    // System.exit(-1);
+    Date begOfMonth = cal.getTime();
+    Date endOfM = calendar.dateEndOfMonth(begOfMonth);
     
     title("BILLING", connectToDB);
     app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
     
-    Date endOfM = calendar.dateEndOfMonth(date);
-    Date begNextM = calendar.addDays(calendar.dateEndOfMonth(date), 1);
-    
     title("Contracts ending soon:", connectToDB);
-    app.displayEndingSoon(date, AccountFilter.CONTRACTED_OR_PROJECT);
+    app.displayEndingSoon(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT);
     
-    title("Total, Starting, Ending & Changing contracts:", connectToDB);
-    app.displayTotals(date, AccountFilter.CONTRACTED_OR_PROJECT, false);
-    app.displayContracts(date, AccountFilter.STARTING, false, false);
-    app.displayContracts(endOfM, AccountFilter.ENDING, false, false);
-    app.displayContracts(date, AccountFilter.AUTORENEW, false, false);
-    app.displayContracts(date, AccountFilter.CHANGED, false, false);
+    title("Totals", connectToDB);
+    app.displayTotals(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false);
+    
+    title("Starting, Ending & Changing contracts:", connectToDB);
+    app.displayContracts(endOfM, AccountFilter.STARTING, false, false); // endOfM: day does not matter for contract filter, only month, but has to be
+                                                                        // end because otherwise mrr is 0 for non-started contracts
+    app.displayContracts(begOfMonth, AccountFilter.ENDING, false, false); // beginningOfMonth: opposite reason as above, we need a day in which
+                                                                                // contracts are active so mrr!=0
+    // end because otherwise mrr is 0 for non-started contracts
+    app.displayContracts(begOfMonth, AccountFilter.AUTORENEW, false, false);
+    app.displayContracts(begOfMonth, AccountFilter.CHANGED, false, false);
     
     title("Total MRR per Client", connectToDB);
-    app.displayClientMRR(date, AccountFilter.CONTRACTED_OR_PROJECT, false);
+    app.displayClientMRR(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false);
     
     title("All active contracts:", connectToDB);
-    app.displayContracts(date, AccountFilter.CONTRACT, false, false);
-    app.displayContracts(date, AccountFilter.PROJECT, false, false);
+    app.displayContracts(begOfMonth, AccountFilter.CONTRACT, false, false);
+    app.displayContracts(begOfMonth, AccountFilter.PROJECT, false, false);
     
   }
   

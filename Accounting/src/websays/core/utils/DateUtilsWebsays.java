@@ -329,7 +329,7 @@ public class DateUtilsWebsays {
   }
   
   public static synchronized int getMonth(Date date, TimeZone timezone) {
-    Calendar cal = getCalendarInstance(timezone);
+    Calendar cal = getCalendarInstance(date, timezone);
     return cal.get(Calendar.MONTH);
   }
   

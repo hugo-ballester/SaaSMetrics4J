@@ -72,7 +72,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     // 1. Write "metrics.html"
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
-    displayMetrics(app, 2013, 24, new File(htmlDir, "metrics.tsv"));
+    displayMetrics(app, 2013, 12 * 3, new File(htmlDir, "metrics.tsv"));
     
     String metricChanges = metricChangesPerMonth(htmlDir, app);
     

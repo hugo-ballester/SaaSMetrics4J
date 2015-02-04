@@ -60,14 +60,18 @@ public class Metrics {
    * @return
    */
   public static double computeMRR(Contract c, Date d, boolean roundDate) {
-    if (d.before(c.startRoundDate)) {
-      return 0.;
-    }
+    
     if (roundDate) {
+      if (d.before(c.startRoundDate)) {
+        return 0.;
+      }
       if (c.endRoundDate != null && c.endRoundDate.before(d)) {
         return 0;
       }
     } else {
+      if (d.before(c.startContract)) {
+        return 0.;
+      }
       if (c.endContract != null && c.endContract.before(d)) {
         return 0;
       }

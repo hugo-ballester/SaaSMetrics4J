@@ -70,6 +70,13 @@ public class TimeWebsays extends DateUtilsWebsays {
     return super.getHowManyMonths(start, end, timezone);
   }
   
+  /**
+   * @param year
+   * @param month
+   *          1-12
+   * @param day
+   * @return
+   */
   public Calendar getCalendar(int year, int month, int day) {
     return super.getCalendar(year, month, day, timezone);
   }

@@ -167,7 +167,7 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String subtitle(String string) {
-    String msg = "<h4>" + string + "</h4>";
+    String msg = "<h4>" + string + "</h4>\n";
     return msg;
   }
   

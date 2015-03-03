@@ -26,6 +26,8 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   public static void main(String[] args) throws Exception {
+    System.out.println("<head><meta charset=\"UTF-8\"></head>");
+    
     init(args);
     if (contractID == null) {
       System.err.println("ERROR You much define --contract contractID");
@@ -45,9 +47,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       return;
     }
     
-    ContractMonthlyReport cmr = new ContractMonthlyReport();
-    cmr.report(c);
-    
+    report(c);
   }
   
   private void report(Contract c) throws ParseException, SQLException {
@@ -56,15 +56,18 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     if (c.endContract != null) {
       cE = calendar.getCalendar(c.endContract);
     }
-    int margin = 1;
-    report(c, cS.get(Y), cS.get(M) - margin, cE.get(Y), cE.get(M) + margin); // to dangerous 0 based
+    cS.add(Calendar.MONTH, -3);
+    cE.add(Calendar.MONTH, +3);
+    
+    report(c, cS.get(Y), cS.get(M) + 1, cE.get(Y), cE.get(M) + 1);
     if (c.endContract == null) {
       System.out.println("... and continues forever ...");
     }
   }
   
-  public void report(Contract c, int yearStart, int monthStart, int yearEnd, int monthEnd) throws ParseException, SQLException {
-    Calendar cal = calendar.getCalendar(yearStart, monthStart, 1);
+  public void report(Contract c, int yearStart, int monthStart_srartAt1, int yearEnd, int monthEnd_startAt1) throws ParseException,
+      SQLException {
+    Calendar cal = calendar.getCalendar(yearStart, monthStart_srartAt1 - 1, 1);
     int m, y;
     Contracts contracts = new Contracts();
     contracts.add(c);
@@ -76,7 +79,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       y = cal.get(Y);
       r.displayBilling(y, m);
       cal.add(M, 1);
-    } while (y != yearEnd || m < monthEnd + 2);
+    } while (!(y >= yearEnd && m == monthEnd_startAt1));
     
   }
   

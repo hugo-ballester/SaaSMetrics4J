@@ -30,7 +30,7 @@ public class ContractFactory {
         logger.warn("UK1 schema should not have commissionee! ignoring: " + commissionnee);
       }
       Commission com1 = new Commission(.2, commission_base, GlobalConstants.COMMMISSION_MONTHS, "OA");
-      Commission com2 = new Commission(.3, commission_base, GlobalConstants.COMMMISSION_MONTHS, "VS");
+      Commission com2 = new Commission(.3, commission_base, GlobalConstants.COMMMISSION_MONTHS, "VC");
       ret.add(com1);
       ret.add(com2);
     } else {

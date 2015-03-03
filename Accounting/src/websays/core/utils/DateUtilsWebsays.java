@@ -339,15 +339,15 @@ public class DateUtilsWebsays {
   
   /**
    * @param year
-   * @param month
+   * @param month_firstIs1
    *          1-12
    * @param day
    * @param tz
    * @return
    */
-  public static synchronized Calendar getCalendar(int year, int month, int day, TimeZone tz) {
+  public static synchronized Calendar getCalendar(int year, int month_firstIs1, int day, TimeZone tz) {
     Calendar cal = getCalendarInstance(tz);
-    cal.set(year, month - 1, day);
+    cal.set(year, month_firstIs1 - 1, day);
     calToBeginningOfDay(cal);
     return cal;
   }

@@ -110,6 +110,13 @@ public class Reporting {
     
   }
   
+  /**
+   * @param year
+   * @param month
+   *          1-12
+   * @throws ParseException
+   * @throws SQLException
+   */
   public void displayBilling(int year, int month) throws ParseException, SQLException {
     if (contracts == null) {
       System.err.println("ERROR: displayBilling: NULL contracts?");

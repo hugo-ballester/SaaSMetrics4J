@@ -32,6 +32,12 @@ public class Billing {
     logger.error(error1 + s);
   }
   
+  /**
+   * @param year
+   * @param month
+   *          1-12
+   * @return
+   */
   public static Calendar getBillingDate(int year, int month) {
     Calendar billingDate = calendar.getCalendar(year, month, BilledPeriod.billingDayOfMonth);
     return billingDate;
@@ -43,11 +49,11 @@ public class Billing {
    * 
    * @param c
    * @param year
-   * @param month
+   * @param month_firstIs1
    *          1-12
    * @return
    */
-  public static BilledItem bill(Contract c, int year, int month) {
+  public static BilledItem bill(Contract c, int year, int month_firstIs1) {
     try {
       
       // integrity tests
@@ -56,7 +62,7 @@ public class Billing {
         return null;
       }
       
-      Date billingDate = getBillingDate(year, month).getTime();
+      Date billingDate = getBillingDate(year, month_firstIs1).getTime();
       
       if (!c.isActiveBill(billingDate)) {
         logger.trace("Contract not active: " + c.name);
@@ -131,7 +137,14 @@ public class Billing {
     
   }
   
-  public static ArrayList<Bill> bill(Contracts cs, int year, int month) {
+  /**
+   * @param cs
+   * @param year
+   * @param month_firstIs1
+   *          1-12
+   * @return
+   */
+  public static ArrayList<Bill> bill(Contracts cs, int year, int month_firstIs1) {
     if (cs == null) {
       logger.error("ERROR: NULL contracts");
       return null;
@@ -140,7 +153,7 @@ public class Billing {
     TreeMap<String,Bill> ret = new TreeMap<String,Bill>();
     
     for (Contract c : cs) {
-      BilledItem bi = Billing.bill(c, year, month);
+      BilledItem bi = Billing.bill(c, year, month_firstIs1);
       if (bi == null) {
         continue;
       }

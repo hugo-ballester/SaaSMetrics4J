@@ -51,11 +51,7 @@ public class Commission {
     Date billDate = bi.getDate();
     int months = DateUtilsWebsays.getHowManyMonths(contractStart, billDate, null);
     double fee = 0;
-    fee = computeCommission(bi.fee, months);
-    if (!bi.getCurrency().equals(GlobalConstants.EUR)) {
-      fee *= GlobalConstants.exhangeRateToEU(bi.getCurrency());
-    }
-    
+    fee = computeCommission(bi.getFee(true), months);
     return new CommissionItem(commissionnee, fee, this, bi);
   }
   

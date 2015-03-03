@@ -15,6 +15,7 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.TimeWebsays;
 
 public class PrinterASCII extends BillingReportPrinter {
@@ -43,7 +44,7 @@ public class PrinterASCII extends BillingReportPrinter {
     StringBuilder s = new StringBuilder();
     
     s.append(String.format("%-30s" + TAB + "%10s" + "\n", //
-        b.clientName, money(b.getTotalFee(), false, b.items.get(0).getCurrency())));
+        b.clientName, money(b.getTotalFee(), false, CurrencyUtils.EUR)));
     
     if (!sumary) {
       for (int i = 0; i < b.items.size(); i++) {
@@ -64,7 +65,7 @@ public class PrinterASCII extends BillingReportPrinter {
     String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
     s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s %s)", bi.contract_name, per, dateFormat2.format(bi.period.periodStart),
         dateFormat1.format(bi.period.periodEnd), //
-        money(bi.fee, false, bi.getCurrency())
+        money(bi.getFee(false), false, bi.getCurrency())
         // NumberFormat.getIntegerInstance().format(bi.fee)
         , comms));
     if (bi.notes != null && bi.notes.size() > 0) {
@@ -80,7 +81,7 @@ public class PrinterASCII extends BillingReportPrinter {
       return s;
     }
     for (CommissionItem ci : commissions) {
-      s += String.format("%s:%s ", ci.commissionnee, money(ci.commission, false, ci.currency));
+      s += String.format("%s:%s ", ci.commissionnee, money(ci.commission, false, CurrencyUtils.EUR));
     }
     return "{" + s.substring(0, s.length() - 1) + "}";
   }
@@ -149,7 +150,7 @@ public class PrinterASCII extends BillingReportPrinter {
     StringBuffer str = new StringBuffer();
     str.append("{");
     for (java.util.Map.Entry<String,Double> e : groupAndSum.entrySet()) {
-      str.append(e.getKey() + ":" + money(e.getValue(), false, GlobalConstants.EUR) + ", ");
+      str.append(e.getKey() + ":" + money(e.getValue(), false, CurrencyUtils.EUR) + ", ");
     }
     if (str.length() >= 2) {
       str.setLength(str.length() - 2);

@@ -14,6 +14,7 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.ContractDocument;
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItem {
@@ -25,7 +26,7 @@ public class BilledItem {
   private static final Logger logger = Logger.getLogger(BilledItem.class);
   
   public BilledPeriod period;
-  public Double fee;
+  private Double fee;
   
   public String contract_name;
   public int contract_id;
@@ -51,14 +52,13 @@ public class BilledItem {
   public BilledItem(BilledPeriod billedPeriod, Double fee, String contract_name, int contract_id, Currency currency) {
     super();
     period = billedPeriod;
-    this.fee = fee;
+    setFee(fee, currency);
     this.contract_name = contract_name;
     this.contract_id = contract_id;
-    this.currency = currency;
   }
   
   public BilledItem(BilledItem bi) throws Exception {
-    this(new BilledPeriod(bi.period), new Double(bi.fee), bi.contract_name, bi.contract_id, bi.currency);
+    this(new BilledPeriod(bi.period), new Double(bi.getFee(false)), bi.contract_name, bi.contract_id, bi.currency);
   }
   
   public Date getDate() {
@@ -109,6 +109,23 @@ public class BilledItem {
   
   public Currency getCurrency() {
     return currency;
+  }
+  
+  public boolean feeIsNull() {
+    return this.fee == null;
+  }
+  
+  public double getFee(boolean convertToEuros) {
+    double fee = this.fee;
+    if (convertToEuros) {
+      fee = CurrencyUtils.toEuros(fee, currency);
+    }
+    return fee;
+  }
+  
+  public void setFee(Double fee, Currency currency) {
+    this.fee = fee;
+    this.currency = currency;
   }
   
 }

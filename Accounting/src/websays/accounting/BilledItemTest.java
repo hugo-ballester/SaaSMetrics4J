@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.TimeWebsays;
 
 public class BilledItemTest {
@@ -45,7 +46,7 @@ public class BilledItemTest {
     BilledPeriod bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
     // 1. Contract with defined end date
-    BilledItem bi = new BilledItem(bp, 100., "name", 0, GlobalConstants.EUR);
+    BilledItem bi = new BilledItem(bp, 100., "name", 0, CurrencyUtils.EUR);
     
     d = start1;
     bi.warningChecks(d, c);
@@ -89,7 +90,7 @@ public class BilledItemTest {
     
     bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
-    bi = new BilledItem(bp, 100., "name", 0, GlobalConstants.EUR);
+    bi = new BilledItem(bp, 100., "name", 0, CurrencyUtils.EUR);
     
     d = start1;
     bi.warningChecks(d, c);

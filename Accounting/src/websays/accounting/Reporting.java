@@ -25,6 +25,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 import websays.accounting.reporting.CSVMetricsReport;
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.TimeWebsays;
 
 /**
@@ -240,7 +241,7 @@ public class Reporting {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) {
         continue;
       }
-      double mrr = c.getMonthlyPrize(c.startContract, true, false);
+      double mrr = c.getMonthlyPrize(c.startContract, true, false, false);
       clients.add(c.client_name);
       String format = "%4s\t%30s\t%20s\t%10s\t%-25s";
       String line = String.format(format, //
@@ -251,10 +252,10 @@ public class Reporting {
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       lis.push(line);
-      total += mrr;
+      total += CurrencyUtils.toEuros(mrr, c.currency);
       if (calendar.getMonth(c.startContract) != lastmonth) {
         String month = "MONTH " + lastmonth;
-        line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, GlobalConstants.EUR), month);
+        line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), month);
         lis.push(line);
         total = 0.;
         lastmonth = calendar.getMonth(c.startContract);

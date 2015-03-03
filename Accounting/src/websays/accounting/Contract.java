@@ -15,6 +15,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.TimeWebsays;
 
 /**
@@ -201,7 +202,7 @@ public class Contract {
    *          only needd for pricing schemas that depend on date, otherwise can be null
    * @return
    */
-  public double getMonthlyPrize(Date d, boolean addFixedPrize, boolean roundDate) {
+  public double getMonthlyPrize(Date d, boolean addFixedPrize, boolean roundDate, boolean convertToEuros) {
     double p = 0;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
@@ -234,6 +235,9 @@ public class Contract {
       p += fixedPrice / months;
     }
     
+    if (convertToEuros) {
+      p = CurrencyUtils.toEuros(p, this.currency);
+    }
     return p;
   }
   

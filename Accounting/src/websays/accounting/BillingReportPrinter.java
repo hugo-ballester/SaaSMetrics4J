@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BillingReportPrinter {
@@ -48,7 +49,7 @@ public class BillingReportPrinter {
     if (round) {
       x = Math.round(x);
     }
-    return NF.format(x) + GlobalConstants.getCurrencySymbol( currency );
+    return NF.format(x) + CurrencyUtils.getCurrencySymbol(currency);
   }
   
   public String title(String string, boolean connectToDB) {

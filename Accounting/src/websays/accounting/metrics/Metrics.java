@@ -12,7 +12,7 @@ import java.util.TimeZone;
 
 import websays.accounting.Commission;
 import websays.accounting.Contract;
-import websays.accounting.GlobalConstants;
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.TimeWebsays;
 
 public class Metrics {
@@ -79,11 +79,8 @@ public class Metrics {
     
     double p = 0.;
     
-    p = c.getMonthlyPrize(d, true, true);
-    
-    if (c.currency != null && !c.currency.equals(GlobalConstants.EUR)) {
-      p *= GlobalConstants.exhangeRateToEU(c.currency);
-    }
+    p = c.getMonthlyPrize(d, true, true, true);
+    p = CurrencyUtils.toEuros(p, c.currency);
     
     return p;
   }

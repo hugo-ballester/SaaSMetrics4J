@@ -13,6 +13,8 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import websays.core.utils.CurrencyUtils;
+
 public class Bill {
   
   private static final Logger logger = Logger.getLogger(Bill.class);
@@ -34,7 +36,7 @@ public class Bill {
   
   public void addItem(BilledItem bi) {
     
-    if (bi.fee == null) {
+    if (bi.feeIsNull()) {
       System.err.println("ERROR: null fee cannot be added to bill!");
     }
     if (items == null) {
@@ -48,13 +50,19 @@ public class Bill {
     return "BILL FOR '" + clientName + "', ON " + sdf.format(date) + ", FOR: " + getTotalFee();
   }
   
+  /**
+   * Returns total fee (in EUROS)
+   * 
+   * @return
+   */
   public double getTotalFee() {
     if (items == null) {
       return 0.0;
     }
     double sum = 0.0;
     for (BilledItem bi : items) {
-      sum += bi.fee;
+      double fee = CurrencyUtils.toEuros(bi.getFee(true), bi.getCurrency());
+      sum += fee;
     }
     return sum;
   }

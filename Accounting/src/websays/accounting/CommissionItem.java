@@ -5,7 +5,6 @@
  */
 package websays.accounting;
 
-import java.util.Currency;
 
 /**
  * A Billed Item may have a CommissionItem associated indicated commission on this item
@@ -15,7 +14,6 @@ import java.util.Currency;
  */
 public class CommissionItem {
   
-  Currency currency = GlobalConstants.EUR; // all commissions computed in euros for now
   String commissionnee = null;
   double commission;
   

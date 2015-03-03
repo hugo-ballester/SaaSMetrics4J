@@ -80,14 +80,14 @@ public class Billing {
       
       if (!calendar.isSameDay(billingDate, bp.billDate)) {
         // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
-        bi.fee = 0.0;
+        bi.setFee(0.0, c.currency);
       } else {
         
         // COMPUTE FEE
         BillingSchema bs = c.billingSchema;
         Double monthly = null;
         
-        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
+        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false, false);
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
@@ -110,7 +110,7 @@ public class Billing {
           return null;
         }
         
-        bi.fee = monthly;
+        bi.setFee(monthly, c.currency);
       }
       if (bi != null) {
         bi.warningChecks(billingDate, c);

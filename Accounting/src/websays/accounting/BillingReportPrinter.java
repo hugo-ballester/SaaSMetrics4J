@@ -78,4 +78,17 @@ public class BillingReportPrinter {
     return ret;
   }
   
+  public String line() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  public String box1(String title, String content, boolean connectToDB, String extraStyle) {
+    return null;
+  }
+  
+  public String box1(String title, String content, boolean connectToDB) {
+    return null;
+  }
+  
 }

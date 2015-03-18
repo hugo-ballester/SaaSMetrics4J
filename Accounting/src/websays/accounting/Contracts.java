@@ -47,7 +47,7 @@ public class Contracts extends ArrayList<Contract> {
     STARTING, // starting at a given supplied date
     ENDING, // ending at a given supplied date (because {@code endContract})
     AUTORENEW, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
-    CHANGED; // changed at a given supplied date
+    CHANGED, BILLCENTER_ES, BILLCENTER_UK; // changed at a given supplied date
     
     public String whereBoolean() {
       if (this == CONTRACT) {
@@ -56,6 +56,10 @@ public class Contracts extends ArrayList<Contract> {
         return "contract.type='project'";
       } else if (this == CONTRACTED_OR_PROJECT) {
         return "contract.type='project' OR contract.type='contract'";
+      } else if (this == BILLCENTER_ES) {
+        return "client.billingCenter='Websays_ES'";
+      } else if (this == BILLCENTER_UK) {
+        return "client.billingCenter='Websays_UK'";
       } else {
         logger.error("AccountFilter=" + name() + " DOES NOT HAVE A whereBoolean");
         return "";
@@ -71,11 +75,16 @@ public class Contracts extends ArrayList<Contract> {
         return c.type.equals(Type.contract) || c.type.equals(Type.project);
       } else if (this == PROJECT) {
         return c.type.equals(Type.project);
+      } else if (this == BILLCENTER_ES) {
+        return c.billingCenter.equals(GlobalConstants.WebsaysES);
+      } else if (this == BILLCENTER_UK) {
+        return c.billingCenter.equals(GlobalConstants.WebsaysUK);
       } else {
         logger.error("NOT IMPLEMENTED AccountFilter.accept(" + this + ")");
       }
       return null;
     }
+    
   };
   
   static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -344,11 +353,21 @@ public class Contracts extends ArrayList<Contract> {
     
   }
   
-  public Contracts getView(String string) {
-    return getView(Pattern.compile(Pattern.quote(string)));
+  public Contracts getView(AccountFilter filter) {
+    Contracts ret = new Contracts();
+    for (Contract c : this) {
+      if (filter.accept(c)) {
+        ret.add(c);
+      }
+    }
+    return ret;
   }
   
-  public Contracts getView(Pattern string) {
+  public Contracts getViewMatcingName(String string) {
+    return getViewMatcingName(Pattern.compile(Pattern.quote(string)));
+  }
+  
+  public Contracts getViewMatcingName(Pattern string) {
     Contracts ret = new Contracts();
     Matcher m = string.matcher("");
     for (Contract c : this) {

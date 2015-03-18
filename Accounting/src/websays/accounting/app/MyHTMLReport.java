@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import websays.accounting.BillingReportPrinter;
+import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.GlobalConstants;
 import websays.accounting.PrinterASCII;
@@ -45,39 +46,38 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
-    int[] years = new int[] {2013, 2014, 2015};
-    
-    (new MyHTMLReport()).execute_HTML(years);
+    int[] years = new int[] {2015, 2014, 2013, 2012};
+    int metricStarYear = 2013;
+    int metricMonths = 12 * 3;
+    (new MyHTMLReport()).execute_HTML(years, metricStarYear, metricMonths);
     
     System.setOut(oldOut);
     
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : END");
   }
   
-  public void execute_HTML(int[] years) throws Exception {
+  public void execute_HTML(int[] billingYears, int yearStart, int months) throws Exception {
     
     if (reportingHTMLDir == null) {
       System.out.println("You need to define parameter reportingHtmlDir in properties file");
       return;
     }
     
-    if (contracts == null) {
-      initContracts();
-    }
+    Contracts contracts = initContracts();
     
-    Reporting app = new Reporting(contracts, new PrinterASCII());
+    Reporting app = new Reporting(new PrinterASCII());
     
     File htmlDir = new File(reportingHTMLDir);
     
     // 1. Write "metrics.html"
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
-    displayMetrics(app, 2013, 12 * 3, new File(htmlDir, "metrics.tsv"));
-    
-    String metricChanges = metricChangesPerMonth(htmlDir, app);
+    File metricsFile = new File(htmlDir, "metrics.tsv");
+    displayMetrics(app, yearStart, months, metricsFile, contracts);
+    String metricChanges = metricChangesPerMonth(yearStart, months, htmlDir, app, contracts);
     
     // 2. Write monthly billing files and get index
-    String billing = monthlyBillingReport(htmlDir, years);
+    String billing = monthlyBillingReport(htmlDir, billingYears, contracts);
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
@@ -100,22 +100,22 @@ public class MyHTMLReport extends BasicCommandLineApp {
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
     setOutput(new File(htmlDir, "last_1.html"));
     System.out.println("<h2>" + lastTitle + "</h2><pre>");
-    System.out.println(app.report_last(false));
+    System.out.println(Reporting.report_last(app.printer, false, contracts));
     
     lastTitle += " (new clients only)";
     indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
     setOutput(new File(htmlDir, "last_2.html"));
     System.out.println("<h2>" + lastTitle + "</h2><pre>");
-    System.out.println(app.report_last(true));
+    System.out.println(Reporting.report_last(app.printer, true, contracts));
     
     lastTitle = "Commissions";
     indexFile.append("<a href=\"commissions.html\">" + lastTitle + "</a><br/>");
     setOutput(new File(htmlDir, "commissions.html"));
     System.out.println("<h2>" + lastTitle + "</h2><pre>");
     String[] commssionnees = contracts.getCommissionnees();
-    for (int year : new int[] {2013, 2014, 2015}) {
+    for (int year : billingYears) {
       System.out.println("<h4>" + lastTitle + " " + year + "</h2><pre>");
-      System.out.println(app.report_comm(year, commssionnees));
+      System.out.println(Reporting.report_comm(year, commssionnees, contracts));
     }
     indexFile.append("\n</td></tr></table>\n");
     
@@ -138,43 +138,46 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws SQLException
    * @throws FileNotFoundException
    */
-  private String metricChangesPerMonth(File htmlDir, Reporting app) throws ParseException, IOException, SQLException, FileNotFoundException {
+  private String metricChangesPerMonth(int yearStart, int months, File htmlDir, Reporting app, Contracts contracts) throws ParseException,
+      IOException, SQLException, FileNotFoundException {
     
     Date date;
     String index = "";
     String what = "(Metric)";
-    for (int myear : new int[] {2013, 2014}) {
-      for (int bmonth = 1; bmonth <= 12; bmonth++) {
-        if (fixYear > 0 && (!(myear == fixYear && bmonth == fixMonth))) {
-          continue;
-        }
-        
-        String name1 = "metrics_" + myear + "_" + bmonth;
-        String file = name1 + ".html";
-        String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + myear + "</a>\n";
-        
-        if (thisYear == myear && thisMonth == bmonth) {
-          line = "<br/><bf>" + line + "<br/></bf>\n";
-        }
-        index += line;
-        
-        setOutput(new File(htmlDir, file));
-        
-        System.out.println("<html><body><pre>\n");
-        
-        date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
-        System.out.println(printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB));
-        
-        System.out.println(printer.subtitle("Changes"));
-        app.displayContracts(date, AccountFilter.STARTING, true, false);
-        app.displayContracts(date, AccountFilter.ENDING, true, false);
-        app.displayContracts(date, AccountFilter.CHANGED, true, false);
-        
-        System.out.println(printer.subtitle("All Active Contracts"));
-        app.displayContracts(date, AccountFilter.CONTRACT, true, true);
-        app.displayContracts(date, AccountFilter.PROJECT, true, true);
-        
+    int bmonth = 1;
+    int myear = yearStart;
+    for (int i = 0; i < months; i++) {
+      bmonth++;
+      if (bmonth > 12) {
+        bmonth = 1;
+        myear++;
       }
+      
+      String name1 = "metrics_" + myear + "_" + bmonth;
+      String file = name1 + ".html";
+      String line = "<li><a href=\"" + file + "\">" + bmonth + "/" + myear + "</a>\n";
+      
+      if (thisYear == myear && thisMonth == bmonth) {
+        line = "<br/><bf>" + line + "<br/></bf>\n";
+      }
+      index += line;
+      
+      setOutput(new File(htmlDir, file));
+      
+      System.out.println("<html><body><pre>\n");
+      
+      date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
+      System.out.println(printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB));
+      
+      System.out.println(printer.subtitle("Changes"));
+      app.displayContracts(date, AccountFilter.STARTING, true, false, contracts);
+      app.displayContracts(date, AccountFilter.ENDING, true, false, contracts);
+      app.displayContracts(date, AccountFilter.CHANGED, true, false, contracts);
+      
+      System.out.println(printer.subtitle("All Active Contracts"));
+      app.displayContracts(date, AccountFilter.CONTRACT, true, true, contracts);
+      app.displayContracts(date, AccountFilter.PROJECT, true, true, contracts);
+      
     }
     index += "</li>\n";
     
@@ -188,24 +191,26 @@ public class MyHTMLReport extends BasicCommandLineApp {
    *          start metrics on Jan of this year
    * @param monthsMetrics
    *          fo metrics for this many months
+   * @param dump
+   *          results to tsv file as well as stdout
    * @throws IOException
    * @throws ParseException
    * @throws SQLException
    */
-  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut) throws IOException, ParseException,
-      SQLException {
+  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut, Contracts contracts) throws IOException,
+      ParseException, SQLException {
     System.out.println(printer.title("METRICS (contracted, then projects, then total)", connectToDB));
     
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true));
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PROJECT, true));
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, true));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PROJECT, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, true, contracts));
     
-    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, false);
+    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts);
     FileUtils.writeStringToFile(tsvOut, tsv);
     
   }
   
-  private String monthlyBillingReport(File htmlDir, int[] years) throws FileNotFoundException, Exception {
+  private String monthlyBillingReport(File htmlDir, int[] years, Contracts contracts) throws FileNotFoundException, Exception {
     if (fixYear > 0) {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
@@ -236,8 +241,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
           indexFile.append("</td></tr></table>");
         }
         setOutput(new File(htmlDir, file));
+        System.out.println("<html><body>");
+        
         System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
-        mbr.report(contracts, byear, bmonth);
+        mbr.report(contracts, byear, bmonth, GlobalConstants.billingCenters);
       }
       
       indexFile.append("\n</ul>\n");

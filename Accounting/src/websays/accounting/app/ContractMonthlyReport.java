@@ -40,7 +40,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   
   void report(int contractID) throws Exception {
     
-    initContracts();
+    Contracts contracts = initContracts();
     Contract c = contracts.getContract(contractID);
     if (c == null) {
       System.err.println("ERROR: NO CONTRACT FOUND WITH contractID=" + contractID);
@@ -71,13 +71,13 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     int m, y;
     Contracts contracts = new Contracts();
     contracts.add(c);
-    Reporting r = new Reporting(contracts, printer);
+    Reporting r = new Reporting(printer);
     r.showInvoicesHeadlineWhenNone = false;
     
     do {
       m = cal.get(M) + 1;
       y = cal.get(Y);
-      r.displayBilling(y, m);
+      r.displayBilling(y, m, contracts);
       cal.add(M, 1);
     } while (!(y >= yearEnd && m == monthEnd_startAt1));
     

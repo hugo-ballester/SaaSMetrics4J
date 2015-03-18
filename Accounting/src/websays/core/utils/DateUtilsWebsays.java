@@ -18,6 +18,10 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
+/**
+ * @author hugoz
+ *
+ */
 public class DateUtilsWebsays {
   
   private static final Logger logger = Logger.getLogger(DateUtilsWebsays.class);
@@ -328,6 +332,11 @@ public class DateUtilsWebsays {
     return cal.get(Calendar.YEAR);
   }
   
+  /**
+   * @param date
+   * @param timezone
+   * @return 0-11
+   */
   public static synchronized int getMonth(Date date, TimeZone timezone) {
     Calendar cal = getCalendarInstance(date, timezone);
     return cal.get(Calendar.MONTH);

@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -40,7 +41,6 @@ public class BasicCommandLineApp {
   private static final Logger logger = Logger.getLogger(BasicCommandLineApp.class);
   public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
-  protected Contracts contracts;
   
   public static Properties props = new Properties();
   public static String pricingFile;
@@ -52,6 +52,11 @@ public class BasicCommandLineApp {
   
   public static int fixYear = 0, fixMonth = 0;
   protected static Integer contractID = null;
+  public static String email = null;
+  public static String[] actions = null;
+  
+  String line2 = "\n=================================================\n";
+  String line1 = "\n-------------------------------------------------\n";
   
   {
     Logger.getLogger(Contract.class).setLevel(Level.INFO);
@@ -63,6 +68,8 @@ public class BasicCommandLineApp {
     // argument parser:
     JSAP jsap = new JSAP();
     
+    jsap.registerParameter(new FlaggedOption("email").setStringParser(JSAP.STRING_PARSER).setRequired(false).setLongFlag("email"));
+    
     jsap.registerParameter(new FlaggedOption("params").setStringParser(JSAP.STRING_PARSER).setRequired(true).setShortFlag('p'));
     
     jsap.registerParameter(new FlaggedOption("year").setStringParser(JSAP.INTEGER_PARSER).setRequired(false).setShortFlag('y'));
@@ -71,6 +78,8 @@ public class BasicCommandLineApp {
     
     jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setShortFlag('c').setStringParser(JSAP.INTEGER_PARSER)
         .setRequired(false));
+    
+    jsap.registerParameter(new FlaggedOption("do").setStringParser(JSAP.STRING_PARSER).setRequired(false).setLongFlag("do"));
     
     jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
     
@@ -97,6 +106,14 @@ public class BasicCommandLineApp {
     if (config.contains("year")) {
       fixYear = config.getInt("year");
       fixMonth = config.getInt("month");
+    }
+    
+    if (config.contains("email")) {
+      email = config.getString("email");
+    }
+    
+    if (config.contains("do")) {
+      actions = StringUtils.split(config.getString("do"));
     }
     
     if (config.contains("contract")) {
@@ -152,9 +169,9 @@ public class BasicCommandLineApp {
     }
   }
   
-  public void initContracts() throws Exception {
+  public Contracts initContracts() throws Exception {
     
-    contracts = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
+    return ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile != null ? new File(
         pricingFile) : null);
   }
   
@@ -169,6 +186,16 @@ public class BasicCommandLineApp {
   public static String getField(String name) throws Exception {
     Field f = BasicCommandLineApp.class.getField(name);
     return f.get(BasicCommandLineApp.class).toString();
+  }
+  
+  public static boolean email(String title, String content) {
+    if (email == null) {
+      logger.error("Cannot email without email addresses");
+      return false;
+    }
+    String[] emails = StringUtils.split(email, ",");
+    System.out.println("NOT IMPLEMENTED!!!!");
+    return false;
   }
   
 }

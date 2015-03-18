@@ -35,7 +35,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, client.billingCenter, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
@@ -132,6 +132,10 @@ public class ContractDAO extends MySQLDAO {
           }
         }
       }
+    } catch (SQLException e) {
+      logger.error("MYSQL QUERY ERROR ON: " + p.toString());
+      throw (e);
+      
     } finally {
       super.close(r);
       super.close(p);
@@ -168,6 +172,7 @@ public class ContractDAO extends MySQLDAO {
       String pricing = rs.getString(column++);
       Integer client_id = rs.getInt(column++);
       String cname = rs.getString(column++);
+      String billingCenter = rs.getString(column++);
       
       BigDecimal bd = (BigDecimal) rs.getObject(column++);
       Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
@@ -210,6 +215,7 @@ public class ContractDAO extends MySQLDAO {
       a.contractedMonths = contracteMonths;
       a.currency = Currency.getInstance(currency);
       a.comments_billing = comments_billing;
+      a.billingCenter = billingCenter;
       
       return a;
     } catch (Exception e) {

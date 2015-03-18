@@ -8,6 +8,7 @@ package websays.accounting;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Date;
 
 import org.apache.log4j.Level;
@@ -27,6 +28,8 @@ public class Bill {
   public String clientName;
   
   public ArrayList<BilledItem> items;
+  
+  public Currency currency = CurrencyUtils.EUR;
   
   public Bill(Date d, String clientName) {
     super();
@@ -51,7 +54,7 @@ public class Bill {
   }
   
   /**
-   * Returns total fee (in EUROS)
+   * Returns total fee (converting each bill's item to bill's currency)
    * 
    * @return
    */
@@ -61,7 +64,10 @@ public class Bill {
     }
     double sum = 0.0;
     for (BilledItem bi : items) {
-      double fee = CurrencyUtils.toEuros(bi.getFee(true), bi.getCurrency());
+      double fee = bi.getFee();
+      if (!bi.getCurrency().equals(currency)) {
+        fee = CurrencyUtils.convert(fee, bi.getCurrency(), currency);
+      }
       sum += fee;
     }
     return sum;

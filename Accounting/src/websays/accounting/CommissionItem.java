@@ -5,9 +5,10 @@
  */
 package websays.accounting;
 
-
 /**
  * A Billed Item may have a CommissionItem associated indicated commission on this item
+ * 
+ * For now all commissions are stored in euros regardless of the currency of the bills
  * 
  * @author hugoz
  * 

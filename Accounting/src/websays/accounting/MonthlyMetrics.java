@@ -13,7 +13,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.metrics.Metrics;
 import websays.core.utils.maths.DescriptiveStats;
 
@@ -99,7 +98,7 @@ public class MonthlyMetrics {
     
   }
   
-  public static MonthlyMetrics compute(int year, int month, AccountFilter filter, Contracts accounts) throws ParseException {
+  public static MonthlyMetrics compute(int year, int month, Contracts accounts) throws ParseException {
     
     boolean metricDate = true;
     
@@ -109,9 +108,7 @@ public class MonthlyMetrics {
     accounts.sort(websays.accounting.Contracts.SortType.contract);
     
     for (Contract a : accounts) {
-      if (filter != null && !filter.accept(a)) {
-        continue;
-      }
+      
       if (!a.isActive(start, true)) {
         
         Date prevMonth = DateUtils.addMonths(start, -1);

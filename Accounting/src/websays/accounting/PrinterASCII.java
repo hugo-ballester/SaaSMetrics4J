@@ -42,9 +42,10 @@ public class PrinterASCII extends BillingReportPrinter {
   public String printBill(Bill b, boolean sumary) {
     
     StringBuilder s = new StringBuilder();
+    b.currency = b.items.get(0).getCurrency(); // set currency as first item
     
     s.append(String.format("%-30s" + TAB + "%10s" + "\n", //
-        b.clientName, money(b.getTotalFee(), false, CurrencyUtils.EUR)));
+        b.clientName, money(b.getTotalFee(), false, b.currency)));
     
     if (!sumary) {
       for (int i = 0; i < b.items.size(); i++) {
@@ -65,7 +66,7 @@ public class PrinterASCII extends BillingReportPrinter {
     String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
     s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s %s)", bi.contract_name, per, dateFormat2.format(bi.period.periodStart),
         dateFormat1.format(bi.period.periodEnd), //
-        money(bi.getFee(false), false, bi.getCurrency())
+        money(bi.getFee(), false, bi.getCurrency())
         // NumberFormat.getIntegerInstance().format(bi.fee)
         , comms));
     if (bi.notes != null && bi.notes.size() > 0) {
@@ -112,7 +113,7 @@ public class PrinterASCII extends BillingReportPrinter {
         noBills.add(b);
       } else {
         
-        tot += b.getTotalFee();
+        tot += CurrencyUtils.toEuros(b.getTotalFee(), b.currency);
         for (BilledItem bi : b.items) {
           comms.addAll(bi.commissions);
           totCom += bi.commissions.totalCommission();
@@ -132,8 +133,8 @@ public class PrinterASCII extends BillingReportPrinter {
       }
     }
     // RENDER TOTALS:
-    sb.append("\n" + "TOTAL INVOICED:" + TAB + tot + "\n");
-    sb.append("\n" + "COMMISSIONS:" + TAB + totCom + "\n");
+    sb.append("\n" + "TOTAL INVOICED:" + TAB + tot + "€\n");
+    sb.append("\n" + "COMMISSIONS:" + TAB + totCom + "€\n");
     sb.append(TAB + joinMoney(comms.groupAndSum()) + "\n");
     
     // RENDER SERVICES NOT BILLED THIS MONTH:
@@ -143,7 +144,9 @@ public class PrinterASCII extends BillingReportPrinter {
       sb.append("\n");
     }
     // DONE.
+    sb.append(line2);
     return sb.toString();
+    
   }
   
   private String joinMoney(HashMap<String,Double> groupAndSum) {
@@ -173,11 +176,29 @@ public class PrinterASCII extends BillingReportPrinter {
   }
   
   @Override
+  public String line() {
+    String msg = "<hr/>";
+    return msg;
+  }
+  
+  @Override
   public String header(String version) {
     String msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
     msg += "\n<head></head>\n";
     msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + dateFormat2.format(new Date()) + "</h4><hr/>\n\n";
     return msg;
+  }
+  
+  @Override
+  public String box1(String title, String content, boolean connectToDB) {
+    return box1(title, content, connectToDB, "bgcolor=\"white\"");
+  }
+  
+  @Override
+  public String box1(String title, String content, boolean connectToDB, String extraStyle) {
+    String style = "border=\"2\" width=\"100%\" cellpadding=\"10\" " + extraStyle;
+    String ret = "<table " + style + "><tr><td>" + title(title, connectToDB) + content + "</td></tr></table>";
+    return ret;
   }
   
 }

@@ -53,6 +53,10 @@ public class TimeWebsays extends DateUtilsWebsays {
     return super.getYear(date, timezone);
   }
   
+  /**
+   * @param date
+   * @return 0-11
+   */
   public int getMonth(Date date) {
     return super.getMonth(date, timezone);
   }

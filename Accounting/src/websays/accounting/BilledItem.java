@@ -14,7 +14,6 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract.ContractDocument;
-import websays.core.utils.CurrencyUtils;
 import websays.core.utils.DateUtilsWebsays;
 
 public class BilledItem {
@@ -58,7 +57,7 @@ public class BilledItem {
   }
   
   public BilledItem(BilledItem bi) throws Exception {
-    this(new BilledPeriod(bi.period), new Double(bi.getFee(false)), bi.contract_name, bi.contract_id, bi.currency);
+    this(new BilledPeriod(bi.period), new Double(bi.getFee()), bi.contract_name, bi.contract_id, bi.currency);
   }
   
   public Date getDate() {
@@ -115,11 +114,8 @@ public class BilledItem {
     return this.fee == null;
   }
   
-  public double getFee(boolean convertToEuros) {
+  public double getFee() {
     double fee = this.fee;
-    if (convertToEuros) {
-      fee = CurrencyUtils.toEuros(fee, currency);
-    }
     return fee;
   }
   

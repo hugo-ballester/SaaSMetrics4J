@@ -110,6 +110,7 @@ public class Contract {
   
   // from JOIN:
   public String client_name;
+  public String billingCenter;
   
   // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema at DAO time)
   public ArrayList<Commission> commission = new ArrayList<Commission>();

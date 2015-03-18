@@ -10,6 +10,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import websays.accounting.connectors.ContractDAO;
+import websays.core.utils.CurrencyUtils;
 import websays.core.utils.DateUtilsWebsays;
 
 public class Commission {
@@ -50,8 +51,8 @@ public class Commission {
     Date contractStart = bi.period.contractStart;
     Date billDate = bi.getDate();
     int months = DateUtilsWebsays.getHowManyMonths(contractStart, billDate, null);
-    double fee = 0;
-    fee = computeCommission(bi.getFee(true), months);
+    double fee = CurrencyUtils.toEuros(bi.getFee(), bi.getCurrency());
+    fee = computeCommission(fee, months);
     return new CommissionItem(commissionnee, fee, this, bi);
   }
   

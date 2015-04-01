@@ -79,7 +79,7 @@ public class Metrics {
     
     double p = 0.;
     
-    p = c.getMonthlyPrize(d, true, true, true);
+    p = c.getMonthlyPrize(d, true, true);
     p = CurrencyUtils.toEuros(p, c.currency);
     
     return p;

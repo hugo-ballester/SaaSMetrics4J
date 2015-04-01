@@ -29,6 +29,7 @@ public class MonthlyMetrics {
   private static final Logger logger = Logger.getLogger(MonthlyMetrics.class);
   
   public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+  boolean metricDate = false;
   
   public double mrr, comm;
   public int accounts;
@@ -98,9 +99,16 @@ public class MonthlyMetrics {
     
   }
   
-  public static MonthlyMetrics compute(int year, int month, Contracts accounts) throws ParseException {
-    
-    boolean metricDate = true;
+  /**
+   * @param year
+   * @param month
+   * @param accounts
+   * @param metricDate
+   *          if true rounds all dates
+   * @return
+   * @throws ParseException
+   */
+  public static MonthlyMetrics compute(int year, int month, Contracts accounts, boolean metricDate) throws ParseException {
     
     Date start = df.parse("1/" + month + "/" + year);
     MonthlyMetrics m = new MonthlyMetrics();

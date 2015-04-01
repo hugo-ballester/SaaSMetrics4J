@@ -194,7 +194,8 @@ public class Reporting {
     return sb.toString();
   }
   
-  public static String displayLastMRR(Contracts contracts, int yearStart, int monthEnd, int months) throws ParseException {
+  public static String displayLastMRR(Contracts contracts, int yearStart, int monthEnd, int months, boolean metricDate)
+      throws ParseException {
     HashMap<String,MonthlyMetrics> cache = new HashMap<String,MonthlyMetrics>();
     String header = "MONTH:\t\t";
     String line1 = "\nAvg. Delta MRR (k€):";
@@ -228,13 +229,13 @@ public class Reporting {
         
         MonthlyMetrics met1 = cache.get(label);
         if (cache.get(label) == null) {
-          met1 = MonthlyMetrics.compute(y, m, contracts);
+          met1 = MonthlyMetrics.compute(y, m, contracts, metricDate);
           cache.put(label, met1);
         }
         
         MonthlyMetrics met2 = cache.get(label2);
         if (cache.get(label2) == null) {
-          met2 = MonthlyMetrics.compute(y2, m2, contracts);
+          met2 = MonthlyMetrics.compute(y2, m2, contracts, metricDate);
           cache.put(label2, met2);
         }
         
@@ -277,6 +278,7 @@ public class Reporting {
   
   public String displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter, boolean completeDetail,
       Contracts allContracts) throws ParseException, SQLException {
+    boolean metricDate = false;
     
     Contracts contracts = allContracts;
     if (filter != null) {
@@ -300,7 +302,7 @@ public class Reporting {
         year++;
       }
       
-      MonthlyMetrics m = MonthlyMetrics.compute(year, month, contracts);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, month, contracts, metricDate);
       if (i == 0) {
         old = m;
       }
@@ -355,7 +357,7 @@ public class Reporting {
       }
       
       clients.add(c.client_name);
-      double mrr = c.getMonthlyPrize(c.startContract, true, false, false);
+      double mrr = c.getMonthlyPrize(c.startContract, true, false);
       
       line = String.format(format, //
           toStringShort_commissionees(c), //

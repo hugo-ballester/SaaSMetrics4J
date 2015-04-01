@@ -87,7 +87,7 @@ public class Billing {
         BillingSchema bs = c.billingSchema;
         Double monthly = null;
         
-        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false, false);
+        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();

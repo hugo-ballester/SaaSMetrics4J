@@ -30,6 +30,8 @@ import websays.core.utils.TimeWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
+  private static boolean roundDate = false;
+  
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   // dont change timezone here, change default instead, since many use this.
@@ -171,14 +173,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
           //
           + printer.subtitle("Changes") //
           + app.displayContracts_header() //
-          + app.displayContracts(date, AccountFilter.STARTING, true, contracts) //
-          + app.displayContracts(date, AccountFilter.ENDING, true, contracts) //
-          + app.displayContracts(date, AccountFilter.CHANGED, true, contracts) //
+          + app.displayContracts(date, AccountFilter.STARTING, roundDate, contracts) //
+          + app.displayContracts(date, AccountFilter.ENDING, roundDate, contracts) //
+          + app.displayContracts(date, AccountFilter.CHANGED, roundDate, contracts) //
           //
           + printer.subtitle("All Active Contracts") //
           + app.displayContracts_header() //
-          + app.displayContracts(date, AccountFilter.CONTRACT, true, contracts) //
-          + app.displayContracts(date, AccountFilter.PROJECT, true, contracts) //
+          + app.displayContracts(date, AccountFilter.CONTRACT, roundDate, contracts) //
+          + app.displayContracts(date, AccountFilter.PROJECT, roundDate, contracts) //
           + "\n</pre>";
       System.out.println(content);
     }
@@ -246,6 +248,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         setOutput(new File(htmlDir, file));
         System.out.println("<html><body>");
         
+        // GENERATE BILLING REPORT FOR THE MONTH
         System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
         mbr.report(contracts, byear, bmonth, GlobalConstants.billingCenters);
       }

@@ -42,6 +42,7 @@ public class MyMiniReports extends BasicCommandLineApp {
     
     Contracts contAll = contracts.getView(AccountFilter.CONTRACTED_OR_PROJECT);
     Contracts contCont = contracts.getView(AccountFilter.CONTRACT);
+    boolean metricDate = false;
     
     SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd ('W'w)");
     sdf1.setTimeZone(TimeZone.getTimeZone("Europe/Madrid"));
@@ -53,19 +54,19 @@ public class MyMiniReports extends BasicCommandLineApp {
         String ret = line2 + "MRR REPORT " + date + line2;
         
         ret += line1 + "ALL (CONTRACTS + PROJECTS)\n\n";
-        ret += Reporting.displayLastMRR(contAll, thisYear, thisMonth, MONTHS) + "\n";
+        ret += Reporting.displayLastMRR(contAll, thisYear, thisMonth, MONTHS, metricDate) + "\n";
         
         ret += line1 + "CONTRACTS only (projects removed):\n\n";
-        ret += Reporting.displayLastMRR(contCont, thisYear, thisMonth, MONTHS) + "\n";
+        ret += Reporting.displayLastMRR(contCont, thisYear, thisMonth, MONTHS, metricDate) + "\n";
         
         ret += line2;
         
         if (email != null) {
           email("Mini MRR Report " + date, ret);
           logger.info("MRR Report e-mail sent");
-        } else {
-          System.out.println(ret);
         }
+        System.out.println(ret);
+        
       }
     }
   }

@@ -16,6 +16,7 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import websays.core.utils.CurrencyUtils;
+import websays.core.utils.DateUtilsWebsays;
 import websays.core.utils.TimeWebsays;
 
 /**
@@ -345,6 +346,17 @@ public class Contract {
   }
   
   /**
+   * @return -1 if end not defined
+   */
+  public int getDays() {
+    if (endContract == null) {
+      return -1;
+    }
+    
+    return DateUtilsWebsays.getHowManyDays(startContract, endContract);
+  }
+  
+  /**
    * Ignores DAY_OF_MONTH 0 if contracts ends same month as d, 1 if contract ends following month, etc.
    * 
    * @return
@@ -359,6 +371,11 @@ public class Contract {
     } else {
       return 0;
     }
+  }
+  
+  public boolean isCostZero() {
+    return this.pricingSchema == null && (this.fixedPrice == null || this.fixedPrice == 0.0)
+        && (this.monthlyPrice == null || this.monthlyPrice == 0.0);
   }
   
 }

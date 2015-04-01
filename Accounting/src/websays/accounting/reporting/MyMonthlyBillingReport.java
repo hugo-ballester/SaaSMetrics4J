@@ -52,14 +52,14 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
     String billingSection = "";
     if (billingCenters == null) {
-      billingSection = app.printer.box1("BILLING", app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, contracts),
-          connectToDB);
+      billingSection = app.printer.box1(//
+          "BILLING", //
+          app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, contracts), connectToDB);
     } else {
       for (AccountFilter af : billingCenters) {
         Contracts conts = contracts.getView(af);
         billingSection += app.printer.box1("BILLING FOR CENTER " + af.name(),
             app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, conts), connectToDB);
-        
       }
     }
     System.out.println(//
@@ -76,12 +76,12 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
         app.printer.box1(
             "Starting, Ending & Changing contracts:",
             // endOfM: day does not matter for contract filter, only month, but has to be end because otherwise mrr is 0 for non-started contracts
-            app.displayContracts(endOfM, AccountFilter.STARTING, false, false, contracts)
+            app.displayContracts(endOfM, AccountFilter.STARTING, false, contracts)
                 // beginningOfMonth: opposite reason as above, we need a day in which contracts are active so mrr!=0 end because otherwise mrr is 0
                 // for non-started contracts
-                + app.displayContracts(begOfMonth, AccountFilter.ENDING, false, false, contracts)
-                + app.displayContracts(begOfMonth, AccountFilter.AUTORENEW, false, false, contracts)
-                + app.displayContracts(begOfMonth, AccountFilter.CHANGED, false, false, contracts)//
+                + app.displayContracts(begOfMonth, AccountFilter.ENDING, false, contracts)
+                + app.displayContracts(begOfMonth, AccountFilter.AUTORENEW, false, contracts)
+                + app.displayContracts(begOfMonth, AccountFilter.CHANGED, false, contracts)//
             , connectToDB));
     
     System.out.println(//
@@ -92,8 +92,8 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     System.out.println(//
         app.printer.box1(
             "All active contracts:",
-            app.displayContracts(begOfMonth, AccountFilter.CONTRACT, false, false, contracts)
-                + app.displayContracts(begOfMonth, AccountFilter.PROJECT, false, false, contracts), //
+            app.displayContracts(begOfMonth, AccountFilter.CONTRACT, false, contracts)
+                + app.displayContracts(begOfMonth, AccountFilter.PROJECT, false, contracts), //
             connectToDB));
     
   }

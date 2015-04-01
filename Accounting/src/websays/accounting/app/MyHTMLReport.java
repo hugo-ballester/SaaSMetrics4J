@@ -164,20 +164,23 @@ public class MyHTMLReport extends BasicCommandLineApp {
       
       setOutput(new File(htmlDir, file));
       
-      System.out.println("<html><body><pre>\n");
-      
       date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
-      System.out.println(printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB));
-      
-      System.out.println(printer.subtitle("Changes"));
-      app.displayContracts(date, AccountFilter.STARTING, true, false, contracts);
-      app.displayContracts(date, AccountFilter.ENDING, true, false, contracts);
-      app.displayContracts(date, AccountFilter.CHANGED, true, false, contracts);
-      
-      System.out.println(printer.subtitle("All Active Contracts"));
-      app.displayContracts(date, AccountFilter.CONTRACT, true, true, contracts);
-      app.displayContracts(date, AccountFilter.PROJECT, true, true, contracts);
-      
+      String content = "<html><body><pre>\n"
+      //
+          + printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB)
+          //
+          + printer.subtitle("Changes") //
+          + app.displayContracts_header() //
+          + app.displayContracts(date, AccountFilter.STARTING, true, contracts) //
+          + app.displayContracts(date, AccountFilter.ENDING, true, contracts) //
+          + app.displayContracts(date, AccountFilter.CHANGED, true, contracts) //
+          //
+          + printer.subtitle("All Active Contracts") //
+          + app.displayContracts_header() //
+          + app.displayContracts(date, AccountFilter.CONTRACT, true, contracts) //
+          + app.displayContracts(date, AccountFilter.PROJECT, true, contracts) //
+          + "\n</pre>";
+      System.out.println(content);
     }
     index += "</li>\n";
     

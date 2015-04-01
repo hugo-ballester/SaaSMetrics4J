@@ -5,6 +5,7 @@
  */
 package websays.accounting.app;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -26,7 +27,7 @@ public class MyMiniReports extends BasicCommandLineApp {
   // dont change timezone here, change default instead, since many use this.
   final static TimeWebsays cal = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
-  private static final int MONTHS = 6;
+  private static final int MONTHS = 8;
   Calendar c = cal.getCalendar(new Date());
   
   static BillingReportPrinter printer = new PrinterASCII();
@@ -42,27 +43,31 @@ public class MyMiniReports extends BasicCommandLineApp {
     Contracts contAll = contracts.getView(AccountFilter.CONTRACTED_OR_PROJECT);
     Contracts contCont = contracts.getView(AccountFilter.CONTRACT);
     
+    SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd ('W'w)");
+    sdf1.setTimeZone(TimeZone.getTimeZone("Europe/Madrid"));
+    String date = sdf1.format(new Date());
+    
     for (String action : actions) {
       
       if (action.equals("mrr")) {
-        String ret = line2 + "MRR REPORT" + line2;
-        ret += "ALL (CONTRACTS + PROJECTS)\n\n";
+        String ret = line2 + "MRR REPORT " + date + line2;
         
+        ret += line1 + "ALL (CONTRACTS + PROJECTS)\n\n";
         ret += Reporting.displayLastMRR(contAll, thisYear, thisMonth, MONTHS) + "\n";
+        
         ret += line1 + "CONTRACTS only (projects removed):\n\n";
         ret += Reporting.displayLastMRR(contCont, thisYear, thisMonth, MONTHS) + "\n";
+        
         ret += line2;
         
-        System.out.println(ret);
-        
-        if (super.email != null) {
-          email("MRR Report", ret);
+        if (email != null) {
+          email("Mini MRR Report " + date, ret);
+          logger.info("MRR Report e-mail sent");
+        } else {
+          System.out.println(ret);
         }
       }
     }
   }
   
-  public static void main(String[] args) throws Exception {
-    new MyMiniReports(args);
-  }
 }

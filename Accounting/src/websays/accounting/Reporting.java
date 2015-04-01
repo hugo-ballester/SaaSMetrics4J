@@ -52,7 +52,12 @@ public class Reporting {
     this.printer = printer;
   }
   
-  public String displayContracts(Date d, AccountFilter filter, boolean metricDate, boolean colheader, Contracts contracts) {
+  public String displayContracts_header() {
+    return String.format("%4s %-20s %-20s %-12s\t%-11s\t%s\t%s    \t%s-%s\n", //
+        "ID", "Contract Name", "Client Name", "MRR", "Commission", "Type     ", "Billing", "start", "end");
+  }
+  
+  public String displayContracts(Date d, AccountFilter filter, boolean metricDate, Contracts contracts) {
     StringBuffer sb = new StringBuffer();
     
     if (contracts == null) {
@@ -65,10 +70,6 @@ public class Reporting {
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0, totCom = 0;
     int totC = 0;
-    if (colheader) {
-      sb.append(String.format("%4s %-20s %-20s %-12s\t%-11s\t%s\t%s    \t%s-%s\n", //
-          "ID", "Contract Name", "Client Name", "MRR", "Commission", "Type     ", "Billing", "start", "end"));
-    }
     
     for (Contract c : cs) {
       String endS = "", startS = "";
@@ -88,7 +89,7 @@ public class Reporting {
       
       double mrr = Metrics.computeMRR(c, d, metricDate);
       double commission = Metrics.computeCommission(c, d, metricDate);
-      sb.append(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s\t%s-%s\n", //
+      sb.append(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s \t%s-%s\n", //
           c.getId(), c.name, c.client_name, mrr, commission, c.type, c.billingSchema, startS, endS));
       totM += mrr;
       totCom += commission;
@@ -202,11 +203,11 @@ public class Reporting {
     ;
     int month = monthEnd;
     int year = yearStart;
-    int WINDOW = 6;
+    int WINDOW_FOR_AVERAGE = 6;
     for (int i = 0; i < months; i++) {
       
       double avg = 0;
-      for (int j = WINDOW; j > 0; j--) {
+      for (int j = WINDOW_FOR_AVERAGE; j > 0; j--) {
         
         int m = month - j + 1;
         int y = year;
@@ -242,7 +243,7 @@ public class Reporting {
         // System.out.println(label + "  -  " + label2 + "\t" + value1 + "\t" + avg);
         
       }
-      avg /= WINDOW;
+      avg /= WINDOW_FOR_AVERAGE;
       // System.out.println(avg);
       
       String label = year + "-" + month;

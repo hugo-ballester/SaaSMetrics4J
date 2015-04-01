@@ -253,7 +253,7 @@ public class DateUtilsWebsays {
    * @return
    * @throws ParseException
    */
-  public static synchronized int getHowManyDays(Date start, Date end) throws ParseException {
+  public static synchronized int getHowManyDays(Date start, Date end) {
     // the +1 makes a whole day when starting form 0:0 to 24:59
     int howManyDays = (int) ((end.getTime() - start.getTime() + 1) / (1000 * 60 * 60 * 24));
     return howManyDays;

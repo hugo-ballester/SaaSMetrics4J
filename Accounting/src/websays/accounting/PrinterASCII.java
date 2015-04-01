@@ -196,7 +196,7 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String box1(String title, String content, boolean connectToDB, String extraStyle) {
-    String style = "border=\"2\" width=\"100%\" cellpadding=\"10\" " + extraStyle;
+    String style = "border=\"2\" width=\"80%\" cellpadding=\"10\" " + extraStyle;
     String ret = "<table " + style + "><tr><td>" + title(title, connectToDB) + content + "</td></tr></table>";
     return ret;
   }

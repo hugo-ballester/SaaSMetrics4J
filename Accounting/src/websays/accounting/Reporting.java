@@ -335,7 +335,7 @@ public class Reporting {
     
     LinkedList<String> lis = new LinkedList<String>(); // used to revert order of print (newest at the top)
     HashSet<String> clients = new HashSet<String>(); // used to remove non-first when onlyFirstOfEachClient
-    String format = "%4s\t%30s\t%20s\t%10s\t%-25s";
+    String format = "%4s\t%30s\t%20s\t%10s\t%4s\t%-25s";
     String line;
     int lastmonth = -1, lastyear = -1;
     double total = 0;
@@ -349,7 +349,7 @@ public class Reporting {
         lastmonth = month;
       } else if (month != lastmonth) { // compute sum of previous month before starting
         String monthStr = "MONTH " + lastyear + "-" + lastmonth;
-        line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), monthStr);
+        line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), "", monthStr);
         lis.push(line);
         total = 0.;
         lastmonth = month;
@@ -363,7 +363,9 @@ public class Reporting {
           toStringShort_commissionees(c), //
           (c.name == null ? "" : c.name), //
           ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //
-          BillingReportPrinter.money(mrr, true, c.currency), printer.stringPeriod(c) //
+          BillingReportPrinter.money(mrr, true, c.currency), //
+          printer.stringMonths(c), //
+          printer.stringPeriod(c) //
           );
       // c.endContract != null ? sdf.format(c.endContract) :
       
@@ -371,7 +373,7 @@ public class Reporting {
       total += CurrencyUtils.toEuros(mrr, c.currency);
     }
     String monthStr = "MONTH " + lastyear + "-" + lastmonth;
-    line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), monthStr);
+    line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), "", monthStr);
     lis.push(line);
     
     return StringUtils.join(lis, "\n");

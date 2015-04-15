@@ -78,6 +78,15 @@ public class BillingReportPrinter {
     return ret;
   }
   
+  public String stringMonths(Contract c) {
+    if (c.contractedMonths != null && c.contractedMonths > 0 && c.startContract != null) {
+      return "" + c.contractedMonths + "M";
+    } else if (c.startContract != null && c.endContract != null) {
+      return "" + DateUtilsWebsays.getHowManyMonths(c.startContract, c.endContract, null) + "M";
+    }
+    return "?";
+  }
+  
   public String line() {
     // TODO Auto-generated method stub
     return null;

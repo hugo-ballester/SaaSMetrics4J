@@ -34,6 +34,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
+  final String HTML_PREFIX = "<html><head><meta charset=\"UTF-8\"></head>\n<body>\n";
+  
   // dont change timezone here, change default instead, since many use this.
   final static TimeWebsays cal = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
@@ -83,7 +85,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
-    indexFile.append("<html><body><table cellpadding=\"20\" border=\"1\"  >");
+    indexFile.append(HTML_PREFIX + "<table cellpadding=\"20\" border=\"1\"  >");
     indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
     
     indexFile.append("\n<tr><td valign=\"top\">");
@@ -96,29 +98,29 @@ public class MyHTMLReport extends BasicCommandLineApp {
     indexFile.append("\n</td>\n");
     
     // 2. Build "Last" files
+    String content;
     indexFile.append("\n<td valign=\"top\">\n");
     
     String lastTitle = "Last Contracts";
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
-    setOutput(new File(htmlDir, "last_1.html"));
-    System.out.println("<h2>" + lastTitle + "</h2><pre>");
-    System.out.println(Reporting.report_last(app.printer, false, contracts));
+    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, false, contracts);
+    FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
     
     lastTitle += " (new clients only)";
     indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
-    setOutput(new File(htmlDir, "last_2.html"));
-    System.out.println("<h2>" + lastTitle + "</h2><pre>");
-    System.out.println(Reporting.report_last(app.printer, true, contracts));
+    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, true, contracts);
+    FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
     
     lastTitle = "Commissions";
     indexFile.append("<a href=\"commissions.html\">" + lastTitle + "</a><br/>");
-    setOutput(new File(htmlDir, "commissions.html"));
-    System.out.println("<h2>" + lastTitle + "</h2><pre>");
+    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n";
     String[] commssionnees = contracts.getCommissionnees();
     for (int year : billingYears) {
-      System.out.println("<h4>" + lastTitle + " " + year + "</h2><pre>");
-      System.out.println(Reporting.report_comm(year, commssionnees, contracts));
+      content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
+      content += Reporting.report_comm(year, commssionnees, contracts);
     }
+    FileUtils.writeStringToFile(new File(htmlDir, "commissions.html"), content);
+    
     indexFile.append("\n</td></tr></table>\n");
     
     FileUtils.writeStringToFile(new File(htmlDir, "index.html"), indexFile.toString());

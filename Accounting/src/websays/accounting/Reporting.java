@@ -447,22 +447,17 @@ public class Reporting {
     return ret.toString();
   }
   
-  private static String printAndStripLastComma(String s) {
-    if (s == null) {
-      return "";
-    } else if (s.endsWith(", ")) {
-      return s.substring(0, s.length() - 2);
-    } else {
-      return s;
-    }
-  }
-  
   private static String toStringShort_commissionees(Contract c) {
     String ret = "";
     for (Commission com : c.commission) {
-      ret += (com == null ? "" : com.commissionnee) + ", ";
+      ret += (com == null ? "NULL" : com.commissionnee) + ", ";
     }
-    return printAndStripLastComma(ret);
+    if (ret.length() == 0) {
+      ret = "???";
+    } else {
+      ret = ret.substring(0, ret.length() - 2);
+    }
+    return ret;
   }
   
   public String displayTotals(Date date, AccountFilter filter, boolean metricDate, Contracts contracts) throws ParseException, SQLException {

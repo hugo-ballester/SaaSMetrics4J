@@ -19,14 +19,12 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import websays.accounting.Contract;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts;
 import websays.accounting.GlobalConstants;
-import websays.accounting.MonthlyMetrics;
 import websays.accounting.connectors.ContractDAO;
 import websays.accounting.connectors.DatabaseManager;
 import websays.utils.mail.MailConfiguration;
@@ -63,12 +61,6 @@ public class BasicCommandLineApp {
   
   String line2 = "\n=================================================\n";
   String line1 = "\n-------------------------------------------------\n";
-  
-  {
-    Logger.getLogger(Contract.class).setLevel(Level.INFO);
-    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
-    
-  }
   
   public static void init(String[] args) throws Exception {
     // argument parser:

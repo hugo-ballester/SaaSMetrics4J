@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.LocalDate;
+import org.junit.Assert;
 import org.junit.Test;
 
 import websays.accounting.Contract.BillingSchema;
@@ -24,19 +24,27 @@ public class MonthlyMetricsTest {
   public Contracts init1(int year) throws ParseException {
     Contracts contracts = new Contracts();
     
-    Date start1 = sdf.parse("25/02/" + year); // will be rounded to 1/3/year
-    Date end1 = DateUtils.addDays(start1, 31 + 30 + 31);
+    LocalDate start1 = new LocalDate(year, 3, 25); // will be rounded to year/3/1
+    LocalDate end1 = new LocalDate(year, 5, 25); // will be rounded to year/5/31
     
-    Date start2 = DateUtils.addDays(start1, 31);
-    Date end2 = DateUtils.addDays(start2, 30 + 31 + 30 + 31);
+    LocalDate start2 = start1.plusDays(1); // will be rounded to year/3/1
+    LocalDate end2 = new LocalDate(year, 6, 25);
     
     // MM: 2 3 4 5 6 7
     // C1: _ [ * ] _ _
     // C2: _ [ * * ] _
     
     int id = 0;
-    contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
-    contracts.add(new Contract(++id, "second", Type.contract, BillingSchema.MONTHS_1, 1, start2, end2, 1000., null, null));
+    Contract c1 = new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null);
+    Assert.assertTrue(c1.startRoundDate.equals((new LocalDate(year, 3, 1))));
+    Assert.assertEquals(((new LocalDate(year, 5, 31))), c1.endRoundDate);
+    
+    Contract c2 = new Contract(++id, "second", Type.contract, BillingSchema.MONTHS_1, 1, start2, end2, 1000., null, null);
+    Assert.assertTrue(c2.startRoundDate.equals((new LocalDate(year, 3, 1))));
+    Assert.assertEquals(((new LocalDate(year, 6, 30))), c2.endRoundDate);
+    
+    contracts.add(c1);
+    contracts.add(c2);
     
     return contracts;
   }
@@ -44,7 +52,6 @@ public class MonthlyMetricsTest {
   @Test
   public void computeTest() throws ParseException {
     int year = 2010;
-    boolean metricDate = true;
     
     Contracts contracts = init1(year);
     
@@ -53,56 +60,55 @@ public class MonthlyMetricsTest {
     
     int month = 2;
     
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
+    m = MonthlyMetrics.compute(year, month, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 3
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
-    assertEquals(1, m.accounts);
-    assertEquals(1, m.accsNew);
+    m = MonthlyMetrics.compute(year, month, contracts);
+    assertEquals(2, m.accounts);
+    assertEquals(2, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 4
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
+    m = MonthlyMetrics.compute(year, month, contracts);
     assertEquals(2, m.accounts);
-    assertEquals(1, m.accsNew);
+    assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 5
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
-    assertEquals(2, m.accounts);
-    assertEquals(0, m.accsNew);
-    assertEquals(0, m.accsEnd);
-    assertEquals(0, m.churn, d);
-    
-    month++; // 6
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
-    assertEquals(1, m.accounts);
-    assertEquals(0, m.accsNew);
+    m = MonthlyMetrics.compute(year, month, contracts);
+    assertEquals("Month " + month, 1, m.accounts); // ending account not counted
+    assertEquals("Month " + month, 0, m.accsNew);
     assertEquals(1, m.accsEnd);
     assertEquals(100.0, m.churn, d);
     
+    month++; // 6
+    m = MonthlyMetrics.compute(year, month, contracts);
+    assertEquals(0, m.accounts); // ending account not counted
+    assertEquals(0, m.accsNew);
+    assertEquals(1, m.accsEnd);
+    assertEquals(1000.0, m.churn, d);
+    
     month++; // 7
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
-    assertEquals(1, m.accounts);
+    m = MonthlyMetrics.compute(year, month, contracts);
+    assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);
     assertEquals(0.0, m.churn, d);
     
     month++; // 8
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
+    m = MonthlyMetrics.compute(year, month, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
-    assertEquals(1, m.accsEnd);
-    assertEquals(1000.0, m.churn, d);
+    assertEquals(0, m.accsEnd);
     
     month++; // 9
-    m = MonthlyMetrics.compute(year, month, contracts, metricDate);
+    m = MonthlyMetrics.compute(year, month, contracts);
     assertEquals(0, m.accounts);
     assertEquals(0, m.accsNew);
     assertEquals(0, m.accsEnd);

@@ -5,13 +5,11 @@
  */
 package websays.accounting;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 
 import websays.accounting.connectors.ContractDAO;
 import websays.core.utils.CurrencyUtils;
-import websays.core.utils.DateUtilsWebsays;
+import websays.core.utils.JodaUtils;
 
 public class Commission {
   
@@ -48,11 +46,9 @@ public class Commission {
   }
   
   public CommissionItem createCommissionItem(BilledItem bi) {
-    Date contractStart = bi.period.contractStart;
-    Date billDate = bi.getDate();
-    int months = DateUtilsWebsays.getHowManyMonths(contractStart, billDate, null);
     double fee = CurrencyUtils.toEuros(bi.getFee(), bi.getCurrency());
-    fee = computeCommission(fee, months);
+    int monthsFromStartOfContract = JodaUtils.monthsDifference(bi.period.contractStart, bi.period.periodEnd);
+    fee = computeCommission(fee, monthsFromStartOfContract);
     return new CommissionItem(commissionnee, fee, this, bi);
   }
   

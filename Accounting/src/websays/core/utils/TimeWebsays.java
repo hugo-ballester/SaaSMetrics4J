@@ -65,11 +65,6 @@ public class TimeWebsays extends DateUtilsWebsays {
     return super.dateEndOfMonth(date, timezone);
   }
   
-  public boolean isInPeriod_Day(Calendar dC, Calendar staC, Calendar endC) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-  
   public int getHowManyMonths(Date start, Date end) {
     return super.getHowManyMonths(start, end, timezone);
   }

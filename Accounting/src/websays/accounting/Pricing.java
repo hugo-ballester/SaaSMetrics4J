@@ -6,12 +6,13 @@
 package websays.accounting;
 
 import java.util.ArrayList;
-import java.util.Date;
+
+import org.joda.time.LocalDate;
 
 public class Pricing {
   
   public String name;
-  ArrayList<Date> dates = new ArrayList<Date>();
+  ArrayList<LocalDate> dates = new ArrayList<LocalDate>();
   ArrayList<Double> prizes = new ArrayList<Double>();
   
   public Pricing() {
@@ -23,19 +24,19 @@ public class Pricing {
     this.name = name;
   }
   
-  public void add(Date date, Double prize) {
+  public void add(LocalDate date, Double prize) {
     dates.add(date);
     prizes.add(prize);
   }
   
-  Double getPrize(Date d) {
+  Double getPrize(LocalDate d) {
     if (dates == null || dates.size() == 0) {
       return null;
     }
     int p = 0;
     for (int i = 0; i < dates.size(); i++) {
-      Date start = dates.get(i);
-      if (!start.after(d)) { // before or equal
+      LocalDate start = dates.get(i);
+      if (!start.isAfter(d)) { // before or equal
         p = i;
       }
     }

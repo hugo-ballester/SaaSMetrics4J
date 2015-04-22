@@ -5,15 +5,12 @@
  */
 package websays.accounting;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormatter;
 
 import websays.accounting.Contract.BillingSchema;
-import websays.core.utils.TimeWebsays;
+import websays.core.utils.JodaUtils;
 
 /**
  * 
@@ -25,14 +22,13 @@ import websays.core.utils.TimeWebsays;
 public class BilledPeriod {
   
   private static final Logger logger = Logger.getLogger(BilledPeriod.class);
-  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static int billingDayOfMonth = 28;
   
-  Date periodStart, periodEnd;
-  Date contractStart, contractEnd;
-  
-  Date billDate;
+  LocalDate periodStart, periodEnd; // both inclusive
+  LocalDate contractStart, contractEnd; // both inclusive
+      
+  LocalDate billDate;
   BillingSchema billingSchema;
   int period; // 1,2,... one per billed service span
   
@@ -44,13 +40,13 @@ public class BilledPeriod {
    * @param billingSchema
    * @throws Exception
    */
-  public BilledPeriod(Date contracStart, Date contractEnd, BillingSchema billingSchema) throws Exception {
+  public BilledPeriod(LocalDate contracStart, LocalDate contractEnd, BillingSchema billingSchema) throws Exception {
     super();
     period = 1;
     contractStart = contracStart;
     this.contractEnd = contractEnd;
     this.billingSchema = billingSchema;
-    periodStart = (Date) contracStart.clone();
+    periodStart = new LocalDate(contracStart);
     
     setPeriodEnd();
     setBillingDate();
@@ -62,39 +58,39 @@ public class BilledPeriod {
   
   private void setPeriodEnd() throws Exception {
     
+    periodEnd = new LocalDate(periodStart);
+    
     if (billingSchema.isPeriodic()) {
-      periodEnd = calendar.addMonthsAndDays(periodStart, billingSchema.getMonths(), -1);
+      periodEnd = periodEnd.plusMonths(billingSchema.getMonths()).minusDays(1);
     } else if (billingSchema.equals(BillingSchema.FULL_1)) {
       if (contractEnd == null) {
         throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
       }
-      periodEnd = (Date) contractEnd.clone();
     } else {
       throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
     }
   }
   
   public void setBillingDate() {
-    Calendar cal = calendar.getCalendar(periodStart);
-    int day = calendar.getDayOfMonth(periodStart);
-    if (day > billingDayOfMonth) {
-      cal.add(Calendar.MONTH, 1);
+    LocalDate cal = new LocalDate(periodStart);
+    if (cal.getDayOfMonth() > billingDayOfMonth) {
+      cal = cal.plusMonths(1);
     }
-    cal.set(Calendar.DAY_OF_MONTH, billingDayOfMonth);
-    billDate = cal.getTime();
+    cal = cal.withDayOfMonth(billingDayOfMonth);
+    billDate = cal;
   }
   
   public boolean next() throws Exception {
     if (!billingSchema.isPeriodic()) {
-      logger.warn("Calling next on a non-periodic BillingSchema?!");
+      logger.warn("Calling next on a non-periodic BillingSchema : " + billingSchema);
       return false;
     }
     period++;
     int step = billingSchema.getMonths();
-    periodStart = calendar.addMonths(periodStart, step);
+    periodStart = periodStart.plusMonths(step);
     setPeriodEnd();
     setBillingDate();
-    if (contractEnd != null && periodStart.after(contractEnd)) {
+    if (contractEnd != null && periodStart.isAfter(contractEnd)) {
       return false;
     }
     return true;
@@ -102,8 +98,8 @@ public class BilledPeriod {
   
   @Override
   public String toString() {
-    String d = "#" + period + ": " + calendar.dateFormat1.format(billDate) + " [" + calendar.dateFormat1.format(periodStart) + "-"
-        + calendar.dateFormat1.format(periodEnd) + "]";
+    DateTimeFormatter df = GlobalConstants.dtS;
+    String d = "#" + period + ": " + df.print(billDate) + " [" + df.print(periodStart) + ":" + df.print(periodEnd) + "]";
     return d;
   }
   
@@ -129,38 +125,38 @@ public class BilledPeriod {
   //
   // }
   
-  public boolean inPeriod(Date d) {
-    Calendar dC = calendar.getCalendar(d);
-    Calendar staC = calendar.getCalendar(periodStart);
-    Calendar endC = calendar.getCalendar(periodEnd);
-    return calendar.isInPeriod(dC, staC, endC);
+  public boolean inPeriod(LocalDate d) {
+    return !d.isBefore(periodStart) && !d.isAfter(periodEnd);
   }
   
-  public boolean isAfterPeriod(Date d) {
-    return d.after(periodEnd);
+  public boolean isAfterPeriod(LocalDate d) {
+    return d.isAfter(periodEnd);
   }
   
-  public boolean moveForwardTo(Date d) throws Exception {
+  public boolean moveForwardTo(LocalDate d) throws Exception {
     if (inPeriod(d)) {
       return true;
     }
-    if (d.before(periodStart)) {
+    if (d.isBefore(periodStart)) {
       return false;
     }
     
     do {
-      if (d.before(periodStart)) {
+      if (d.isBefore(periodStart)) {
         logger.error("moveForwardTo: SHOULD NEVER HAPPEN");
         return false;
       }
-      next();
+      boolean ok = next();
+      if (!ok) {
+        return false; // cannot reach date
+      }
     } while (!inPeriod(d));
     
     return true;
   }
   
-  public int monthNumber(Date d) {
-    return calendar.getHowManyMonths(contractStart, d) + 1;
+  public int monthNumber(LocalDate d) {
+    return JodaUtils.monthsDifference(contractStart, d) + 1;
   }
   
 }

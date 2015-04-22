@@ -9,10 +9,10 @@ package websays.accounting;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.Date;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import websays.core.utils.CurrencyUtils;
 
@@ -24,14 +24,14 @@ public class Bill {
   }
   final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
   
-  public Date date;
+  public LocalDate date;
   public String clientName;
   
   public ArrayList<BilledItem> items;
   
   public Currency currency = CurrencyUtils.EUR;
   
-  public Bill(Date d, String clientName) {
+  public Bill(LocalDate d, String clientName) {
     super();
     date = d;
     this.clientName = clientName;

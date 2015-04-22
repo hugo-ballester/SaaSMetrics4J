@@ -8,22 +8,20 @@ package websays.accounting.app;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
+
+import org.joda.time.LocalDate;
 
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
-import websays.core.utils.TimeWebsays;
 
 public class ContractMonthlyReport extends BasicCommandLineApp {
   
   final int M = Calendar.MONTH;
   final int Y = Calendar.YEAR;
   BillingReportPrinter printer = new PrinterASCII();
-  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   public static void main(String[] args) throws Exception {
     System.out.println("<head><meta charset=\"UTF-8\"></head>");
@@ -51,23 +49,33 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   }
   
   private void report(Contract c) throws ParseException, SQLException {
-    Calendar cS = calendar.getCalendar(c.startContract);
-    Calendar cE = (Calendar) cS.clone();
+    LocalDate cS = c.startContract;
+    LocalDate cE = cS;
     if (c.endContract != null) {
-      cE = calendar.getCalendar(c.endContract);
+      cE = c.endContract;
     }
-    cS.add(Calendar.MONTH, -3);
-    cE.add(Calendar.MONTH, +3);
+    cS.plusMonths(-3);
+    cS.plusMonths(+3);
     
-    report(c, cS.get(Y), cS.get(M) + 1, cE.get(Y), cE.get(M) + 1);
+    report(c, cS.getYear(), cS.getMonthOfYear(), cE.getYear(), cE.getMonthOfYear());
     if (c.endContract == null) {
       System.out.println("... and continues forever ...");
     }
   }
   
-  public void report(Contract c, int yearStart, int monthStart_srartAt1, int yearEnd, int monthEnd_startAt1) throws ParseException,
-      SQLException {
-    Calendar cal = calendar.getCalendar(yearStart, monthStart_srartAt1 - 1, 1);
+  /**
+   * @param c
+   * @param yearStart
+   * @param month
+   *          1-12
+   * @param yearEnd
+   * @param monthEnd_startAt1
+   *          1-12
+   * @throws ParseException
+   * @throws SQLException
+   */
+  public void report(Contract c, int yearStart, int month, int yearEnd, int monthEnd_startAt1) throws ParseException, SQLException {
+    LocalDate cal = new LocalDate(yearStart, month, 1);
     int m, y;
     Contracts contracts = new Contracts();
     contracts.add(c);
@@ -75,10 +83,10 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     r.showInvoicesHeadlineWhenNone = false;
     
     do {
-      m = cal.get(M) + 1;
-      y = cal.get(Y);
+      m = cal.getMonthOfYear();
+      y = cal.getYear();
       r.displayBilling(y, m, contracts);
-      cal.add(M, 1);
+      cal.plusMonths(1);
     } while (!(y >= yearEnd && m == monthEnd_startAt1));
     
   }

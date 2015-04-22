@@ -6,18 +6,15 @@
 package websays.accounting.metrics;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+
+import org.joda.time.LocalDate;
 
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.core.utils.CurrencyUtils;
-import websays.core.utils.TimeWebsays;
+import websays.core.utils.JodaUtils;
 
 public class Metrics {
-  
-  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   /**
    * 
@@ -31,7 +28,7 @@ public class Metrics {
    * @param roundDate
    * @return
    */
-  public static double computeCommission(Contract c, Date d, boolean roundDate) {
+  public static double computeCommission(Contract c, LocalDate d, boolean roundDate) {
     ArrayList<Commission> coms = c.commission;
     if (coms == null || coms.size() == 0) {
       return 0;
@@ -59,20 +56,20 @@ public class Metrics {
    * @param roundDate
    * @return
    */
-  public static double computeMRR(Contract c, Date d, boolean roundDate) {
+  public static double computeMRR(Contract c, LocalDate d, boolean roundDate) {
     
     if (roundDate) {
-      if (d.before(c.startRoundDate)) {
+      if (d.isBefore(c.startRoundDate)) {
         return 0.;
       }
-      if (c.endRoundDate != null && c.endRoundDate.before(d)) {
+      if (c.endRoundDate != null && c.endRoundDate.isBefore(d)) {
         return 0;
       }
     } else {
-      if (d.before(c.startContract)) {
+      if (d.isBefore(c.startContract)) {
         return 0.;
       }
-      if (c.endContract != null && c.endContract.before(d)) {
+      if (c.endContract != null && c.endContract.isBefore(d)) {
         return 0;
       }
     }
@@ -85,18 +82,18 @@ public class Metrics {
     return p;
   }
   
-  public static double mrrChange(Contract c, Date d, boolean roundDate) {
-    Date newD = calendar.dateEndOfMonth(d, 0);
-    Date oldD = calendar.dateEndOfMonth(d, -1);
+  public static double mrrChange(Contract c, LocalDate d, boolean roundDate) {
+    LocalDate newD = JodaUtils.dateEndOfMonth(d, 0);
+    LocalDate oldD = JodaUtils.dateEndOfMonth(d, -1);
     double change = computeMRR(c, newD, roundDate) - computeMRR(c, oldD, roundDate);
     return change;
   }
   
-  public static double expansion(Contract c, Date d) {
+  public static double expansion(Contract c, LocalDate d) {
     boolean roundDate = true;
     
     // if contract ended last month, return 0;
-    Date prevMonth = calendar.dateBeginningOfMonth(d, -1);
+    LocalDate prevMonth = d.withDayOfMonth(1).minusDays(1);
     if (c.isLastMonth(prevMonth, roundDate)) {
       return 0;
     }

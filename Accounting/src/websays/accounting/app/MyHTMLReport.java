@@ -11,13 +11,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts;
@@ -26,7 +23,6 @@ import websays.accounting.GlobalConstants;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MyMonthlyBillingReport;
-import websays.core.utils.TimeWebsays;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
@@ -36,11 +32,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   final String HTML_PREFIX = "<html><head><meta charset=\"UTF-8\"></head>\n<body>\n";
   
-  // dont change timezone here, change default instead, since many use this.
-  final static TimeWebsays cal = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
-  
-  int thisYear = cal.getYear(new Date());
-  int thisMonth = cal.getMonth(new Date());
+  int thisYear = (new LocalDate()).getYear();
+  int thisMonth = (new LocalDate()).getMonthOfYear();
   
   static BillingReportPrinter printer = new PrinterASCII();
   
@@ -145,7 +138,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   private String metricChangesPerMonth(int yearStart, int months, File htmlDir, Reporting app, Contracts contracts) throws ParseException,
       IOException, SQLException, FileNotFoundException {
     
-    Date date;
+    LocalDate date;
     String index = "";
     String what = "(Metric)";
     int bmonth = 1;
@@ -167,11 +160,10 @@ public class MyHTMLReport extends BasicCommandLineApp {
       index += line;
       
       setOutput(new File(htmlDir, file));
-      
-      date = Reporting.sdf.parse("01/" + bmonth + "/" + myear);
+      date = new LocalDate(myear, bmonth, 1);
       String content = "<html><body><pre>\n"
       //
-          + printer.title("MONTH: " + Reporting.sdf.format(date) + " " + what, connectToDB)
+          + printer.title("MONTH: " + Reporting.sdf.print(date) + " " + what, connectToDB)
           //
           + printer.subtitle("Changes") //
           + app.displayContracts_header() //
@@ -226,7 +218,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     MyMonthlyBillingReport mbr = new MyMonthlyBillingReport(printer);
     
-    Calendar cal = Calendar.getInstance();
+    LocalDate cal = new LocalDate();
     
     for (int byear : years) {
       indexFile.append("\n\n<bf>" + byear + "</bf><ul>\n");
@@ -236,7 +228,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
         }
-        boolean thisMonth = (byear == cal.get(Calendar.YEAR) && bmonth == cal.get(Calendar.MONTH) + 1);
+        boolean thisMonth = (byear == cal.getYear()) && bmonth == cal.getMonthOfYear();
         String name1 = "billing_" + byear + "_" + bmonth;
         String file = name1 + ".html";
         if (thisMonth) {

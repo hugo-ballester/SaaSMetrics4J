@@ -5,14 +5,11 @@
  */
 package websays.accounting.reporting;
 
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
@@ -21,11 +18,9 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.MonthlyMetrics;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
-import websays.core.utils.TimeWebsays;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
-  private static final TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   private BillingReportPrinter printer;
   
   {
@@ -46,20 +41,19 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
     Reporting app = new Reporting(printer);
     
-    Calendar cal = calendar.getCalendar(year, month, 1);
-    Date begOfMonth = cal.getTime();
-    Date endOfM = calendar.dateEndOfMonth(begOfMonth);
+    LocalDate begOfMonth = new LocalDate(year, month, 1);
+    LocalDate endOfM = begOfMonth.dayOfMonth().withMaximumValue();
     
     String billingSection = "";
     if (billingCenters == null) {
       billingSection = app.printer.box1(//
           "BILLING", //
-          app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, contracts), connectToDB);
+          app.displayBilling(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), contracts), connectToDB);
     } else {
       for (AccountFilter af : billingCenters) {
         Contracts conts = contracts.getView(af);
         billingSection += app.printer.box1("BILLING FOR CENTER " + af.name(),
-            app.displayBilling(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, conts), connectToDB);
+            app.displayBilling(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), conts), connectToDB);
       }
     }
     System.out.println(//

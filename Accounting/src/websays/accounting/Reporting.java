@@ -7,7 +7,6 @@ package websays.accounting;
 
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,19 +14,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.commons.collections4.map.DefaultedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Contracts.SortType;
 import websays.accounting.metrics.Metrics;
 import websays.accounting.reporting.CSVMetricsReport;
 import websays.core.utils.CurrencyUtils;
-import websays.core.utils.TimeWebsays;
 
 /**
  * Functions to display contracts and bills in different ways...
@@ -39,9 +38,8 @@ public class Reporting {
   
   @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(Reporting.class);
-  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
-  public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+  public static final DateTimeFormatter sdf = DateTimeFormat.forStyle("S-");
   
   public BillingReportPrinter printer;
   CSVMetricsReport reporter = new CSVMetricsReport(); // for now hardcoded here
@@ -57,7 +55,7 @@ public class Reporting {
         "ID", "Contract Name", "Client Name", "MRR", "Commission", "Type     ", "Billing", "start", "end");
   }
   
-  public String displayContracts(Date d, AccountFilter filter, boolean metricDate, Contracts contracts) {
+  public String displayContracts(LocalDate d, AccountFilter filter, boolean metricDate, Contracts contracts) {
     StringBuffer sb = new StringBuffer();
     
     if (contracts == null) {
@@ -65,7 +63,7 @@ public class Reporting {
       System.err.println(err);
       return err;
     }
-    sb.append("CONTRACTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.format(d) + "\n");
+    sb.append("CONTRACTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(d) + "\n");
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0, totCom = 0;
@@ -74,16 +72,16 @@ public class Reporting {
     for (Contract c : cs) {
       String endS = "", startS = "";
       if (metricDate) {
-        startS = sdf.format(c.startRoundDate);
+        startS = sdf.print(c.startRoundDate);
       } else {
-        startS = sdf.format(c.startContract);
+        startS = sdf.print(c.startContract);
       }
       
       if (c.endContract != null) {
         if (metricDate) {
-          endS = sdf.format(c.endRoundDate);
+          endS = sdf.print(c.endRoundDate);
         } else {
-          endS = sdf.format(c.endContract);
+          endS = sdf.print(c.endContract);
         }
       }
       
@@ -133,8 +131,8 @@ public class Reporting {
     ArrayList<Bill> bs = Billing.bill(contracts, year, month);
     
     if (bs.size() > 0) {
-      Date billingDate = bs.get(0).date;
-      sb.append(printer.subtitle("INVOICES. " + sdf.format(billingDate)));
+      LocalDate billingDate = bs.get(0).date;
+      sb.append(printer.subtitle("INVOICES. " + sdf.print(billingDate)));
       String invoices = p.printBills(bs, false);
       sb.append(invoices);
     } else if (showInvoicesHeadlineWhenNone) {
@@ -144,11 +142,11 @@ public class Reporting {
     return sb.toString();
   }
   
-  public static String displayClientMRR(Date date, AccountFilter filter, boolean metricDate, Contracts contracts) throws ParseException,
-      SQLException {
+  public static String displayClientMRR(LocalDate date, AccountFilter filter, boolean metricDate, Contracts contracts)
+      throws ParseException, SQLException {
     StringBuffer sb = new StringBuffer();
     
-    sb.append("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + MonthlyMetrics.df.format(date) + "\n");
+    sb.append("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + MonthlyMetrics.df.print(date) + "\n");
     if (contracts == null) {
       String err = "ERROR: NULL contracts?";
       System.err.println(err);
@@ -201,7 +199,10 @@ public class Reporting {
     String line1 = "\nAvg. Delta MRR (k€):";
     String line2 = "\n     Delta MRR (k€):";
     String line3 = "\n           MRR (k€):";
-    ;
+    String line4 = "\n       MRR New (k€):";
+    String line5 = "\n      MRR Lost (k€):";
+    String line6 = "\n       MRR Exp (k€):";
+    
     int month = monthEnd;
     int year = yearStart;
     int WINDOW_FOR_AVERAGE = 6;
@@ -229,13 +230,13 @@ public class Reporting {
         
         MonthlyMetrics met1 = cache.get(label);
         if (cache.get(label) == null) {
-          met1 = MonthlyMetrics.compute(y, m, contracts, metricDate);
+          met1 = MonthlyMetrics.compute(y, m, contracts);
           cache.put(label, met1);
         }
         
         MonthlyMetrics met2 = cache.get(label2);
         if (cache.get(label2) == null) {
-          met2 = MonthlyMetrics.compute(y2, m2, contracts, metricDate);
+          met2 = MonthlyMetrics.compute(y2, m2, contracts);
           cache.put(label2, met2);
         }
         
@@ -265,6 +266,9 @@ public class Reporting {
       line1 += (String.format("\t%6.1f", v1));
       line2 += (String.format("\t%6.1f", v2));
       line3 += (String.format("\t%6.1f", v3));
+      line4 += (String.format("\t%6.1f", met1.mrrNew / 1000));
+      line5 += (String.format("\t%6.1f", met1.churn / 1000));
+      line6 += (String.format("\t%6.1f", met1.expansion / 1000));
       header += String.format("\t%6s", label);
       
       if (--month == 0) {
@@ -273,12 +277,27 @@ public class Reporting {
       }
     }
     
-    return header + "\n" + line1 + "\n" + line2 + "\n" + line3;
+    return header + "\n" + line4 + line5 + line6 + line2 + "\n" + line3 + "\n" + "\n<strong>" + line1 + "</strong>\n";
   }
   
+  /**
+   * Notes:
+   * <ul>
+   * <li>Metrics are computed based on rounded dates (see Contract)
+   * <li>See MonthlyMetrics doc for explanation of metrics
+   * 
+   * @param yearStart
+   * @param monthStart
+   * @param months
+   * @param filter
+   * @param completeDetail
+   * @param allContracts
+   * @return
+   * @throws ParseException
+   * @throws SQLException
+   */
   public String displayMetrics(int yearStart, int monthStart, int months, AccountFilter filter, boolean completeDetail,
       Contracts allContracts) throws ParseException, SQLException {
-    boolean metricDate = false;
     
     Contracts contracts = allContracts;
     if (filter != null) {
@@ -302,10 +321,24 @@ public class Reporting {
         year++;
       }
       
-      MonthlyMetrics m = MonthlyMetrics.compute(year, month, contracts, metricDate);
+      MonthlyMetrics m = MonthlyMetrics.compute(year, month, contracts);
       if (i == 0) {
         old = m;
+      } else {
+        double dif = (m.expansion + m.mrrNew - m.churn);
+        String debug = "\n==============================\n"//
+            + "YEAR-MONTH: " + year + "-" + month + "\n" //
+            + "OLD MRR: " + old.mrr + "\n" //
+            + "NEW MRR Exp Churn New Tot= " + m.expansion + " - " + m.churn + " + " + m.mrrNew + " = " + dif + "\n"//
+            + "FINAL MRR: " + m.mrr + "  -  " + old.mrr + "=" + (m.mrr - old.mrr)//
+            + "\n==============================";
+        logger.debug(debug);
+        if (Math.abs(old.mrr + m.expansion + m.mrrNew - m.churn - m.mrr) > 0.001) {
+          logger.error("INCONSISTENT MRR!!! " + debug);
+        }
+        
       }
+      
       m.setOldValues(old);
       
       if (i > 0) {
@@ -344,7 +377,8 @@ public class Reporting {
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) { // skip
         continue;
       }
-      int month = calendar.getMonth(c.startContract) + 1;
+      
+      int month = c.startContract.getMonthOfYear();
       if (lastmonth < 0) { // init
         lastmonth = month;
       } else if (month != lastmonth) { // compute sum of previous month before starting
@@ -353,7 +387,7 @@ public class Reporting {
         lis.push(line);
         total = 0.;
         lastmonth = month;
-        lastyear = calendar.getYear(c.startContract);
+        lastyear = c.startContract.getYear();
       }
       
       clients.add(c.client_name);
@@ -367,7 +401,7 @@ public class Reporting {
           printer.stringMonths(c), //
           printer.stringPeriod(c) //
           );
-      // c.endContract != null ? sdf.format(c.endContract) :
+      // c.endContract != null ? sdf.print(c.endContract) :
       
       lis.push(line); // oldest to the bottom
       total += CurrencyUtils.toEuros(mrr, c.currency);
@@ -460,9 +494,10 @@ public class Reporting {
     return ret;
   }
   
-  public String displayTotals(Date date, AccountFilter filter, boolean metricDate, Contracts contracts) throws ParseException, SQLException {
+  public String displayTotals(LocalDate date, AccountFilter filter, boolean metricDate, Contracts contracts) throws ParseException,
+      SQLException {
     StringBuffer sb = new StringBuffer();
-    sb.append("TOTALS  (" + filter.toString() + ") at " + MonthlyMetrics.df.format(date) + "\n");
+    sb.append("TOTALS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(date) + "\n");
     if (contracts == null) {
       System.err.println("ERROR: NULL contracts?");
       return null;
@@ -486,7 +521,7 @@ public class Reporting {
     return sb.toString();
   }
   
-  public String displayEndingSoon(Date date, AccountFilter filter, Contracts contracts) {
+  public String displayEndingSoon(LocalDate date, AccountFilter filter, Contracts contracts) {
     StringBuffer sb = new StringBuffer();
     
     Contracts lis = contracts.getActive(date, filter, false);

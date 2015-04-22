@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.joda.time.LocalDate;
+
 import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
@@ -72,7 +74,8 @@ public class ContractDAO extends MySQLDAO {
         String[] r = line.split("\t");
         Pricing pr = new Pricing(r[0]);
         for (int i = 1; i < r.length; i += 2) {
-          pr.add(df.parse(r[i]), Double.parseDouble(r[i + 1]));
+          LocalDate d = new LocalDate(df.parse(r[i])); // TODO: do not parse to Date
+          pr.add(d, Double.parseDouble(r[i + 1]));
         }
         pricings.put(pr.name, pr);
         n++;
@@ -154,9 +157,12 @@ public class ContractDAO extends MySQLDAO {
       id = rs.getInt(column++);
       String name = rs.getString(column++);
       Date start = rs.getDate(column++);
+      LocalDate startJ = new LocalDate(start); // WARNING this uses local timezone!
       Date end = null;
+      LocalDate endJ = null;
       if (rs.getInt(column++) != 0) {
         end = rs.getDate(column - 1);
+        endJ = new LocalDate(end);
       }
       Integer contracteMonths = rs.getInt(column++);
       Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
@@ -198,7 +204,7 @@ public class ContractDAO extends MySQLDAO {
       // Build object
       Contract a = null;
       if (pricing == null) {
-        a = new Contract(id, name, type, bs, client_id, start, end, mrr, fix, comms);
+        a = new Contract(id, name, type, bs, client_id, startJ, endJ, mrr, fix, comms);
       } else {
         if (pricingSchemaNames == null) {
           logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
@@ -208,7 +214,7 @@ public class ContractDAO extends MySQLDAO {
         if (p == null) {
           logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
         }
-        a = new Contract(id, name, type, bs, client_id, start, end, p, comms);
+        a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }
       a.contractDocument = contractDocument;
       a.client_name = cname;

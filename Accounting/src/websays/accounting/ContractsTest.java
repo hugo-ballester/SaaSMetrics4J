@@ -7,22 +7,17 @@ package websays.accounting;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
-import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 import websays.accounting.Contracts.AccountFilter;
-import websays.core.utils.TimeWebsays;
 
 public class ContractsTest {
   
-  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   public static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
   
   @Test
@@ -39,8 +34,8 @@ public class ContractsTest {
     // INIT:
     System.out.println("1.");
     Contracts contracts = new Contracts();
-    Date start1 = sdf.parse("1/" + startMonth + "/" + year); // will be rounded to 1/month/year in metric
-    Date end1 = calendar.addDays(DateUtils.addMonths(start1, months), -1);
+    LocalDate start1 = new LocalDate(year, startMonth, 1);
+    LocalDate end1 = start1.plusMonths(months).plusDays(-1);
     
     contracts.add(new Contract(++id, "first", Type.contract, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
     _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 1, 0}, new int[] {0, 0, 0, 0, 0});
@@ -62,10 +57,8 @@ public class ContractsTest {
   ) throws ParseException {
     Contracts cS, cE, cR;
     
-    int month = 0;
-    
     // iterate over months and check:
-    Date date = sdf.parse("1/" + startMonth + "/" + year);
+    LocalDate date = new LocalDate(year, startMonth, 1);
     for (int i = 0; i < starts.length; i++) {
       System.out.println("Month " + i);
       
@@ -73,11 +66,10 @@ public class ContractsTest {
       cE = contracts.getActive(date, AccountFilter.ENDING, true);
       cR = contracts.getActive(date, AccountFilter.AUTORENEW, true);
       
-      Assert.assertEquals("START month:" + month, starts[month], cS.size());
-      Assert.assertEquals("END month  :" + month, ends[month], cE.size());
-      Assert.assertEquals("RENEW month:" + month, renews[month], cR.size());
-      month++;
-      date = DateUtils.addMonths(date, 1); // nothing on previous month
+      Assert.assertEquals("STARTING month: " + i, starts[i], cS.size());
+      Assert.assertEquals("ENDING month: " + i, ends[i], cE.size());
+      Assert.assertEquals("RENEWING month: " + i, renews[i], cR.size());
+      date = date.plusMonths(1); // nothing on previous month
     }
     
   }

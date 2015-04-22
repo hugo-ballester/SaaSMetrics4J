@@ -6,20 +6,21 @@
 package websays.accounting;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormatter;
+
 import websays.core.utils.CurrencyUtils;
-import websays.core.utils.DateUtilsWebsays;
+import websays.core.utils.JodaUtils;
 
 public class BillingReportPrinter {
   
   TimeZone tz = TimeZone.getDefault();
-  SimpleDateFormat dateFormat1;
+  DateTimeFormatter dateFormat1;
   
   private static final NumberFormat NF = NumberFormat.getNumberInstance(Locale.UK);
   private static final Currency EUROS = Currency.getInstance("EUR");
@@ -67,13 +68,13 @@ public class BillingReportPrinter {
   public String stringPeriod(Contract c) {
     String cont = null;
     if (c.contractedMonths != null && c.contractedMonths > 0 && c.startContract != null) {
-      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1, tz);
-      cont = "+" + c.contractedMonths + "M=" + dateFormat1.format(end);
+      LocalDate end = JodaUtils.addMonthsAndDays(c.startContract, c.contractedMonths, -1);
+      cont = "+" + c.contractedMonths + "M=" + dateFormat1.print(end);
     }
     
     String ret = //
-    (c.startContract != null ? dateFormat1.format(c.startContract) : "?") + //
-        (c.endContract != null ? "-" + dateFormat1.format(c.endContract) : "") + //
+    (c.startContract != null ? dateFormat1.print(c.startContract) : "?") + //
+        (c.endContract != null ? "-" + dateFormat1.print(c.endContract) : "") + //
         (cont != null ? cont : "");
     return ret;
   }
@@ -82,7 +83,7 @@ public class BillingReportPrinter {
     if (c.contractedMonths != null && c.contractedMonths > 0 && c.startContract != null) {
       return "" + c.contractedMonths + "M";
     } else if (c.startContract != null && c.endContract != null) {
-      return "" + DateUtilsWebsays.getHowManyMonths(c.startContract, c.endContract, null) + "M";
+      return "" + JodaUtils.monthsDifference(c.startContract, c.endContract) + "M";
     }
     return "?";
   }

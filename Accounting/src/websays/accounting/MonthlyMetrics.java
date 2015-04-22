@@ -6,12 +6,11 @@
 package websays.accounting;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import websays.accounting.metrics.Metrics;
 import websays.core.utils.maths.DescriptiveStats;
@@ -28,8 +27,8 @@ public class MonthlyMetrics {
   
   private static final Logger logger = Logger.getLogger(MonthlyMetrics.class);
   
-  public static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  boolean metricDate = false;
+  public static final DateTimeFormatter df = DateTimeFormat.forStyle("S-");
+  boolean metricDate = GlobalConstants.roundDatesForMetrics;
   
   public double mrr, comm;
   public int accounts;
@@ -92,14 +91,15 @@ public class MonthlyMetrics {
   private static final double alpha = 0.3333333;
   
   /**
-   * should not be needed but for some reason can't force it from the outside
-   */
-  public static void setDebug() {
-    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.DEBUG);
-    
-  }
-  
-  /**
+   * Computes MRR and other metrics
+   * <ul>
+   * <li>Dates are rounded (see contract rounding)
+   * <li>Metrics are computed at the last day of the month
+   * <li>Churn is any contracts ending in the month (including the last day of current month)
+   * <li>New business is any contracts starting in the month
+   * </ul>
+   * 
+   * 
    * @param year
    * @param month
    * @param accounts
@@ -108,46 +108,62 @@ public class MonthlyMetrics {
    * @return
    * @throws ParseException
    */
-  public static MonthlyMetrics compute(int year, int month, Contracts accounts, boolean metricDate) throws ParseException {
+  public static MonthlyMetrics compute(int year, int month, Contracts accounts) throws ParseException {
+    boolean metricDate = true;
+    LocalDate lastDayOfMonth = (new LocalDate(year, month, 1)).dayOfMonth().withMaximumValue();
     
-    Date start = df.parse("1/" + month + "/" + year);
     MonthlyMetrics m = new MonthlyMetrics();
     
     accounts.sort(websays.accounting.Contracts.SortType.contract);
     
+    String debug = String.format("%5s%20s\t%s\t%s\t%s\t%s\t%s\t%s\n", //
+        "id", "name", "profs", "Sprofs", "mrr", "Smrr", "new", "churn");
+    
     for (Contract a : accounts) {
       
-      if (!a.isActive(start, true)) {
-        
-        Date prevMonth = DateUtils.addMonths(start, -1);
-        if (a.isLastMonth(prevMonth, metricDate)) {
-          double mrr = Metrics.computeMRR(a, prevMonth, metricDate);
-          m.accsEnd++;
-          m.churn += mrr;
-        }
+      if (!a.isActiveBill(lastDayOfMonth)) {
         continue;
       }
       
-      double mrr = Metrics.computeMRR(a, start, metricDate);
-      m.accounts++;
-      m.mrrSt.add(mrr);
-      m.comm += Metrics.computeCommission(a, start, metricDate);
-      m.profilesSt.add((1.0) * a.profiles);
-      m.expansion += Metrics.expansion(a, start);
+      boolean isFirstMonth = a.isFirstMonth(lastDayOfMonth, metricDate);
+      boolean isLastMonth = a.isLastMonth(lastDayOfMonth, metricDate);
       
-      if (a.isFirstMonth(start, metricDate)) {
+      // ENDING
+      if (isLastMonth) {
+        // if (!a.isActive(lastDayOfMonth, metricDate)) {
+        
+        // Date prevMonth = DateUtils.addMonths(lastDayOfMonth, -1);
+        // if (a.isLastMonth(prevMonth, metricDate)) {
+        double mrr = Metrics.computeMRR(a, a.endContract, metricDate);
+        m.accsEnd++;
+        m.churn += mrr;
+        if (logger.isDebugEnabled()) {
+          debug += String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", //
+              a.id, a.name, a.profiles, 0., -mrr, 0., 0., m.churn);
+        }
+      }
+      
+      double mrr = Metrics.computeMRR(a, lastDayOfMonth, metricDate);
+      if (!isLastMonth) { // churn not included in month
+        m.mrrSt.add(mrr);
+        m.accounts++;
+      }
+      if (isFirstMonth) {
         m.accsNew++;
         m.mrrNew += mrr;
       }
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format("%d\t%40s\t%d\t%6.0f\t%6.0f\t%6.0f", a.id, a.name, a.profiles, m.profilesSt.sum(), mrr, m.mrrSt.sum()));
-      }
+      m.comm += Metrics.computeCommission(a, lastDayOfMonth, metricDate);
+      m.profilesSt.add((1.0) * a.profiles);
+      m.expansion += Metrics.expansion(a, lastDayOfMonth);
       
-      // System.out.println(a.name + ": " + mrr);
+      if (logger.isDebugEnabled()) {
+        debug += (String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", a.id, a.name, a.profiles, m.profilesSt.sum(), mrr,
+            m.mrrSt.sum(), m.mrrNew, m.churn));
+      }
     }
     m.mrr = m.mrrSt.sum();
     m.profiles = (int) m.profilesSt.sum();
-    
+    logger.debug("DEBUGGING MonthlyMetrics COMPUTATION FOR " + year + "-" + month + ":\n" + debug + "\n");
     return m;
   }
   

@@ -103,6 +103,11 @@ public class DateUtilsWebsays {
     return c.getTime();
   }
   
+  public static synchronized void addMonthsAndDays(Calendar cal, int months, int days) {
+    cal.add(Calendar.MONTH, months);
+    cal.add(Calendar.DAY_OF_YEAR, days);
+  }
+  
   /**
    * @param now
    * @return
@@ -270,9 +275,18 @@ public class DateUtilsWebsays {
     Calendar e = getCalendarInstance(timezone);
     s.setTime(start);
     e.setTime(end);
-    
-    int months = 12 * (e.get(Calendar.YEAR) - s.get(Calendar.YEAR));
-    months += (e.get(Calendar.MONTH) - s.get(Calendar.MONTH));
+    return getHowManyMonths(s, e);
+  }
+  
+  /**
+   * 
+   * @param gap
+   * @return
+   * @throws ParseException
+   */
+  public static synchronized int getHowManyMonths(Calendar start, Calendar end) {
+    int months = 12 * (end.get(Calendar.YEAR) - start.get(Calendar.YEAR));
+    months += (end.get(Calendar.MONTH) - start.get(Calendar.MONTH));
     return months;
   }
   
@@ -361,4 +375,18 @@ public class DateUtilsWebsays {
     return cal;
   }
   
+  /**
+   * @param year
+   * @param month_firstIs1
+   *          1-12
+   * @param day
+   * @param tz
+   * @return
+   */
+  public static synchronized Calendar getCalendar(Date date, TimeZone tz) {
+    Calendar cal = getCalendarInstance(tz);
+    cal.setTime(date);
+    calToBeginningOfDay(cal);
+    return cal;
+  }
 }

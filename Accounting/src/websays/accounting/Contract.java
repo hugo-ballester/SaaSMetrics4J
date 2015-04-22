@@ -5,18 +5,15 @@
  */
 package websays.accounting;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Currency;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
-import websays.core.utils.DateUtilsWebsays;
-import websays.core.utils.TimeWebsays;
+import websays.core.utils.CurrencyUtils;
+import websays.core.utils.JodaUtils;
 
 /**
  * Represents a contract with a client (will genereate bills)
@@ -26,9 +23,6 @@ import websays.core.utils.TimeWebsays;
  */
 public class Contract {
   
-  private static TimeWebsays time = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
-  
-  static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final Logger logger = Logger.getLogger(Contract.class);
   
   public enum ContractDocument {
@@ -72,9 +66,9 @@ public class Contract {
   public String name;
   public Type type;
   public Integer client_id;
-  public Date startContract;
+  public LocalDate startContract;
   // endContract when known (typical monthly renewable contracts will have endContract NULL until client cancels with a date).
-  public Date endContract;
+  public LocalDate endContract;
   
   // agreed periods by contract (only used to warn when a contract is near the end). NOTE: this does not replace endContract, it is only an indication
   // since contracts may end early or auto-extend
@@ -95,7 +89,7 @@ public class Contract {
   
   public BillingSchema billingSchema = BillingSchema.MONTHS_1;
   
-  public Currency currency;
+  public Currency currency = CurrencyUtils.EUR;
   public String comments_billing;
   
   public Integer main_profile_id;
@@ -103,10 +97,10 @@ public class Contract {
   // =============================================
   // DERIVED fields:
   
-  // for "metric" counts, we force contracts to start the first of the month and end the last of the month. This is arbitrarely done by rounding down
-  // up to the 15th.
-  public Date startRoundDate, endRoundDate;
-  public Integer billedMonths = null;
+  public LocalDate startRoundDate;
+  
+  // for "metric" counts, we force contracts to start the first of the month and end the last of the month.
+  public LocalDate endRoundDate;
   
   // from JOIN:
   public String client_name;
@@ -115,8 +109,8 @@ public class Contract {
   // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema at DAO time)
   public ArrayList<Commission> commission = new ArrayList<Commission>();
   
-  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, ArrayList<Commission> commission,
-      String comments_billing) {
+  Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end,
+      ArrayList<Commission> commission, String comments_billing) {
     super();
     this.id = id;
     this.name = name;
@@ -127,7 +121,8 @@ public class Contract {
     startContract = start;
     endContract = end;
     profiles = 0;
-    endRoundDate = end;
+    endRoundDate = roundEnd(endContract);
+    startRoundDate = roundStart(startContract);
     this.comments_billing = comments_billing;
     initDerived();
   }
@@ -135,32 +130,60 @@ public class Contract {
   public Contract() {};
   
   public void initDerived() {
-    int MIDPOINT = 15;
-    startRoundDate = (time.getDayOfMonth(startContract) <= MIDPOINT) ? //
-    time.dateBeginningOfMonth(startContract, 0)
-        : time.dateBeginningOfMonth(startContract, 1);
     
-    if (endContract != null) {
-      if (!endContract.after(startContract)) {
-        endRoundDate = time.dateEndOfMonth(startContract);
-      } else {
-        endRoundDate = (time.getDayOfMonth(endContract) <= MIDPOINT) ? //
-        time.dateEndOfMonth(endContract, -1)
-            : //
-            time.dateEndOfMonth(endContract);
+    if (logger.isDebugEnabled()) {
+      String m = "\n" + startContract.toString() + " --> " + startRoundDate.toString() + "\n";
+      if (endContract != null) {
+        m += endContract.toString() + " --> " + endRoundDate.toString();
       }
-      billedMonths = time.getHowManyMonths(startRoundDate, endRoundDate) + 1;
-      if (logger.isDebugEnabled()) {
-        String m = "\n" + df.format(startContract) + " --> " + df.format(startRoundDate) + "\n" + df.format(endContract) + " --> "
-            + df.format(endRoundDate) + "   " + billedMonths + "\n\n";
-        logger.debug(m);
-      }
-      
+      logger.debug(m);
     }
     
   }
   
-  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Pricing pricing,
+  private LocalDate roundStart(LocalDate date) {
+    // OLD:
+    // startRoundDate = (time.getDayOfMonth(startContract) <= MIDPOINT) ? //
+    // time.dateBeginningOfMonth(startContract, 0)
+    // : time.dateBeginningOfMonth(startContract, 1);
+    // if (endContract != null) {
+    // if (!endContract.after(startContract)) {
+    // endRoundDate = time.dateEndOfMonth(startContract);
+    // } else {
+    // endRoundDate = (time.getDayOfMonth(endContract) <= MIDPOINT) ? //
+    // time.dateEndOfMonth(endContract, -1)
+    // : //
+    // time.dateEndOfMonth(endContract);
+    
+    if (date == null) {
+      return null;
+    }
+    LocalDate firstOfMonth = date.dayOfMonth().withMinimumValue();
+    return firstOfMonth;
+  }
+  
+  private LocalDate roundEnd(LocalDate date) {
+    // OLD:
+    // startRoundDate = (time.getDayOfMonth(startContract) <= MIDPOINT) ? //
+    // time.dateBeginningOfMonth(startContract, 0)
+    // : time.dateBeginningOfMonth(startContract, 1);
+    // if (endContract != null) {
+    // if (!endContract.after(startContract)) {
+    // endRoundDate = time.dateEndOfMonth(startContract);
+    // } else {
+    // endRoundDate = (time.getDayOfMonth(endContract) <= MIDPOINT) ? //
+    // time.dateEndOfMonth(endContract, -1)
+    // : //
+    // time.dateEndOfMonth(endContract);
+    
+    if (date == null) {
+      return null;
+    }
+    LocalDate endOfMonth = date.dayOfMonth().withMaximumValue();
+    return endOfMonth;
+  }
+  
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end, Pricing pricing,
       ArrayList<Commission> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
     pricingSchema = pricing;
@@ -168,7 +191,7 @@ public class Contract {
     fixedPrice = null;
   }
   
-  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, Date start, Date end, Double monthlyPrize,
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end, Double monthlyPrize,
       Double fixPrize, ArrayList<Commission> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
     monthlyPrice = monthlyPrize;
@@ -186,10 +209,10 @@ public class Contract {
   
   @Override
   public String toString() {
-    String startS = startContract == null ? "-" : df.format(startContract);
-    String endS = endContract == null ? "-" : df.format(endContract);
-    String startmS = startRoundDate == null ? "-" : df.format(startRoundDate);
-    String endmS = endRoundDate == null ? "-" : df.format(endRoundDate);
+    String startS = startContract == null ? "-" : startContract.toString();
+    String endS = endContract == null ? "-" : endContract.toString();
+    String startmS = startRoundDate == null ? "-" : startRoundDate.toString();
+    String endmS = endRoundDate == null ? "-" : endRoundDate.toString();
     
     return String.format("%-20s %-12s %s %s (%s %s) %s ", name, client_id, startS, endS, startmS, endmS,
         (pricingSchema != null ? pricingSchema.name : "-") + "\t" + (monthlyPrice != null ? monthlyPrice : "-") + "\t"
@@ -203,7 +226,7 @@ public class Contract {
    *          only needd for pricing schemas that depend on date, otherwise can be null
    * @return
    */
-  public double getMonthlyPrize(Date d, boolean addFixedPrize, boolean roundDate) {
+  public double getMonthlyPrize(LocalDate d, boolean addFixedPrize, boolean roundDate) {
     double p = 0;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
@@ -229,9 +252,9 @@ public class Contract {
       }
       int months = 0;
       if (roundDate) {
-        months = time.getHowManyMonths(startRoundDate, endRoundDate) + 1;
+        months = JodaUtils.monthsDifference(startRoundDate, endRoundDate) + 1;
       } else {
-        months = time.getHowManyMonths(startContract, endContract) + 1;
+        months = JodaUtils.monthsDifference(startContract, endContract) + 1;
       }
       p += fixedPrice / months;
     }
@@ -239,24 +262,24 @@ public class Contract {
     return p;
   }
   
-  public boolean isActive(Date d, boolean roundDate) {
+  public boolean isActive(LocalDate d, boolean roundDate) {
+    LocalDate start = startContract;
     if (roundDate) {
-      if (startRoundDate == null) {
-        logger.error("NULL startRoundDate for d=" + (d == null ? "NULL" : df.format(d)));
-        return false;
-      }
-      if (d.before(startRoundDate) || (endRoundDate != null && (endRoundDate.before(d) || endRoundDate.equals(d)))) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      if (d.before(startContract) || (endContract != null && (endContract.before(d) || endContract.equals(d)))) {
-        return false;
-      } else {
-        return true;
-      }
+      start = startRoundDate;
     }
+    
+    if (endContract == null) {
+      return !(d.isBefore(start));
+    }
+    
+    // endContract != null
+    LocalDate end = endContract;
+    if (roundDate) {
+      end = endRoundDate;
+    }
+    
+    return (!d.isBefore(start) && !d.isAfter(end));
+    
   }
   
   /**
@@ -265,25 +288,26 @@ public class Contract {
    * @param d
    * @return
    */
-  public boolean isActiveBill(Date d) {
-    if (d.before(startContract)) {
+  public boolean isActiveBill(LocalDate d) {
+    if (d.isBefore(startContract)) {
       return false;
     }
-    if (endContract != null && !time.isSameMonth(endContract, d) && d.after(endContract)) {
+    if (endContract != null && !JodaUtils.isSameMonthAndYear(endContract, d) && d.isAfter(endContract)) {
       return false;
     }
     return true;
   }
   
-  public boolean isFirstMonth(Date d, boolean roundDate) {
+  public boolean isFirstMonth(LocalDate d, boolean roundDate) {
+    
     if (roundDate) {
-      if (startRoundDate != null && isSameMonth(d, startRoundDate)) {
+      if (startRoundDate != null && JodaUtils.isSameMonthAndYear(d, startRoundDate)) {
         return true;
       } else {
         return false;
       }
     } else {
-      if (startContract != null && isSameMonth(d, startContract)) {
+      if (startContract != null && JodaUtils.isSameMonthAndYear(d, startContract)) {
         return true;
       } else {
         return false;
@@ -296,15 +320,15 @@ public class Contract {
    * true if d is in the last month of this contract
    * 
    */
-  public boolean isLastMonth(Date d, boolean roundDate) {
+  public boolean isLastMonth(LocalDate d, boolean roundDate) {
     if (roundDate) {
-      if (endRoundDate != null && isSameMonth(d, endRoundDate)) {
+      if (endRoundDate != null && JodaUtils.isSameMonthAndYear(d, endRoundDate)) {
         return true;
       } else {
         return false;
       }
     } else {
-      if (endContract != null && isSameMonth(d, endContract)) {
+      if (endContract != null && JodaUtils.isSameMonthAndYear(d, endContract)) {
         return true;
       } else {
         return false;
@@ -312,25 +336,14 @@ public class Contract {
     }
   }
   
-  private boolean isSameMonth(Date d, Date d2) {
-    Calendar c1 = Calendar.getInstance(), c2 = Calendar.getInstance();
-    c1.setTime(d);
-    c2.setTime(d2);
-    
-    if (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  
-  public boolean isFirstFullMonth(Date d, boolean b) {
-    if (time.getDayOfMonth(startContract) == 1) {
-      return isSameMonth(d, startContract);
-    } else {
-      return (time.getHowManyMonths(startContract, d) == 1);
-    }
-  }
+  // public boolean isFirstFullMonth(Calendar d, boolean b) {
+  //
+  // if (time.getDayOfMonth(startContract) == 1) {
+  // return isSameMonth(d, startContract);
+  // } else {
+  // return (time.getHowManyMonths(startContract, d) == 1);
+  // }
+  // }
   
   public BilledPeriod getFirstBilledPeriod() {
     try {
@@ -348,8 +361,7 @@ public class Contract {
     if (endContract == null) {
       return -1;
     }
-    
-    return DateUtilsWebsays.getHowManyDays(startContract, endContract);
+    return Days.daysBetween(startContract, endContract).getDays();
   }
   
   /**
@@ -357,13 +369,15 @@ public class Contract {
    * 
    * @return
    */
-  public int getMonthsRemaining(Date d) {
+  public int getMonthsRemaining(LocalDate d) {
     int months;
     if (endContract != null) {
-      return months = time.getHowManyMonths(d, endContract);
+      months = JodaUtils.monthsDifference(d, endContract);
+      return months;
     } else if (contractedMonths != null) {
-      Date s = time.addMonthsAndDays(startContract, contractedMonths, -1);
-      return months = time.getHowManyMonths(d, s);
+      LocalDate end = (new LocalDate(startContract)).plusMonths(contractedMonths).minusDays(1);
+      months = JodaUtils.monthsDifference(d, end);
+      return months;
     } else {
       return 0;
     }

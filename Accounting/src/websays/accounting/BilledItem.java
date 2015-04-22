@@ -5,16 +5,14 @@
  */
 package websays.accounting;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.Date;
-import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import websays.accounting.Contract.ContractDocument;
-import websays.core.utils.DateUtilsWebsays;
+import websays.core.utils.JodaUtils;
 
 public class BilledItem {
   
@@ -33,9 +31,6 @@ public class BilledItem {
   
   public CommissionItemSet commissions = new CommissionItemSet();
   private Currency currency;
-  
-  static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
-  private static final TimeZone tz = TimeZone.getDefault();
   
   /**
    * 
@@ -60,11 +55,7 @@ public class BilledItem {
     this(new BilledPeriod(bi.period), new Double(bi.getFee()), bi.contract_name, bi.contract_id, bi.currency);
   }
   
-  public Date getDate() {
-    return period.billDate;
-  }
-  
-  public void warningChecks(Date billingDate, Contract c) {
+  public void warningChecks(LocalDate billingDate, Contract c) {
     if (c == null) {
       logger.error("Null contract ???");
       return;
@@ -78,23 +69,23 @@ public class BilledItem {
       notes.add("!!!MISSING CONTRACT");
     }
     
-    int monthNumber1 = DateUtilsWebsays.getHowManyMonths(c.startContract, billingDate, tz);
+    // int monthNumber1 = JodaUtils.monthsDifference(c.startContract, billingDate);
     
     if (c.endContract != null) {
       if (period.inPeriod(c.endContract)) {
-        notes.add("Last bill as agreed (end contract:" + sdf.format(c.endContract) + ")");
+        notes.add("Last bill as agreed (end contract:" + c.endContract.toString() + ")");
       } else {
-        int months = DateUtilsWebsays.getHowManyMonths(billingDate, c.endContract, tz);
+        int months = JodaUtils.monthsDifference(billingDate, c.endContract);
         if (months < 0) {
-          notes.add("WARNING contract has ended! (end contract: " + sdf.format(c.endContract) + ")");
+          notes.add("WARNING contract has ended! (end contract: " + c.endContract.toString() + ")");
         }
         if (months >= 0 && months < 2) {
-          notes.add("Contract ending soon as agreed (end contract: " + sdf.format(c.endContract) + ")");
+          notes.add("Contract ending soon as agreed (end contract: " + c.endContract.toString() + ")");
         }
       }
     } else if (c.contractedMonths != null) {
-      Date end = DateUtilsWebsays.addMonthsAndDays(c.startContract, c.contractedMonths, -1, tz);
-      int left = DateUtilsWebsays.getHowManyMonths(billingDate, end, tz);
+      LocalDate end = c.startContract.plusMonths(c.contractedMonths).minusDays(1);
+      int left = JodaUtils.monthsDifference(billingDate, end);
       if (left == 1) {
         notes.add(WILL_RENEW_2MONTHS);
       } else if (left == 0) {

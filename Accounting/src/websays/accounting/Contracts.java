@@ -15,19 +15,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
-import websays.core.utils.TimeWebsays;
+import websays.core.utils.JodaUtils;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -36,7 +34,6 @@ import com.esotericsoftware.kryo.io.Output;
 public class Contracts extends ArrayList<Contract> {
   
   private static final long serialVersionUID = 1L;
-  private static TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static Logger logger = Logger.getLogger(Contracts.class);
   
@@ -111,28 +108,25 @@ public class Contracts extends ArrayList<Contract> {
   }
   
   public Contracts getActive(int year, int month, AccountFilter filter, boolean metricDate) throws ParseException {
-    Date date = MonthlyMetrics.df.parse("1/" + month + "/" + year);
+    LocalDate date = new LocalDate(year, month, 1);
     return getActive(date, filter, metricDate);
   }
   
-  public Contracts getRenewThisMonth(Date date, boolean metricDate) {
+  public Contracts getRenewThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
-      
-      Date d = a.endContract;
+      LocalDate d = a.endContract;
       if (metricDate) {
         d = a.endRoundDate;
       }
-      
       if (d == null && a.contractedMonths != null) { // construct end date based on contractedMonths
         d = a.startContract;
         if (metricDate) {
           d = a.startRoundDate;
         }
         // renewing next month, so adding a full month:
-        d = calendar.addMonths(d, a.contractedMonths);
-        
-        if (d != null && calendar.isSameMonth(date, d)) {
+        d = d.plusMonths(a.contractedMonths);
+        if (d != null && JodaUtils.isSameMonthAndYear(date, d)) {
           ret.add(a);
         }
       }
@@ -141,30 +135,29 @@ public class Contracts extends ArrayList<Contract> {
     return ret;
   }
   
-  public Contracts getEndingThisMonth(Date date, boolean metricDate) {
+  public Contracts getEndingThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
-      
-      Date d = a.endContract;
+      LocalDate d = a.endContract;
       if (metricDate) {
         d = a.endRoundDate;
       }
       
-      if (d != null && calendar.isSameMonth(date, d)) {
+      if (d != null && JodaUtils.isSameMonthAndYear(date, d)) {
         ret.add(a);
       }
     }
     return ret;
   }
   
-  public Contracts getStartingThisMonth(Date date, boolean metricDate) {
+  public Contracts getStartingThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
-      Date d = a.startContract;
+      LocalDate d = a.startContract;
       if (metricDate) {
         d = a.startRoundDate;
       }
-      if (d == null || !calendar.isSameMonth(date, d)) {
+      if (d == null || !JodaUtils.isSameMonthAndYear(date, d)) {
         continue;
       }
       ret.add(a);
@@ -177,7 +170,7 @@ public class Contracts extends ArrayList<Contract> {
    * @param filter
    * @return
    */
-  public Contracts getActiveBill(Date date) {
+  public Contracts getActiveBill(LocalDate date) {
     Contracts ret = new Contracts();
     
     for (Contract a : this) {
@@ -195,7 +188,7 @@ public class Contracts extends ArrayList<Contract> {
    *          : use approximated (rounded) date for metrics instead of real contract date.
    * @return
    */
-  public Contracts getActive(Date date, AccountFilter filter, boolean metricDate) {
+  public Contracts getActive(LocalDate date, AccountFilter filter, boolean metricDate) {
     if (filter == null) {
       return (Contracts) clone();
     }
@@ -329,14 +322,12 @@ public class Contracts extends ArrayList<Contract> {
           if (o1 == null || o2 == null || o1.startContract == null || o2.startContract == null) {
             return 0;
           }
-          long a = o1.startContract.getTime();
-          long b = o2.startContract.getTime();
-          if (a == b) {
-            return 0;
-          } else if (a > b) {
+          if (o1.startContract.isAfter(o2.startContract)) {
             return 1;
-          } else {
+          } else if (o2.startContract.isAfter(o1.startContract)) {
             return -1;
+          } else {
+            return 0;
           }
         }
       });

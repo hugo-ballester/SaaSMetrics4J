@@ -5,22 +5,17 @@
  */
 package websays.accounting;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import websays.core.utils.CurrencyUtils;
-import websays.core.utils.TimeWebsays;
 
 public class PrinterASCII extends BillingReportPrinter {
-  
-  private TimeWebsays calendar = new TimeWebsays(Locale.getDefault(), TimeZone.getDefault());
   
   static String line1 = "===========================================\n";
   static String line2 = "-------------------------------------------\n\n";
@@ -29,13 +24,10 @@ public class PrinterASCII extends BillingReportPrinter {
   String TAB = "\t";
   String RET = "\n";
   
-  SimpleDateFormat dateFormat2;
-  
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
   
   public PrinterASCII() {
-    super.dateFormat1 = calendar.getSimpleDateFormat("dd/MM/yyyy");
-    this.dateFormat2 = calendar.getSimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    this.dateFormat1 = GlobalConstants.dtS;
   }
   
   @Override
@@ -64,8 +56,8 @@ public class PrinterASCII extends BillingReportPrinter {
       comms = commissionsShortString(bi.commissions);
     }
     String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
-    s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s %s)", bi.contract_name, per, dateFormat2.format(bi.period.periodStart),
-        dateFormat1.format(bi.period.periodEnd), //
+    s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s %s)", bi.contract_name, per, GlobalConstants.dtS.print(bi.period.periodStart),
+        dateFormat1.print(bi.period.periodEnd), //
         money(bi.getFee(), false, bi.getCurrency())
         // NumberFormat.getIntegerInstance().format(bi.fee)
         , comms));
@@ -102,7 +94,7 @@ public class PrinterASCII extends BillingReportPrinter {
     // sb.append(line);
     ArrayList<Bill> noBills = new ArrayList<Bill>();
     CommissionItemSet comms = new CommissionItemSet();
-    Date billDate = null;
+    LocalDate billDate = null;
     double tot = 0., totCom = 0.;
     
     // RENDER BILL REPORT:
@@ -126,8 +118,8 @@ public class PrinterASCII extends BillingReportPrinter {
           billDate = b.date;
         } else {
           if (!billDate.equals(b.date)) {
-            logger.warn("not all bills have same date! " + "\n" + TAB + "" + b.clientName + ": " + dateFormat1.format(b.date) + " <> "
-                + dateFormat1.format(billDate));
+            logger.warn("not all bills have same date! " + "\n" + TAB + "" + b.clientName + ": " + dateFormat1.print(b.date) + " <> "
+                + dateFormat1.print(billDate));
           }
         }
       }
@@ -185,7 +177,7 @@ public class PrinterASCII extends BillingReportPrinter {
   public String header(String version) {
     String msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
     msg += "\n<head></head>\n";
-    msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + dateFormat2.format(new Date()) + "</h4><hr/>\n\n";
+    msg += "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + GlobalConstants.dtLL.print(new DateTime()) + "</h4><hr/>\n\n";
     return msg;
   }
   

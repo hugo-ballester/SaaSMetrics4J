@@ -115,4 +115,8 @@ public class BilledItem {
     this.currency = currency;
   }
   
+  public String toShortString() {
+    return contract_name + " (" + contract_id + ")" + period.toString() + " " + fee + currency;
+  }
+  
 }

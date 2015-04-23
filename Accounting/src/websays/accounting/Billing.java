@@ -74,40 +74,46 @@ public class Billing {
       
       BilledItem bi = new BilledItem(bp, 0.0, c.name, c.id, c.currency);
       
-      // if (billingDate.isEqual(bp.billDate)) { // ???????
-      // // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
-      // bi.setFee(0.0, c.currency);
-      // } else {
-      //
-      // COMPUTE FEE
-      BillingSchema bs = c.billingSchema;
-      Double monthly = null;
+      // If this month's billing date is not this period'd billing date it means that billing was in the past already, so nothing to charge
       
-      double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
-      
-      if (bs.isPeriodic()) {
-        int n = c.billingSchema.getMonths();
-        monthly = monthlyPrize * n;
-      }
-      
-      else if (bs == BillingSchema.FULL_1) {
-        if (c.monthlyPrice != null && c.monthlyPrice > 0.) {
-          error(" monthly prized defined for FULL_1 billing schema");
-        }
-        
-        if (bp.period == 1) {
-          monthly = c.fixedPrice;
-        } else {
-          monthly = null;
-        }
-        
+      if (!billingDate.isEqual(bp.billDate)) {
+        // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
+        bi.setFee(0.0, c.currency);
       } else {
-        System.out.println("UNKNOWN BillingSchema '" + bs.name() + "'");
-        return null;
+        //
+        // COMPUTE FEE
+        BillingSchema bs = c.billingSchema;
+        Double monthly = null;
+        
+        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
+        
+        if (bs.isPeriodic()) {
+          int n = c.billingSchema.getMonths();
+          int m = c.getMonthsRemaining(billingDate) + 1;
+          if (m < n) {
+            n = m;
+          }
+          monthly = monthlyPrize * n;
+        }
+        
+        else if (bs == BillingSchema.FULL_1) {
+          if (c.monthlyPrice != null && c.monthlyPrice > 0.) {
+            error(" monthly prized defined for FULL_1 billing schema");
+          }
+          
+          if (bp.period == 1) {
+            monthly = c.fixedPrice;
+          } else {
+            monthly = null;
+          }
+          
+        } else {
+          System.out.println("UNKNOWN BillingSchema '" + bs.name() + "'");
+          return null;
+        }
+        
+        bi.setFee(monthly, c.currency);
       }
-      
-      bi.setFee(monthly, c.currency);
-      // }
       if (bi != null) {
         bi.warningChecks(billingDate, c);
       }

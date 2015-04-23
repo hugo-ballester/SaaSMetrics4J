@@ -47,7 +47,7 @@ public class Commission {
   
   public CommissionItem createCommissionItem(BilledItem bi) {
     double fee = CurrencyUtils.toEuros(bi.getFee(), bi.getCurrency());
-    int monthsFromStartOfContract = JodaUtils.monthsDifference(bi.period.contractStart, bi.period.periodEnd);
+    int monthsFromStartOfContract = JodaUtils.monthsDifference(bi.period.contractStart, bi.period.periodEnd) + 1;
     fee = computeCommission(fee, monthsFromStartOfContract);
     return new CommissionItem(commissionnee, fee, this, bi);
   }

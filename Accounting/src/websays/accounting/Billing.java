@@ -89,9 +89,11 @@ public class Billing {
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
-          int m = c.getMonthsRemaining(billingDate) + 1;
-          if (m < n) {
-            n = m;
+          if (n > 1) {
+            int m = c.getMonthsRemaining(billingDate) + 1;
+            if (m < n) {
+              n = m;
+            }
           }
           monthly = monthlyPrize * n;
         }

@@ -112,6 +112,9 @@ public class BilledItem {
   
   public void setFee(Double fee, Currency currency) {
     this.fee = fee;
+    if (fee < 0.0) {
+      logger.error("fee < 0.0");
+    }
     this.currency = currency;
   }
   

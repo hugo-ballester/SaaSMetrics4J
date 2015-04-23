@@ -371,6 +371,10 @@ public class Contract {
    */
   public int getMonthsRemaining(LocalDate d) {
     int months;
+    if (endContract == null && contractedMonths == null) {
+      logger.error("Neither endContract nor contractedMonths are defined! Setting contractedMonths=1");
+      contractedMonths = 1;
+    }
     if (endContract != null) {
       months = JodaUtils.monthsDifference(d, endContract);
       return months;
@@ -379,6 +383,7 @@ public class Contract {
       months = JodaUtils.monthsDifference(d, end);
       return months;
     } else {
+      logger.error("SHOULD NEVER ARRIVE HERE!!!");
       return 0;
     }
   }

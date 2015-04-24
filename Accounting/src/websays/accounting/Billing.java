@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
 import websays.accounting.Contract.BillingSchema;
@@ -90,9 +91,13 @@ public class Billing {
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
           if (n > 1) {
-            int m = c.getMonthsRemaining(billingDate) + 1;
+            LocalDate firstDate = bp.periodStart;
+            LocalDate endDate = bp.contractEnd;
+            int m = ((Days.daysBetween(firstDate, endDate).getDays()) / 30) + 1;
             if (m < n) {
-              n = m;
+              if (m < n) {
+                n = m;
+              }
             }
           }
           monthly = monthlyPrize * n;

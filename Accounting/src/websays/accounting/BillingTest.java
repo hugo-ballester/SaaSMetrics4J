@@ -104,6 +104,42 @@ public class BillingTest {
       }
     }
     
+    // ------------------------------------------------------------------------------
+    // TEST WITH MONTHS_3 ending few days after bill
+    // ------------------------------------------------------------------------------
+    dateStart = new LocalDate(2010, 3, 13);
+    dateEnd = new LocalDate(2010, 6, 15);
+    
+    // MONTH 1 - 2 - [3 - 4 - 5 - 6] - 7 - 8 - 9
+    // BILLS . - . - [1 - . - . - 2] - . - . - . // Second bill for one month
+    // COMMS . - . - [C - C - C - c] - . - .
+    
+    c = new Contract(0, "ContractName", Type.contract, BillingSchema.MONTHS_3, 1,//
+        dateStart, dateEnd, fee, null, lis);
+    
+    for (int month = 1; month < 12; month++) {
+      bi = Billing.bill(c, 2010, month);
+      if (bi == null) {
+        System.out.println("MONTH " + month + ": BI is NULL");
+      } else {
+        System.out.println("MONTH " + month + ": BI :" + bi.toShortString());
+      }
+      if (month < 3) {
+        Assert.assertNull("M" + month, bi);
+      } else if (month <= 6) {
+        Assert.assertNotNull("M" + month, bi);
+        if (month == 3) {
+          Assert.assertEquals("M" + month, 3 * fee, bi.getFee(), 0.001);
+        } else if (month == 6) {
+          Assert.assertEquals("M" + month, 1 * fee, bi.getFee(), 0.001);
+        } else {
+          Assert.assertEquals("M" + month, 0.0, bi.getFee(), 0.001);
+        }
+      } else {
+        Assert.assertNull("M" + month, bi);
+      }
+    }
+    
   }
   
   @Test

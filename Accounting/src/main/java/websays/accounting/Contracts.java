@@ -383,4 +383,37 @@ public class Contracts extends ArrayList<Contract> {
     Arrays.sort(rett);
     return rett;
   }
+  
+  /**
+   * BY CONVENTION:
+   * <ul>
+   * <li>SET TO "project" all non-contracts
+   * <li>SET TO "project" all contracts of less than minContractLength days
+   * <li>REMOVE any projects with cost 0
+   * </ul>
+   * 
+   * @param con
+   * @param minContractLength
+   */
+  public void normalizeContracts(int minContractLength) {
+    Iterator<Contract> cs = this.iterator();
+    while (cs.hasNext()) {
+      Contract c = cs.next();
+      // if (c.isCostZero()) {
+      // logger.warn("Ignoring contract " + c.name + " because is cost zero");
+      // cs.remove();
+      // } else {
+      if (
+      //
+      (!c.type.equals(Type.contract)) //
+          && //
+          (c.getDays() > 0 && c.getDays() < minContractLength) //
+      ) {
+        logger.debug("Setting contract " + c.name + " to type=project because duration is only " + c.getDays());
+        c.type = Type.project;
+      }
+      // }
+    }
+    
+  }
 }

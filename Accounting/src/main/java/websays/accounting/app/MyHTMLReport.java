@@ -31,7 +31,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
   final static BillingReportPrinter printer = new PrinterASCII();
-  final static String HEADER = printer.header(GlobalConstants.VERSION);
+  final static String HEADER = printer.header();
   
   int thisYear = (new LocalDate()).getYear();
   int thisMonth = (new LocalDate()).getMonthOfYear();
@@ -239,10 +239,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
           indexFile.append("</td></tr></table>");
         }
         setOutput(new File(htmlDir, file));
-        System.out.println("<html><body>");
         
         // GENERATE BILLING REPORT FOR THE MONTH
-        System.out.println("<html><body><h1><a href=\"./\">BILLING:</a> " + file + "</h1><pre>\n");
+        System.out.println("<h1><a href=\"./\">BILLING:</a> " + file + "</h1>\n");
         mbr.report(contracts, byear, bmonth, GlobalConstants.billingCenters);
       }
       
@@ -258,6 +257,6 @@ public class MyHTMLReport extends BasicCommandLineApp {
   @Override
   public void setOutput(File file) throws FileNotFoundException {
     super.setOutput(file);
-    System.out.println(printer.header(GlobalConstants.VERSION));
+    System.out.println(printer.header());
   }
 }

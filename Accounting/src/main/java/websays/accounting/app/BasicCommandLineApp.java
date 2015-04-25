@@ -15,14 +15,11 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import websays.accounting.Contract;
-import websays.accounting.Contract.Type;
 import websays.accounting.Contracts;
 import websays.accounting.GlobalConstants;
 import websays.accounting.connectors.ContractDAO;
@@ -183,29 +180,7 @@ public class BasicCommandLineApp {
     
     Contracts con = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
         pricingFile != null ? new File(pricingFile) : null);
-    
-    /*
-     * BY CONVENTION: SET TO "project" all non-contracts and all contracts of less than MIN_CONTRACT_LENGTH days REMOVE any projects with cost 0
-     */
-    Iterator<Contract> cs = con.iterator();
-    while (cs.hasNext()) {
-      Contract c = cs.next();
-      if (c.isCostZero()) {
-        logger.warn("Ignoring contract " + c.name + " because is cost zero");
-        cs.remove();
-      } else {
-        if (
-        //
-        (!c.type.equals(Type.contract)) //
-            && //
-            (c.getDays() > 0 && c.getDays() < MIN_CONTRACT_LENGTH) //
-        ) {
-          logger.warn("Setting contract " + c.name + " to type=project because duration is only " + c.getDays());
-          c.type = Type.project;
-        }
-      }
-    }
-    
+    con.normalizeContracts(MIN_CONTRACT_LENGTH);
     return con;
     
   }

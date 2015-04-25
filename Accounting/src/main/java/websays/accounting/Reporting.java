@@ -134,10 +134,10 @@ public class Reporting {
       LocalDate billingDate = bs.get(0).date;
       sb.append(printer.subtitle("INVOICES. " + sdf.print(billingDate)));
       String invoices = p.printBills(bs, false);
-      sb.append(invoices);
+      sb.append(printer.preserveString(invoices));
     } else if (showInvoicesHeadlineWhenNone) {
       String invoices = p.printBills(bs, false);
-      sb.append(invoices);
+      sb.append(printer.preserveString(invoices));
     }
     return sb.toString();
   }

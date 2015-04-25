@@ -25,6 +25,7 @@ public class PrinterASCII extends BillingReportPrinter {
   String RET = "\n";
   
   private static final Logger logger = Logger.getLogger(PrinterASCII.class);
+  private static final String VERSION = GlobalConstants.VERSION;
   
   public PrinterASCII() {
     this.dateFormat1 = GlobalConstants.dtS;
@@ -174,9 +175,9 @@ public class PrinterASCII extends BillingReportPrinter {
   }
   
   @Override
-  public String header(String version) {
+  public String header() {
     String msg = "<html>\n <head>\n  <meta charset=\"UTF-8\"/>\n </head>\n\n<body>\n" + //
-        "<h4>SaaS4J Metrics Report v" + version + ". Generated on " + GlobalConstants.dtLL.print(new DateTime()) + "</h4><hr/>\n\n";
+        "<h4>SaaS4J Metrics Report v" + VERSION + ". Generated on " + GlobalConstants.dtLL.print(new DateTime()) + "</h4><hr/>\n\n";
     return msg;
   }
   
@@ -188,8 +189,12 @@ public class PrinterASCII extends BillingReportPrinter {
   @Override
   public String box1(String title, String content, boolean connectToDB, String extraStyle) {
     String style = "border=\"2\" width=\"80%\" cellpadding=\"10\" " + extraStyle;
-    String ret = "<table " + style + "><tr><td>" + title(title, connectToDB) + content + "</td></tr></table>";
+    String ret = "\n<table " + style + ">\n  <tr>\n    <td>" + title(title, connectToDB) + content + "\n  </td></tr>\n</table>\n";
     return ret;
   }
   
+  @Override
+  public String preserveString(String txt) {
+    return "\n<pre>\n" + txt + "\n</pre>\n";
+  }
 }

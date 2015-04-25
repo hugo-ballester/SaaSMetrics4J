@@ -102,10 +102,6 @@ public class Billing {
           if (bp.contractEnd != null && n > 1) {
             LocalDate firstDate = bp.periodStart;
             LocalDate endDate = bp.contractEnd;
-            if (firstDate.getDayOfMonth() != 1 || endDate.getDayOfMonth() != endDate.dayOfMonth().getMaximumValue()) {
-              logger.error("FOR NOW CANNOT DEAL WITH PARTIAL MONTH CONTRACTS WITH BILLING FOR MORE THAN A MONTH!!! (Contract: " + c.name
-                  + ")");
-            }
             int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
             if (m < n) {
               if (m < n) {

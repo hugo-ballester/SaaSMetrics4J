@@ -61,10 +61,6 @@ public class BillingReportPrinter {
     return "NOT IMPLEMENTED";
   }
   
-  public String header(String version) {
-    return "NOT IMPLEMENTED";
-  }
-  
   public String stringPeriod(Contract c) {
     String cont = null;
     if (c.contractedMonths != null && c.contractedMonths > 0 && c.startContract != null) {
@@ -98,6 +94,16 @@ public class BillingReportPrinter {
   }
   
   public String box1(String title, String content, boolean connectToDB) {
+    return null;
+  }
+  
+  public String header() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  public String preserveString(String txt) {
+    // TODO Auto-generated method stub
     return null;
   }
   

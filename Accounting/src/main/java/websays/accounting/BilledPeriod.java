@@ -139,7 +139,10 @@ public class BilledPeriod {
         logger.error("moveForwardTo: SHOULD NEVER HAPPEN");
         return false;
       }
-      boolean ok = next();
+      boolean ok = false;
+      if (billingSchema.isPeriodic()) {
+        ok = next();
+      }
       if (!ok) {
         return false; // cannot reach date
       }

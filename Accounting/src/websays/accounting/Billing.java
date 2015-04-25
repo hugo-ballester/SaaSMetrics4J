@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.joda.time.Days;
 import org.joda.time.LocalDate;
+import org.joda.time.Months;
 
 import websays.accounting.Contract.BillingSchema;
 
@@ -90,10 +90,14 @@ public class Billing {
         
         if (bs.isPeriodic()) {
           int n = c.billingSchema.getMonths();
-          if (n > 1) {
+          if (bp.contractEnd != null && n > 1) {
             LocalDate firstDate = bp.periodStart;
             LocalDate endDate = bp.contractEnd;
-            int m = ((Days.daysBetween(firstDate, endDate).getDays()) / 30) + 1;
+            if (firstDate.getDayOfMonth() != 1 || endDate.getDayOfMonth() != endDate.dayOfMonth().getMaximumValue()) {
+              logger.error("FOR NOW CANNOT DEAL WITH PARTIAL MONTH CONTRACTS WITH BILLING FOR MORE THAN A MONTH!!! (Contract: " + c.name
+                  + ")");
+            }
+            int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
             if (m < n) {
               if (m < n) {
                 n = m;

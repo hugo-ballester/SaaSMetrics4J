@@ -30,12 +30,11 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
-  final String HTML_PREFIX = "<html><head><meta charset=\"UTF-8\"></head>\n<body>\n";
+  final static BillingReportPrinter printer = new PrinterASCII();
+  final static String HEADER = printer.header(GlobalConstants.VERSION);
   
   int thisYear = (new LocalDate()).getYear();
   int thisMonth = (new LocalDate()).getMonthOfYear();
-  
-  static BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : START");
@@ -78,7 +77,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
-    indexFile.append(HTML_PREFIX + "<table cellpadding=\"20\" border=\"1\"  >");
+    indexFile.append(HEADER + "<table cellpadding=\"20\" border=\"1\"  >");
     indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
     
     indexFile.append("\n<tr><td valign=\"top\">");
@@ -96,17 +95,17 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     String lastTitle = "Last Contracts";
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
-    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, false, contracts);
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, false, contracts);
     FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
     
     lastTitle += " (new clients only)";
     indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
-    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, true, contracts);
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, true, contracts);
     FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
     
     lastTitle = "Commissions";
     indexFile.append("<a href=\"commissions.html\">" + lastTitle + "</a><br/>");
-    content = HTML_PREFIX + "<h2>" + lastTitle + "</h2><pre>\n\n";
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
     String[] commssionnees = contracts.getCommissionnees();
     for (int year : billingYears) {
       content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";

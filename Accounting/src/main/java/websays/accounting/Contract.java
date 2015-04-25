@@ -30,22 +30,16 @@ public class Contract {
   }
   
   public enum BillingSchema {
-    MONTHS_1(true, 1), //
-    MONTHS_3(true, 3), //
-    MONTHS_6(true, 6), //
-    MONTHS_12(true, 12), // the full year is payed on the first month of contract of every year (on the billing date)
-    FULL_1(false, null);
+    MONTHS_1(1), //
+    MONTHS_3(3), //
+    MONTHS_6(6), //
+    MONTHS_12(12), // the full year is payed on the first month of contract of every year (on the billing date)
+    MONTHS_1000(1000); // a replacement for "only once at the beginning"
     
     Integer months;
-    boolean periodic;
     
-    BillingSchema(boolean periodic, Integer months) {
-      this.periodic = periodic;
+    BillingSchema(Integer months) {
       this.months = months;
-    }
-    
-    boolean isPeriodic() {
-      return periodic;
     }
     
     Integer getMonths() {

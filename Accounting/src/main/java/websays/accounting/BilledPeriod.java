@@ -56,17 +56,8 @@ public class BilledPeriod {
   
   private void setPeriodEnd() throws Exception {
     
-    periodEnd = new LocalDate(periodStart);
+    periodEnd = periodStart.plusMonths(billingSchema.getMonths()).minusDays(1);
     
-    if (billingSchema.isPeriodic()) {
-      periodEnd = periodEnd.plusMonths(billingSchema.getMonths()).minusDays(1);
-    } else if (billingSchema.equals(BillingSchema.FULL_1)) {
-      if (contractEnd == null) {
-        throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
-      }
-    } else {
-      throw new Exception("BilledPeriod init issue: null date for non-periodic billing");
-    }
   }
   
   public void setBillingDate() {
@@ -74,10 +65,6 @@ public class BilledPeriod {
   }
   
   public boolean next() throws Exception {
-    if (!billingSchema.isPeriodic()) {
-      logger.warn("Calling next on a non-periodic BillingSchema : " + billingSchema);
-      return false;
-    }
     period++;
     int step = billingSchema.getMonths();
     periodStart = periodStart.plusMonths(step);
@@ -139,10 +126,8 @@ public class BilledPeriod {
         logger.error("moveForwardTo: SHOULD NEVER HAPPEN");
         return false;
       }
-      boolean ok = false;
-      if (billingSchema.isPeriodic()) {
-        ok = next();
-      }
+      boolean ok = next();
+      
       if (!ok) {
         return false; // cannot reach date
       }

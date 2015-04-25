@@ -97,36 +97,18 @@ public class Billing {
         
         double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
         
-        if (bs.isPeriodic()) {
-          int n = c.billingSchema.getMonths();
-          if (bp.contractEnd != null && n > 1) {
-            LocalDate firstDate = bp.periodStart;
-            LocalDate endDate = bp.contractEnd;
-            int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
+        int n = c.billingSchema.getMonths();
+        if (bp.contractEnd != null && n > 1) {
+          LocalDate firstDate = bp.periodStart;
+          LocalDate endDate = bp.contractEnd;
+          int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
+          if (m < n) {
             if (m < n) {
-              if (m < n) {
-                n = m;
-              }
+              n = m;
             }
           }
-          monthly = monthlyPrize * n;
         }
-        
-        else if (bs == BillingSchema.FULL_1) {
-          if (c.monthlyPrice != null && c.monthlyPrice > 0.) {
-            error(" monthly prized defined for FULL_1 billing schema");
-          }
-          
-          if (bp.period == 1) {
-            monthly = c.fixedPrice;
-          } else {
-            monthly = null;
-          }
-          
-        } else {
-          System.out.println("UNKNOWN BillingSchema '" + bs.name() + "'");
-          return null;
-        }
+        monthly = monthlyPrize * n;
         
         bi.setFee(monthly, c.currency);
       }

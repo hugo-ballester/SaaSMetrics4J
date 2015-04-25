@@ -16,6 +16,14 @@ import websays.accounting.Contract.BillingSchema;
 
 /**
  * 
+ * Computes bills.
+ * <ul>
+ * <li>Bill date is always the last day of the month
+ * <li>Bills the active period touching the bill date
+ * <li>One bill per client. A bill may contain many BilleedItem
+ * </ul>
+ * 
+ * 
  * @author hugoz
  * 
  */

@@ -23,8 +23,6 @@ public class BilledPeriod {
   
   private static final Logger logger = Logger.getLogger(BilledPeriod.class);
   
-  static int billingDayOfMonth = 28;
-  
   LocalDate periodStart, periodEnd; // both inclusive
   LocalDate contractStart, contractEnd; // both inclusive
       
@@ -72,12 +70,7 @@ public class BilledPeriod {
   }
   
   public void setBillingDate() {
-    LocalDate cal = new LocalDate(periodStart);
-    if (cal.getDayOfMonth() > billingDayOfMonth) {
-      cal = cal.plusMonths(1);
-    }
-    cal = cal.withDayOfMonth(billingDayOfMonth);
-    billDate = cal;
+    billDate = Billing.getBillingDate(periodStart.getYear(), periodStart.getMonthOfYear());
   }
   
   public boolean next() throws Exception {

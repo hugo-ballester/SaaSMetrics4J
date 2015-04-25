@@ -24,6 +24,45 @@ public class BillingTest {
   private static final double delta = 0.0001;
   
   @Test
+  public void PartilaMonthWithMultiMmonthBill() {
+    LocalDate dateStart = new LocalDate(2010, 3, 29);
+    LocalDate dateEnd = dateStart.plusMonths(5).minusDays(1);
+    ArrayList<Commission> lis = new ArrayList<Commission>();
+    lis.add(new Commission(.1, null, 3, "MrX"));
+    lis.add(new Commission(.2, null, 3, "MrY"));
+    BillingSchema billing = BillingSchema.MONTHS_3;
+    
+    // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
+    // BILLS . - . - [1 - . - . - 2 - .] - . - .
+    // COMMS . - . - [C - C - C - c - c] - . - .
+    
+    double fee = 100.;
+    BilledItem bi;
+    
+    // ------------------------------------------------------------------------------
+    // SIMPLE TEST WITH MONTHS_1
+    // ------------------------------------------------------------------------------
+    Contract c = new Contract(0, "ContractName", Type.contract, billing, 1,//
+        dateStart, dateEnd, fee, null, lis);
+    
+    int month = 6;
+    bi = Billing.bill(c, 2010, month);
+    Assert.assertNotNull("M" + month, bi);
+    Assert.assertEquals("M" + month, 2 * fee, bi.getFee(), 0.001);
+    double com1 = bi.getFee() * .1, com2 = bi.getFee() * .2;
+    if (month >= 6) {
+      com1 *= GlobalConstants.COMMMISSION_REMAINING;
+      com2 *= GlobalConstants.COMMMISSION_REMAINING;
+    }
+    Assert.assertEquals("M" + month, com1, bi.commissions.get(0).commission, delta);
+    Assert.assertEquals("M" + month, "MrX", bi.commissions.get(0).commissionnee);
+    Assert.assertEquals("M" + month, com2, bi.commissions.get(1).commission, delta);
+    Assert.assertEquals("M" + month, "MrY", bi.commissions.get(1).commissionnee);
+    Assert.assertEquals("M" + month, 2, bi.commissions.size());
+    
+  }
+  
+  @Test
   public void testMonthSchedules() throws Exception {
     ArrayList<Commission> lis = new ArrayList<Commission>();
     lis.add(new Commission(.1, null, 3, "MrX"));

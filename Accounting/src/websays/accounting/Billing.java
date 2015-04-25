@@ -35,7 +35,8 @@ public class Billing {
    * @return
    */
   public static LocalDate getBillingDate(int year, int month) {
-    LocalDate ret = new LocalDate(year, month, BilledPeriod.billingDayOfMonth);
+    LocalDate ret = new LocalDate(year, month, 1);
+    ret = ret.dayOfMonth().withMaximumValue();
     return ret;
   }
   

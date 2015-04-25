@@ -3,7 +3,7 @@
  *
  *    Hugo Zaragoza, Websays.
  */
-package websays.accounting.metrics;
+package websays.accounting;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,6 +17,7 @@ import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
+import websays.accounting.metrics.Metrics;
 
 public class MetricsTest1 {
   

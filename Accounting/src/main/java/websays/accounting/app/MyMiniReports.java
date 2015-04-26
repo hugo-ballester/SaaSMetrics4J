@@ -5,57 +5,39 @@
  */
 package websays.accounting.app;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts;
-import websays.accounting.Contracts.AccountFilter;
+import websays.accounting.GlobalConstants;
 import websays.accounting.PrinterASCII;
-import websays.accounting.Reporting;
+import websays.accounting.reporting.MiniReport;
 
 public class MyMiniReports extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyMiniReports.class);
   
-  private static final int MONTHS = 8;
-  LocalDate c;
-  
   static BillingReportPrinter printer = new PrinterASCII();
   
   public MyMiniReports(String[] args) throws Exception {
-    c = (new LocalDate()).plusMonths(1);
+    
+    LocalDate c = (new LocalDate()).plusMonths(-8);
+    String nowStr = GlobalConstants.dtLL.print(new LocalDate());
+    
     logger.info("SaaSMetrics4j - MiniReports v1");
     init(args);
     Contracts contracts = initContracts();
     
-    Contracts contAll = contracts.getView(AccountFilter.CONTRACTED_OR_PROJECT);
-    Contracts contCont = contracts.getView(AccountFilter.CONTRACT);
-    boolean metricDate = false;
-    
-    SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd ('W'w)");
-    sdf1.setTimeZone(TimeZone.getTimeZone("Europe/Madrid"));
-    String date = sdf1.format(new Date());
-    
     for (String action : actions) {
       
       if (action.equals("mrr")) {
-        String ret = line2 + "MRR REPORT " + date + line2;
+        String ret = printer.line() + "MRR REPORT " + nowStr + printer.line();
         
-        ret += line1 + "ALL (CONTRACTS + PROJECTS)\n\n";
-        ret += Reporting.displayLastMRR(contAll, c.getYear(), c.getMonthOfYear(), MONTHS, metricDate) + "\n";
-        
-        ret += line1 + "CONTRACTS only (projects removed):\n\n";
-        ret += Reporting.displayLastMRR(contCont, c.getYear(), c.getMonthOfYear(), MONTHS, metricDate) + "\n";
-        
-        ret += line2;
+        ret += MiniReport.miniReport(contracts, printer, c.getYear(), c.getMonthOfYear(), 12);
         
         if (email != null) {
-          email("Mini MRR Report " + date, ret);
+          email("Mini MRR Report " + nowStr, ret);
           logger.info("MRR Report e-mail sent");
         }
         System.out.println(ret);

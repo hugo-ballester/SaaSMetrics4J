@@ -19,6 +19,7 @@ import org.apache.commons.collections4.map.DefaultedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -192,16 +193,22 @@ public class Reporting {
     return sb.toString();
   }
   
-  public static String displayLastMRR(Contracts contracts, int yearStart, int monthEnd, int months, boolean metricDate)
+  public static String displayLastMRR(Contracts contracts, int yearStart, int monthEnd, int months, YearMonth highlightMonth)
       throws ParseException {
+    
     HashMap<String,MonthlyMetrics> cache = new HashMap<String,MonthlyMetrics>();
     String header = "MONTH:\t\t";
-    String line1 = "\nAvg. Delta MRR (k€):";
-    String line2 = "\n     Delta MRR (k€):";
-    String line3 = "\n           MRR (k€):";
-    String line4 = "\n       MRR New (k€):";
-    String line5 = "\n      MRR Lost (k€):";
-    String line6 = "\n       MRR Exp (k€):";
+    
+    ArrayList<StringBuffer> lines = new ArrayList<StringBuffer>();
+    for (int l = 0; l < 7; l++) {
+      lines.add(new StringBuffer());
+    }
+    lines.get(0).append("\nAvg. Delta MRR (k€):");
+    lines.get(1).append("\n     Delta MRR (k€):");
+    lines.get(2).append("\n           MRR (k€):");
+    lines.get(3).append("\n       MRR New (k€):");
+    lines.get(4).append("\n      MRR Lost (k€):");
+    lines.get(5).append("\n       MRR Exp (k€):");
     
     int month = monthEnd;
     int year = yearStart;
@@ -263,12 +270,27 @@ public class Reporting {
       double v1 = avg / 1000;
       double v2 = (met1.mrr - met2.mrr) / 1000;
       double v3 = met1.mrr / 1000;
-      line1 += (String.format("\t%6.1f", v1));
-      line2 += (String.format("\t%6.1f", v2));
-      line3 += (String.format("\t%6.1f", v3));
-      line4 += (String.format("\t%6.1f", met1.mrrNew / 1000));
-      line5 += (String.format("\t%6.1f", met1.churn / 1000));
-      line6 += (String.format("\t%6.1f", met1.expansion / 1000));
+      
+      // highlight this month:
+      if (highlightMonth != null && month == highlightMonth.getMonthOfYear() && year == highlightMonth.getYear()) {
+        for (StringBuffer l : lines) {
+          l.append("<strong>");
+        }
+      }
+      
+      lines.get(0).append(String.format("\t%6.1f", v1));
+      lines.get(1).append(String.format("\t%6.1f", v2));
+      lines.get(2).append(String.format("\t%6.1f", v3));
+      lines.get(3).append(String.format("\t%6.1f", met1.mrrNew / 1000));
+      lines.get(4).append(String.format("\t%6.1f", met1.churn / 1000));
+      lines.get(5).append(String.format("\t%6.1f", met1.expansion / 1000));
+      
+      // highlight this month:
+      if (highlightMonth != null && month == highlightMonth.getMonthOfYear() && year == highlightMonth.getYear()) {
+        for (StringBuffer l : lines) {
+          l.append("</strong>");
+        }
+      }
       header += String.format("\t%6s", label);
       
       if (--month == 0) {
@@ -277,7 +299,8 @@ public class Reporting {
       }
     }
     
-    return header + "\n" + line4 + line5 + line6 + line2 + "\n" + line3 + "\n" + "\n<strong>" + line1 + "</strong>\n";
+    return header + "\n" + lines.get(3) + lines.get(4) + lines.get(5) + lines.get(1) + "\n" + lines.get(2) + "\n" + "\n<strong>"
+        + lines.get(0) + "</strong>\n";
   }
   
   /**

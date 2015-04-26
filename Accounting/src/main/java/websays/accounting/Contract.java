@@ -34,7 +34,7 @@ public class Contract {
     MONTHS_3(3), //
     MONTHS_6(6), //
     MONTHS_12(12), // the full year is payed on the first month of contract of every year (on the billing date)
-    MONTHS_1000(1000); // a replacement for "only once at the beginning"
+    MONTHS_1000(1000); // for strange cases
     
     Integer months;
     

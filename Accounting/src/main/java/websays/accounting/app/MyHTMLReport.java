@@ -22,6 +22,7 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.GlobalConstants;
 import websays.accounting.PrinterASCII;
 import websays.accounting.Reporting;
+import websays.accounting.reporting.MiniReport;
 import websays.accounting.reporting.MyMonthlyBillingReport;
 
 public class MyHTMLReport extends BasicCommandLineApp {
@@ -104,14 +105,21 @@ public class MyHTMLReport extends BasicCommandLineApp {
     FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
     
     lastTitle = "Commissions";
-    indexFile.append("<a href=\"commissions.html\">" + lastTitle + "</a><br/>");
+    indexFile.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
     content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
     String[] commssionnees = contracts.getCommissionnees();
     for (int year : billingYears) {
       content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
       content += Reporting.report_comm(year, commssionnees, contracts);
     }
-    FileUtils.writeStringToFile(new File(htmlDir, "commissions.html"), content);
+    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+    
+    lastTitle = "MRR_MiniReport";
+    indexFile.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
+    LocalDate miniStart = new LocalDate().plusMonths(2);
+    content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 12);
+    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     
     indexFile.append("\n</td></tr></table>\n");
     

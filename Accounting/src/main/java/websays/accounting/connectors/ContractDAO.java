@@ -16,7 +16,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Date;
@@ -24,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import websays.accounting.Commission;
 import websays.accounting.Contract;
@@ -36,7 +37,6 @@ import websays.accounting.Pricing;
 
 public class ContractDAO extends MySQLDAO {
   
-  private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
   private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
@@ -65,6 +65,8 @@ public class ContractDAO extends MySQLDAO {
       return null;
     }
     
+    DateTimeFormatter df = DateTimeFormat.forPattern("yyyy/MM/dd");
+    
     int n = 0;
     for (String line : p) {
       try {
@@ -74,8 +76,9 @@ public class ContractDAO extends MySQLDAO {
         String[] r = line.split("[\t ,;]+");
         Pricing pr = new Pricing(r[0]);
         for (int i = 1; i < r.length; i += 2) {
-          LocalDate d = new LocalDate(df.parse(r[i])); // TODO: do not parse to Date
-          pr.add(d, Double.parseDouble(r[i + 1]));
+          LocalDate d = new LocalDate(df.parseLocalDate(r[i])); // TODO: do not parse to Date pr.add(d, Double.parseDouble(r[i + 1]));
+          double mrr = Double.parseDouble(r[i + 1]);
+          pr.add(d, mrr);
         }
         pricings.put(pr.name, pr);
         n++;
@@ -214,6 +217,7 @@ public class ContractDAO extends MySQLDAO {
         Pricing p = pricingSchemaNames.get(pricing);
         if (p == null) {
           logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
+          System.exit(1);
         }
         a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }

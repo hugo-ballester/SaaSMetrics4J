@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 
 import org.joda.time.LocalDate;
+import org.joda.time.Months;
 
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
@@ -24,7 +25,8 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   BillingReportPrinter printer = new PrinterASCII();
   
   public static void main(String[] args) throws Exception {
-    System.out.println("<head><meta charset=\"UTF-8\"></head>");
+    StringBuffer sb = new StringBuffer();
+    sb.append("<head><meta charset=\"UTF-8\"></head>");
     
     init(args);
     if (contractID == null) {
@@ -33,34 +35,35 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     }
     
     ContractMonthlyReport cmr = new ContractMonthlyReport();
-    cmr.report(contractID);
+    sb.append(cmr.report(contractID));
+    System.out.println(sb.toString());
   }
   
-  void report(int contractID) throws Exception {
+  String report(int contractID) throws Exception {
     
     Contracts contracts = initContracts();
     Contract c = contracts.getContract(contractID);
     if (c == null) {
-      System.err.println("ERROR: NO CONTRACT FOUND WITH contractID=" + contractID);
-      return;
+      return "ERROR: NO CONTRACT FOUND WITH contractID=" + contractID;
     }
     
-    report(c);
+    return report(c);
   }
   
-  private void report(Contract c) throws ParseException, SQLException {
+  String report(Contract c) throws ParseException, SQLException {
     LocalDate cS = c.startContract;
-    LocalDate cE = cS;
+    int months = 12;
     if (c.endContract != null) {
-      cE = c.endContract;
+      months = Months.monthsBetween(c.startContract, c.endContract).getMonths() + 1;
+    } else if (c.contractedMonths != null) {
+      months = c.contractedMonths;
     }
-    cS.plusMonths(-3);
-    cS.plusMonths(+3);
     
-    report(c, cS.getYear(), cS.getMonthOfYear(), cE.getYear(), cE.getMonthOfYear());
+    String ret = report(c, cS, months);
     if (c.endContract == null) {
-      System.out.println("... and continues forever ...");
+      ret += "... and continues forever ...\n";
     }
+    return ret;
   }
   
   /**
@@ -74,21 +77,19 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
    * @throws ParseException
    * @throws SQLException
    */
-  public void report(Contract c, int yearStart, int month, int yearEnd, int monthEnd_startAt1) throws ParseException, SQLException {
-    LocalDate cal = new LocalDate(yearStart, month, 1);
-    int m, y;
+  public String report(Contract c, LocalDate cS, int months) throws ParseException, SQLException {
+    StringBuffer sb = new StringBuffer();
+    LocalDate cal = new LocalDate(cS);
+    
     Contracts contracts = new Contracts();
     contracts.add(c);
     Reporting r = new Reporting(printer);
     r.showInvoicesHeadlineWhenNone = false;
     
-    do {
-      m = cal.getMonthOfYear();
-      y = cal.getYear();
-      r.displayBilling(y, m, contracts);
-      cal.plusMonths(1);
-    } while (!(y >= yearEnd && m == monthEnd_startAt1));
-    
+    for (int m = 0; m < months; m++) {
+      sb.append(r.displayBilling(cal.getYear(), cal.getMonthOfYear(), contracts) + "\n");
+      cal = cal.plusMonths(1);
+    }
+    return sb.toString();
   }
-  
 }

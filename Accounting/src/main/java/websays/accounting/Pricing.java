@@ -29,6 +29,18 @@ public class Pricing {
     prizes.add(prize);
   }
   
+  @Override
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < dates.size(); i++) {
+      sb.append(dates.get(i).toString() + ":" + prizes.get(i).toString() + ", ");
+    }
+    if (sb.length() > 0) {
+      sb.setLength(sb.length() - 2);
+    }
+    return sb.toString();
+  }
+  
   Double getPrize(LocalDate d) {
     if (dates == null || dates.size() == 0) {
       return null;

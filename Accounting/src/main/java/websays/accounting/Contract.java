@@ -49,7 +49,7 @@ public class Contract {
   }
   
   public enum ClientType {
-    agency, direct
+    agency, direct, project_only
   }
   
   public enum Type {
@@ -227,7 +227,7 @@ public class Contract {
    * @return
    */
   public double getMonthlyPrize(LocalDate d, boolean addFixedPrize, boolean roundDate) {
-    double p = 0;
+    Double p = 0.;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
     }
@@ -240,6 +240,11 @@ public class Contract {
       p = monthlyPrice;
     } else if (pricingSchema != null) {
       p = pricingSchema.getPrize(d);
+      if (p == null || p == 0) {
+        logger.error("Pricing schema returned prize 0 for on " + (d != null ? d.toString() : "null") + " for contract " + id
+            + " and schema " + pricingSchema.name + ":\n" + pricingSchema.toString());
+        System.exit(-1);
+      }
     } else if (fixedPrice == null) {
       System.err.println("NEITHER monthlyPrice nor pricingSchema nor fixedPrice " + name);
     }

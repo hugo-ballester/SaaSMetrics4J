@@ -115,9 +115,9 @@ public class Reporting {
   /**
    * @param year
    * @param month
-   *          1-12
    * @throws ParseException
    * @throws SQLException
+   * 
    */
   public String displayBilling(int year, int month, Contracts contracts) throws ParseException, SQLException {
     

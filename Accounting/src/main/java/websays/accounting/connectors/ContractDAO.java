@@ -71,7 +71,7 @@ public class ContractDAO extends MySQLDAO {
         if (line.startsWith("#")) {
           continue;
         }
-        String[] r = line.split("\t");
+        String[] r = line.split("[\t ,;]+");
         Pricing pr = new Pricing(r[0]);
         for (int i = 1; i < r.length; i += 2) {
           LocalDate d = new LocalDate(df.parse(r[i])); // TODO: do not parse to Date

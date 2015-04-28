@@ -7,27 +7,17 @@ package websays.accounting.reporting;
 
 import java.util.Collection;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import websays.accounting.BillingReportPrinter;
-import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
-import websays.accounting.MonthlyMetrics;
 import websays.accounting.Reporting;
 import websays.accounting.app.BasicCommandLineApp;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
   
   private BillingReportPrinter printer;
-  
-  {
-    Logger.getLogger(Contract.class).setLevel(Level.INFO);
-    Logger.getLogger(MonthlyMetrics.class).setLevel(Level.INFO);
-    
-  }
   
   public MyMonthlyBillingReport(BillingReportPrinter printer) {
     this.printer = printer;

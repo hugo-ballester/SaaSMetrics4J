@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
@@ -19,9 +18,7 @@ import websays.core.utils.CurrencyUtils;
 public class Bill {
   
   private static final Logger logger = Logger.getLogger(Bill.class);
-  {
-    logger.setLevel(Level.TRACE);
-  }
+  
   final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
   
   public LocalDate date;

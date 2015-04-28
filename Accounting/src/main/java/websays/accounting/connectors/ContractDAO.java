@@ -37,7 +37,7 @@ import websays.accounting.Pricing;
 public class ContractDAO extends MySQLDAO {
   
   private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, client.billingCenter, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
@@ -177,8 +177,9 @@ public class ContractDAO extends MySQLDAO {
       Double fix = rs.getDouble(column++); // casting to get the null
       String pricing = rs.getString(column++);
       Integer client_id = rs.getInt(column++);
-      String cname = rs.getString(column++);
+      String client_name = rs.getString(column++);
       String billingCenter = rs.getString(column++);
+      String client_type = rs.getString(column++);
       
       BigDecimal bd = (BigDecimal) rs.getObject(column++);
       Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
@@ -217,11 +218,14 @@ public class ContractDAO extends MySQLDAO {
         a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }
       a.contractDocument = contractDocument;
-      a.client_name = cname;
+      a.client_name = client_name;
       a.contractedMonths = contracteMonths;
       a.currency = Currency.getInstance(currency);
       a.comments_billing = comments_billing;
       a.billingCenter = billingCenter;
+      if (client_type != null) {
+        a.client_type = Contract.ClientType.valueOf(client_type);
+      }
       
       return a;
     } catch (Exception e) {

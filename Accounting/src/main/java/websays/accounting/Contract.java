@@ -48,6 +48,10 @@ public class Contract {
     
   }
   
+  public enum ClientType {
+    agency, direct
+  }
+  
   public enum Type {
     contract, project, pilot, internal, budget, test
   };
@@ -82,6 +86,8 @@ public class Contract {
   public int profiles;
   
   public BillingSchema billingSchema = BillingSchema.MONTHS_1;
+  
+  public ClientType client_type = null;
   
   public Currency currency = CurrencyUtils.EUR;
   public String comments_billing;

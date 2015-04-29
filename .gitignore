@@ -1,8 +1,10 @@
 Accounting/target/
 Accounting/bin/
+Accounting/.gradle
+Accounting/build
 
+*.gradle~
 *.md~
-
 *.txt~
 
 *.properties~

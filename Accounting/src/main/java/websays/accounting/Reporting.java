@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -196,70 +195,36 @@ public class Reporting {
   public static String displayLastMRR(Contracts contracts, int yearStart, int monthStart, int months, YearMonth highlightMonth)
       throws ParseException {
     
-    HashMap<String,MonthlyMetrics> cache = new HashMap<String,MonthlyMetrics>();
-    String header = "MONTH:\t\t";
+    String headerLine = "MONTH:\t\t";
     
     ArrayList<StringBuffer> lines = new ArrayList<StringBuffer>();
     for (int l = 0; l < 7; l++) {
       lines.add(new StringBuffer());
     }
-    lines.get(0).append("\nAvg. Delta MRR (k€):");
-    lines.get(1).append("\n     Delta MRR (k€):");
-    lines.get(2).append("\n           MRR (k€):");
-    lines.get(3).append("\n       MRR New (k€):");
-    lines.get(4).append("\n      MRR Lost (k€):");
-    lines.get(5).append("\n       MRR Exp (k€):");
+    lines.get(0).append("DEPRECAETED POSITION");
+    String avgLine = "Avg. Delta MRR (k€):";
+    lines.get(1).append("     Delta MRR (k€):");
+    lines.get(2).append("           MRR (k€):");
+    lines.get(3).append("       MRR New (k€):");
+    lines.get(4).append("      MRR Lost (k€):");
+    lines.get(5).append("       MRR Exp (k€):");
     
     YearMonth end = new YearMonth(yearStart, monthStart).plusMonths(months - 1);
     int WINDOW_FOR_AVERAGE = 6;
+    ArrayList<Double> average = new ArrayList<Double>();
     
-    for (int i = 0; i < months; i++) {
+    for (int i = 0; i < (months + WINDOW_FOR_AVERAGE - 1); i++) {
       
       YearMonth ym = end.minusMonths(i);
-      
+      YearMonth ymPrev = ym.minusMonths(1);
       int month = ym.getMonthOfYear();
       int year = ym.getYear();
-      double avg = 0;
-      for (int j = WINDOW_FOR_AVERAGE; j > 0; j--) {
-        YearMonth l1 = new YearMonth(ym).minusMonths(j - 1);
-        YearMonth l2 = new YearMonth(l1).minusMonths(-1); // delta
-        
-        String label = l1.getYear() + "-" + l1.getMonthOfYear();
-        String label2 = l2.getYear() + "-" + l2.getMonthOfYear();
-        
-        MonthlyMetrics met1 = cache.get(label);
-        if (cache.get(label) == null) {
-          met1 = MonthlyMetrics.compute(l1.getYear(), l1.getMonthOfYear(), contracts);
-          cache.put(label, met1);
-        }
-        
-        MonthlyMetrics met2 = cache.get(label2);
-        if (cache.get(label2) == null) {
-          met2 = MonthlyMetrics.compute(l2.getYear(), l2.getMonthOfYear(), contracts);
-          cache.put(label2, met2);
-        }
-        
-        double value1 = (met1.mrr - met2.mrr);
-        avg += value1;
-        // System.out.println(label + "  -  " + label2 + "\t" + value1 + "\t" + avg);
-        
-      }
-      avg /= WINDOW_FOR_AVERAGE;
-      // System.out.println(avg);
       
       String label = year + "-" + month;
       
-      int m2 = month - 1;
-      int y2 = year;
-      if (m2 == 0) {
-        m2 = 12;
-        y2--;
-      }
-      String label2 = y2 + "-" + m2;
+      MonthlyMetrics met1 = MonthlyMetrics.compute(ym.getYear(), ym.getMonthOfYear(), contracts);
+      MonthlyMetrics met2 = MonthlyMetrics.compute(ymPrev.getYear(), ymPrev.getMonthOfYear(), contracts);
       
-      MonthlyMetrics met2 = cache.get(label2);
-      MonthlyMetrics met1 = cache.get(label);
-      double v1 = avg / 1000;
       double v2 = (met1.mrr - met2.mrr) / 1000;
       double v3 = met1.mrr / 1000;
       
@@ -270,25 +235,36 @@ public class Reporting {
         }
       }
       
-      lines.get(0).append(String.format("\t%6.1f", v1));
-      lines.get(1).append(String.format("\t%6.1f", v2));
-      lines.get(2).append(String.format("\t%6.1f", v3));
-      lines.get(3).append(String.format("\t%6.1f", met1.mrrNew / 1000));
-      lines.get(4).append(String.format("\t%6.1f", -met1.churn / 1000));
-      lines.get(5).append(String.format("\t%6.1f", met1.expansion / 1000));
-      
-      // highlight this month:
-      if (highlightMonth != null && month == highlightMonth.getMonthOfYear() && year == highlightMonth.getYear()) {
-        for (StringBuffer l : lines) {
-          l.append("</strong>");
+      if (i < months) { // the rest of months are only to compute delta average.
+        lines.get(1).append(String.format("\t%6.1f", v2));
+        lines.get(2).append(String.format("\t%6.1f", v3));
+        lines.get(3).append(String.format("\t%6.1f", met1.mrrNew / 1000));
+        lines.get(4).append(String.format("\t%6.1f", -met1.churn / 1000));
+        lines.get(5).append(String.format("\t%6.1f", met1.expansion / 1000));
+        
+        // highlight this month:
+        if (highlightMonth != null && month == highlightMonth.getMonthOfYear() && year == highlightMonth.getYear()) {
+          for (StringBuffer l : lines) {
+            l.append("</strong>");
+          }
         }
+        headerLine += String.format("\t%6s", label);
       }
-      header += String.format("\t%6s", label);
+      average.add(met1.mrr);
       
     }
     
-    return header + "\n" + lines.get(3) + lines.get(4) + lines.get(5) + lines.get(1) + "\n" + lines.get(2) + "\n" + "\n<strong>"
-        + lines.get(0) + "</strong>\n";
+    // COMPUTE AVERAGES
+    double[] avgA = new double[average.size() - WINDOW_FOR_AVERAGE];
+    for (int i = 0; i < average.size() - WINDOW_FOR_AVERAGE; i++) {
+      for (int j = 0; j < WINDOW_FOR_AVERAGE; j++) {
+        avgA[i] += average.get(i + j);
+      }
+      avgLine += String.format("\t%6.1f", avgA[i] / 1000.);
+    }
+    
+    return headerLine + "\n" + lines.get(3) + "\n" + lines.get(4) + "\n" + lines.get(5) + "\n" + lines.get(1) + "\n" + lines.get(2) + "\n"
+        + "\n\n<strong>" + avgLine + "</strong>\n";
   }
   
   /**

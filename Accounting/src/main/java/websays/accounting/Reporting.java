@@ -30,7 +30,7 @@ import websays.accounting.reporting.CSVMetricsReport;
 import websays.core.utils.CurrencyUtils;
 
 /**
- * Functions to display contracts and bills in different ways...
+ * Functions to display contracts and bills in different ways.
  * 
  * @author hugoz
  * 

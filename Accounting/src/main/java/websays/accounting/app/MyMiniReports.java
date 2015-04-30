@@ -23,10 +23,14 @@ public class MyMiniReports extends BasicCommandLineApp {
   public MyMiniReports(String[] args) throws Exception {
     
     LocalDate c = (new LocalDate()).plusMonths(-8);
-    String nowStr = GlobalConstants.dtLL.print(new LocalDate());
+    String nowStr = GlobalConstants.dtS.print(new LocalDate());
     
     logger.info("SaaSMetrics4j - MiniReports v1");
     init(args);
+    if (actions == null || actions.length == 0) {
+      System.err.println("YOU NEED A --do parameter with {mrr}");
+      return;
+    }
     Contracts contracts = initContracts();
     
     for (String action : actions) {

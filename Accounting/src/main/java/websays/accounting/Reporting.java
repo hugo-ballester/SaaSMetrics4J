@@ -193,7 +193,7 @@ public class Reporting {
     return sb.toString();
   }
   
-  public static String displayLastMRR(Contracts contracts, int yearStart, int monthEnd, int months, YearMonth highlightMonth)
+  public static String displayLastMRR(Contracts contracts, int yearStart, int monthStart, int months, YearMonth highlightMonth)
       throws ParseException {
     
     HashMap<String,MonthlyMetrics> cache = new HashMap<String,MonthlyMetrics>();
@@ -210,40 +210,32 @@ public class Reporting {
     lines.get(4).append("\n      MRR Lost (k€):");
     lines.get(5).append("\n       MRR Exp (k€):");
     
-    int month = monthEnd;
-    int year = yearStart;
+    YearMonth end = new YearMonth(yearStart, monthStart).plusMonths(months - 1);
     int WINDOW_FOR_AVERAGE = 6;
+    
     for (int i = 0; i < months; i++) {
       
+      YearMonth ym = end.minusMonths(i);
+      
+      int month = ym.getMonthOfYear();
+      int year = ym.getYear();
       double avg = 0;
       for (int j = WINDOW_FOR_AVERAGE; j > 0; j--) {
+        YearMonth l1 = new YearMonth(ym).minusMonths(j - 1);
+        YearMonth l2 = new YearMonth(l1).minusMonths(-1); // delta
         
-        int m = month - j + 1;
-        int y = year;
-        if (m < 1) {
-          m += 12;
-          y--;
-        }
-        
-        int m2 = m - 1;
-        int y2 = y;
-        if (m2 == 0) {
-          m2 = 12;
-          y2--;
-        }
-        
-        String label = y + "-" + m;
-        String label2 = y2 + "-" + m2;
+        String label = l1.getYear() + "-" + l1.getMonthOfYear();
+        String label2 = l2.getYear() + "-" + l2.getMonthOfYear();
         
         MonthlyMetrics met1 = cache.get(label);
         if (cache.get(label) == null) {
-          met1 = MonthlyMetrics.compute(y, m, contracts);
+          met1 = MonthlyMetrics.compute(l1.getYear(), l1.getMonthOfYear(), contracts);
           cache.put(label, met1);
         }
         
         MonthlyMetrics met2 = cache.get(label2);
         if (cache.get(label2) == null) {
-          met2 = MonthlyMetrics.compute(y2, m2, contracts);
+          met2 = MonthlyMetrics.compute(l2.getYear(), l2.getMonthOfYear(), contracts);
           cache.put(label2, met2);
         }
         
@@ -282,7 +274,7 @@ public class Reporting {
       lines.get(1).append(String.format("\t%6.1f", v2));
       lines.get(2).append(String.format("\t%6.1f", v3));
       lines.get(3).append(String.format("\t%6.1f", met1.mrrNew / 1000));
-      lines.get(4).append(String.format("\t%6.1f", met1.churn / 1000));
+      lines.get(4).append(String.format("\t%6.1f", -met1.churn / 1000));
       lines.get(5).append(String.format("\t%6.1f", met1.expansion / 1000));
       
       // highlight this month:
@@ -293,10 +285,6 @@ public class Reporting {
       }
       header += String.format("\t%6s", label);
       
-      if (--month == 0) {
-        month = 12;
-        year--;
-      }
     }
     
     return header + "\n" + lines.get(3) + lines.get(4) + lines.get(5) + lines.get(1) + "\n" + lines.get(2) + "\n" + "\n<strong>"

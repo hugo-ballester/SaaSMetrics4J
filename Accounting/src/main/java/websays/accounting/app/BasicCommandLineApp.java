@@ -74,11 +74,11 @@ public class BasicCommandLineApp {
     jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setShortFlag('c').setStringParser(JSAP.INTEGER_PARSER)
         .setRequired(false));
     
-    jsap.registerParameter(new FlaggedOption("do").setStringParser(JSAP.STRING_PARSER).setRequired(false).setLongFlag("do"));
-    
     jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
     
     jsap.registerParameter(new Switch("debug").setLongFlag("debug").setDefault("false"));
+    
+    jsap.registerParameter(new FlaggedOption("do").setStringParser(JSAP.STRING_PARSER).setRequired(false).setLongFlag("do"));
     
     JSAPResult config = jsap.parse(args);
     if (!config.success()) {

@@ -256,11 +256,11 @@ public class Reporting {
     
     // COMPUTE AVERAGES
     double[] avgA = new double[average.size() - WINDOW_FOR_AVERAGE];
-    for (int i = 0; i < average.size() - WINDOW_FOR_AVERAGE; i++) {
+    for (int i = 0; i < average.size() - WINDOW_FOR_AVERAGE + 1; i++) {
       for (int j = 0; j < WINDOW_FOR_AVERAGE; j++) {
         avgA[i] += average.get(i + j);
       }
-      avgLine += String.format("\t%6.1f", avgA[i] / 1000.);
+      avgLine += String.format("\t%6.1f", avgA[i] / WINDOW_FOR_AVERAGE / 1000.);
     }
     
     return headerLine + "\n" + lines.get(3) + "\n" + lines.get(4) + "\n" + lines.get(5) + "\n" + lines.get(1) + "\n" + lines.get(2) + "\n"

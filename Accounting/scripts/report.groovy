@@ -29,19 +29,31 @@ msg="";
 toAddress = "hugo.zaragoza@websays.com";
 emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
+
 commands << "Contracts ending in the next 30 days:";
-commands << "SELECT c.id, c.name, cl.name AS client_name, start,end FROM contract c LEFT JOIN client cl ON c.client_id=cl.id WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30;" 
+commands << '''SELECT c.id,c.name, cl.name AS client_name, start, end, c.type FROM contract c LEFT JOIN client \
+cl ON c.client_id=cl.id WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30
+ORDER BY c.type DESC, client_name;'''
+
 
 commands << "Contracts auto-renewing in the next 30 days:";
-commands << "SELECT c.id, c.name, cl.name AS client_name, start, DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH)  AS renewing FROM contract c LEFT JOIN client cl ON c.client_id=cl.id WHERE DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 AND end IS NULL;"
+commands << '''SELECT c.id,c.name, cl.name AS client_name, start, DATE_ADD(c.start,INTERVAL c.contractedMonths \
+MONTH)  AS renewing , c.type FROM contract c LEFT JOIN client cl ON c.client_id=cl.id WHERE DATEDIFF( DATE_ADD(\
+c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 AND end IS NULL
+ORDER BY c.type DESC, client_name;'''
+
 
 commands << "Contracts that Ended Recently"
-commands << "SELECT c.id, c.name, cl.name AS client_name, start, end FROM contract c  LEFT JOIN client cl ON c.client_id=cl.id WHERE DATEDIFF(NOW(),c.end)<7 AND c.end<=CURRENT_DATE();"
+commands << '''SELECT c.id, c.name, cl.name AS client_name, start, end, c.type FROM contract c  LEFT JOIN clien\
+t cl ON c.client_id=cl.id WHERE DATEDIFF(NOW(),c.end)<7 AND c.end<=CURRENT_DATE()
+ORDER BY c.type DESC, client_name;'''
 
 commands << "---"
 
 commands << "Active Contracts"
-commands << "SELECT  c.id, c.name, cl.name AS client_name, start FROM contract c  LEFT JOIN client cl ON c.client_id=cl.id WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) );"
+commands << '''SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
+ ON c.client_id=cl.id WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
+ORDER BY c.type DESC, client_name;'''
 
 
 

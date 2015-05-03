@@ -10,7 +10,6 @@ if (args.size()!=2) {
 Globals g = new Globals(args[0]);
 toAddress=args[1];
 
-
 import groovy.sql.Sql
 import javax.mail.*
 import javax.mail.internet.*
@@ -96,8 +95,11 @@ class Globals {
 
 public static void simpleMail2(String to,
     String subject, String body, Properties p) throws Exception {
-    println subject;
+    println to;
+    System.exit(1);
 }
+
+
 public static void simpleMail(String to,
     String subject, String body, Properties p) throws Exception {
  
@@ -111,11 +113,16 @@ public static void simpleMail(String to,
     props.put("mail.smtp.user", p.SMTP_USER);
     props.put("mail.smtp.password", p.SMTP_PASSWORD);
 
-    InternetAddress toAddress = new InternetAddress(to); 
+
     Session session = Session.getDefaultInstance(props, null);
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(p.SMTP_USER));
-    message.addRecipient(Message.RecipientType.TO, toAddress);
+    
+    for(email in to.split(";")) {
+       InternetAddress toAddress = new InternetAddress(email); 
+       message.addRecipient(Message.RecipientType.TO, toAddress);
+    }
+
     message.setSubject(subject);
     message.setText(body);
  

@@ -10,3 +10,5 @@ Accounting/build
 *.properties~
 SaaSMetrics4J.properties
 *.classpath
+
+*.groovy~

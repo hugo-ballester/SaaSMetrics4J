@@ -3,14 +3,17 @@
 
 
 // HEADER
-if (args.size()!=2) {
-  println "ARGUMENTS:\n\t<WEBSAYS_HOME> <email>\n\t email format: 'first@mail.com;second@othermail.com'"
+if (args.size()>2 || args.size()<1) {
+  println "ARGUMENTS:\n\t<WEBSAYS_HOME> [<email>]\n\t email format: 'first@mail.com;second@othermail.com'"
   return;
 }
 Globals g = new Globals(args[0]);
-toAddress=args[1];
 
-import groovy.sql.Sql
+toAddress="";
+if (args.size()>1) {
+  toAddress=args[1];
+}
+import groovy.sql.*
 import javax.mail.*
 import javax.mail.internet.*
 @GrabConfig( systemClassLoader=true )
@@ -26,9 +29,14 @@ msg="";
 // DEFINE COMMANDS TO RUN:
 // -----------------------
 
-toAddress = "hugo.zaragoza@websays.com";
 emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
+//commands << "Active Pilots:";
+//commands << '''SELECT  sales_person, c.id, c.name, c.pilot_length - DATEDIFF(CURRENT_DATE(), c.start) AS daysReamining, COUNT(c.id) AS '#profiles'
+//  FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id
+//  WHERE (c.type='internal' OR c.type='pilot')
+//    AND ( (c.end IS  NULL) OR (c.end>CURRENT_DATE()) )
+//  GROUP BY c.id ORDER BY sales_person, daysReamining, c.name;'''
 
 commands << "Contracts ending in the next 30 days:";
 commands << '''SELECT c.id,c.name, cl.name AS client_name, start, end, c.type FROM contract c LEFT JOIN client \
@@ -37,9 +45,13 @@ ORDER BY c.type DESC, client_name;'''
 
 
 commands << "Contracts auto-renewing in the next 30 days:";
-commands << '''SELECT c.id,c.name, cl.name AS client_name, start, DATE_ADD(c.start,INTERVAL c.contractedMonths \
-MONTH)  AS renewing , c.type FROM contract c LEFT JOIN client cl ON c.client_id=cl.id WHERE DATEDIFF( DATE_ADD(\
-c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 AND end IS NULL
+commands << '''
+SELECT c.id,c.name, cl.name AS client_name, start, DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) AS renewing , c.type 
+FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
+WHERE 
+ DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 
+ AND end IS NULL
+ AND (c.type != 'internal' AND c.type != 'pilot') 
 ORDER BY c.type DESC, client_name;'''
 
 
@@ -49,6 +61,19 @@ t cl ON c.client_id=cl.id WHERE DATEDIFF(NOW(),c.end)<7 AND c.end<=CURRENT_DATE(
 ORDER BY c.type DESC, client_name;'''
 
 commands << "---"
+
+//commands << "PROBLEMS: Ended but not confirmed"
+//commands << "SELECT  c.id,c.name FROM contract c WHERE DATEDIFF(CURRENT_DATE(),c.end)>=0 AND c.end IS NOT NULL AND confirmEnd=1"
+
+commands << "PROBLEMS: Missing main_profile_id"
+commands << "SELECT  c.id,c.name FROM contract c WHERE main_profile_id IS NULL"
+
+commands << "PROBLEMS: Missing contract_id"
+commands << "SELECT  p.profile_id, p.name FROM profiles p WHERE contract_id IS NULL AND deleted <> 0"
+
+
+commands << "---"
+
 
 commands << "Active Contracts"
 commands << '''SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
@@ -76,16 +101,19 @@ while (i<commands.size()) {
 };
 }
 
-simpleMail(toAddress,emailTitle,msg,p);
-
+if (toAddress!="") {
+ simpleMail(toAddress,emailTitle,msg,p);
+} else {
+ println msg;
+}
 
 
 // FUNTCIONS:
 
 String showCommand(title, command, Sql sql) {
-     String ret = "\n\n${title}\n"
+     String ret = "\n\n\n${title}\n\n"
      sql.eachRow(command) {
-       ret += "${it}\n"
+       ret += "${it}\n";
      }
      return ret;
 }

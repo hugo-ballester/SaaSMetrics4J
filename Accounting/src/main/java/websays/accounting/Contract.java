@@ -260,6 +260,7 @@ public class Contract {
         months = JodaUtils.monthsDifference(startRoundDate, endRoundDate) + 1;
       } else {
         months = JodaUtils.monthsDifference(startContract, endContract) + 1;
+        
       }
       p += fixedPrice / months;
     }

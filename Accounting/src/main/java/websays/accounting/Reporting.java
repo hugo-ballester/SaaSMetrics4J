@@ -255,7 +255,7 @@ public class Reporting {
     }
     
     // COMPUTE AVERAGES
-    double[] avgA = new double[average.size() - WINDOW_FOR_AVERAGE];
+    double[] avgA = new double[average.size() - WINDOW_FOR_AVERAGE + 1];
     for (int i = 0; i < average.size() - WINDOW_FOR_AVERAGE + 1; i++) {
       for (int j = 0; j < WINDOW_FOR_AVERAGE; j++) {
         avgA[i] += average.get(i + j);

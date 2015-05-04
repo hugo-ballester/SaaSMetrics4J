@@ -59,7 +59,7 @@ commands << "--- PILOTS"
 
 commands << "Active Pilots:";
 commands << '''
-SELECT  sales_person, c.id, c.name, c.pilot_length - DATEDIFF(CURRENT_DATE(), c.start) AS daysReamining, COUNT(c.id) AS '#profiles'
+SELECT  sales_person AS SP, c.id, c.name, c.pilot_length - DATEDIFF(CURRENT_DATE(), c.start) AS daysReamining, COUNT(c.id) AS '#profiles'
   FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id
   WHERE (c.type='internal' OR c.type='pilot')
     AND ( c.confirmedClosed IS NULL )
@@ -70,9 +70,11 @@ commands << "--- CONTRACTS IN GENERAL"
 
 
 commands << "Active Contracts"
-commands << '''SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
+commands << '''
+SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
  ON c.client_id=cl.id WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
-ORDER BY c.type DESC, client_name;'''
+ ORDER BY c.type DESC, client_name;
+'''
 
 commands << "---- DB ADMIN WARNINGS:"
 
@@ -83,7 +85,7 @@ commands << "PROBLEMS: Contracts missing main_profile_id"
 commands << "SELECT  c.id,c.name FROM contract c WHERE main_profile_id IS NULL"
 
 commands << "PROBLEMS: Profiles missing contract_id"
-commands << "SELECT  p.profile_id, p.name FROM profiles p WHERE contract_id IS NULL AND deleted <> 0"
+commands << "SELECT  p.profile_id, p.name, deleted FROM profiles p WHERE contract_id IS NULL AND deleted != 1"
 
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
 commands << '''
@@ -93,8 +95,6 @@ WHERE
   AND ( NOT EXISTS( SELECT * FROM contract c WHERE c.confirmedClosed IS NULL AND p.contract_id=c.id) )
   order by c.name, p.created DESC
 '''
-
-
 
 
 // -----------------------
@@ -132,7 +132,7 @@ String showCommand(title, command, Sql sql) {
        ret += "<tr><td>";
        if (first) {
          first=false;
-         ret += (row.keySet().join("</td><td>"))+"\n</tr><tr><td>\n";         
+         ret += "<u>"+(row.keySet().join("</u></td><td><u>"))+"\n</u></tr><tr><td>\n";         
        }
        ret += (row.values().join("</td><td>"))+"\n";
        ret += "</td></tr>\n";

@@ -117,8 +117,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
     lastTitle = "MRR_MiniReport";
     indexFile.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
     content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
-    LocalDate miniStart = new LocalDate().plusMonths(2);
-    content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 12);
+    LocalDate miniStart = new LocalDate().minusMonths(6);
+    content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 9);
     FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     
     indexFile.append("\n</td></tr></table>\n");

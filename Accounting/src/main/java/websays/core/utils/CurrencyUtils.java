@@ -22,19 +22,23 @@ public class CurrencyUtils {
   public static final Currency USD = Currency.getInstance("USD");
   public static final Currency GBP = Currency.getInstance("GBP");
   
-  public static HashMap<Currency,Double> conversionRatesinEuros; // ammount(Currency) * conversionRate = ammount(EUR)
+  public static HashMap<String,Double> conversionRatesinEuros; // ammount(Currency) * conversionRate = ammount(EUR)
+  public static boolean initted = false;
   
   static void init() {
-    conversionRatesinEuros = new HashMap<Currency,Double>();
-    conversionRatesinEuros.put(EUR, 1.0);
-    conversionRatesinEuros.put(USD, 0.89); // EUR/USD
-    conversionRatesinEuros.put(GBP, 1.37); // EUR/GBP
+    if (!initted) {
+      initted = true;
+      
+      conversionRatesinEuros = new HashMap<String,Double>();
+      conversionRatesinEuros.put(EUR.getCurrencyCode(), 1.0);
+      conversionRatesinEuros.put(USD.getCurrencyCode(), 0.89); // EUR/USD
+      conversionRatesinEuros.put(GBP.getCurrencyCode(), 1.37); // EUR/GBP
+    }
   }
   
   public synchronized static double convert(double x, Currency currencyFrom, Currency currencyTo) {
-    if (!initted()) {
-      init();
-    }
+    init();
+    
     Double rate1 = getCononversionRateinEuros(currencyFrom);
     Double rate2 = getCononversionRateinEuros(currencyTo);
     
@@ -45,7 +49,9 @@ public class CurrencyUtils {
   }
   
   private static Double getCononversionRateinEuros(Currency currencyFrom) {
-    Double rate = conversionRatesinEuros.get(currencyFrom);
+    init();
+    
+    Double rate = conversionRatesinEuros.get(currencyFrom.getCurrencyCode());
     if (rate == null) {
       logger.error("UNKNOWN CONVERSION RATE FOR CURRENCY: " + currencyFrom.getCurrencyCode());
       rate = null;
@@ -53,16 +59,18 @@ public class CurrencyUtils {
     return rate;
   }
   
-  private static boolean initted() {
-    return conversionRatesinEuros != null;
-  }
-  
+  /**
+   * NOTE: had to use codes for comparison becayse defaultFractionDigits not always the same!
+   * 
+   * @param currency
+   * @return
+   */
   public static String getCurrencySymbol(Currency currency) {
-    if (currency.equals(EUR)) {
+    if (currency.getCurrencyCode().equals(EUR.getCurrencyCode())) {
       return "€";
-    } else if (currency.equals(GBP)) {
+    } else if (currency.getCurrencyCode().equals(GBP.getCurrencyCode())) {
       return "£";
-    } else if (currency.equals(USD)) {
+    } else if (currency.getCurrencyCode().equals(USD.getCurrencyCode())) {
       return "$";
     } else {
       return "???";

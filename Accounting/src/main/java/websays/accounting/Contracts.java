@@ -6,9 +6,7 @@
 package websays.accounting;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,16 +18,17 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
 import websays.core.utils.JodaUtils;
+import websays.core.utils.jodatime.LocalDateSerializer;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Contracts extends ArrayList<Contract> {
   
@@ -258,31 +257,56 @@ public class Contracts extends ArrayList<Contract> {
   }
   
   public void save(File file) {
-    Kryo kryo = new Kryo();
-    Output output = null;
+    final GsonBuilder builder = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateSerializer());
+    final Gson gson = builder.create();
+    
+    ArrayList<String> data = new ArrayList<String>(1);
+    data.add(gson.toJson(this));
     try {
-      output = new Output(new FileOutputStream(file));
-      kryo.writeObject(output, this);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } finally {
-      output.close();
+      FileUtils.writeLines(file, "UTF8", data);
+      logger.info("wrote dump file: " + file.getAbsolutePath());
+    } catch (IOException e) {
+      logger.error(e);
     }
+    
+    // Kryo kryo = new Kryo();
+    // Output output = null;
+    // try {
+    // output = new Output(new FileOutputStream(file));
+    // kryo.writeObject(output, this);
+    // } catch (FileNotFoundException e) {
+    // e.printStackTrace();
+    // } finally {
+    // output.close();
+    // }
   }
   
   public static Contracts load(File file) {
-    Kryo kryo = new Kryo();
-    Input input = null;
     Contracts ret = null;
+    
+    final GsonBuilder builder = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateSerializer());
+    final Gson gson = builder.create();
+    
+    String json;
     try {
-      input = new Input(new FileInputStream(file));
-      ret = kryo.readObject(input, Contracts.class);
-    } catch (Exception e) {
-      e.printStackTrace();
+      json = FileUtils.readFileToString(file);
+      ret = gson.fromJson(json, Contracts.class);
+    } catch (IOException e) {
+      logger.error(e);
     }
-    if (input != null) {
-      input.close();
-    }
+    
+    // Kryo kryo = new Kryo();
+    // Input input = null;
+    // try {
+    // input = new Input(new FileInputStream(file));
+    // ret = kryo.readObject(input, Contracts.class);
+    // } catch (Exception e) {
+    // logger.error("Could not load " + (file == null ? "null" : file.getAbsolutePath()));
+    // e.printStackTrace();
+    // }
+    // if (input != null) {
+    // input.close();
+    // }
     return ret;
     
   }

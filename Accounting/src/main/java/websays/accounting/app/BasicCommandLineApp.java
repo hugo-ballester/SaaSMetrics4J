@@ -181,6 +181,11 @@ public class BasicCommandLineApp {
     Contracts con = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null,
         pricingFile != null ? new File(pricingFile) : null);
     con.normalizeContracts(MIN_CONTRACT_LENGTH);
+    if (connectToDB) {
+      logger.info("Loaded Contracts from DB");
+    } else {
+      logger.info("Loaded Contracts from local dump file: " + dumpDataFile);
+    }
     return con;
     
   }

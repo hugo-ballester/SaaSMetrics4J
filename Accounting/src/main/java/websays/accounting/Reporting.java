@@ -225,8 +225,9 @@ public class Reporting {
       MonthlyMetrics met1 = MonthlyMetrics.compute(ym.getYear(), ym.getMonthOfYear(), contracts);
       MonthlyMetrics met2 = MonthlyMetrics.compute(ymPrev.getYear(), ymPrev.getMonthOfYear(), contracts);
       
-      double v2 = (met1.mrr - met2.mrr) / 1000;
-      double v3 = met1.mrr / 1000;
+      double mrrDiff = (met1.mrr - met2.mrr) / 1000;
+      double mrr = met1.mrr / 1000;
+      average.add(mrrDiff);
       
       // highlight this month:
       if (highlightMonth != null && month == highlightMonth.getMonthOfYear() && year == highlightMonth.getYear()) {
@@ -236,8 +237,8 @@ public class Reporting {
       }
       
       if (i < months) { // the rest of months are only to compute delta average.
-        lines.get(1).append(String.format("\t%6.1f", v2));
-        lines.get(2).append(String.format("\t%6.1f", v3));
+        lines.get(1).append(String.format("\t%6.1f", mrrDiff));
+        lines.get(2).append(String.format("\t%6.1f", mrr));
         lines.get(3).append(String.format("\t%6.1f", met1.mrrNew / 1000));
         lines.get(4).append(String.format("\t%6.1f", -met1.churn / 1000));
         lines.get(5).append(String.format("\t%6.1f", met1.expansion / 1000));
@@ -250,7 +251,6 @@ public class Reporting {
         }
         headerLine += String.format("\t%6s", label);
       }
-      average.add(met1.mrr);
       
     }
     
@@ -260,7 +260,7 @@ public class Reporting {
       for (int j = 0; j < WINDOW_FOR_AVERAGE; j++) {
         avgA[i] += average.get(i + j);
       }
-      avgLine += String.format("\t%6.1f", avgA[i] / WINDOW_FOR_AVERAGE / 1000.);
+      avgLine += String.format("\t%6.1f", avgA[i] / WINDOW_FOR_AVERAGE);
     }
     
     return headerLine + "\n" + lines.get(3) + "\n" + lines.get(4) + "\n" + lines.get(5) + "\n" + lines.get(1) + "\n" + lines.get(2) + "\n"

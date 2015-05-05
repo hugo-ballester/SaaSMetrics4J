@@ -277,4 +277,5 @@ public class ContractDAO extends MySQLDAO {
     i.close();
     return b.toString();
   }
+  
 }

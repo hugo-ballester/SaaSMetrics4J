@@ -22,7 +22,6 @@ import javax.mail.internet.*
 @Grab( group = 'javax.activation', module = 'activation', version = '1.1.1' )
 
 commands = [];
-msg="<html><body>";
 
 
 // -----------------------
@@ -32,6 +31,9 @@ msg="<html><body>";
 emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
 commands << "--- ENDING, AUTORENEWING, ETC."
+
+commands << "TEST"
+commands << "SELECT * FROM profiles WHERE name='xxxxxxx'"
 
 commands << "Contracts ending in the next 30 days:";
 commands << '''SELECT c.id,c.name, cl.name AS client_name, start, end, c.type FROM contract c LEFT JOIN client \
@@ -51,7 +53,7 @@ ORDER BY c.type DESC, client_name;'''
 
 
 commands << "Contracts that ended in the last 30 days"
-commands << '''SELECT c.id, c.name, cl.name AS client_name, start, end, c.type, c.confirmedEnded FROM contract c  LEFT JOIN clien\
+commands << '''SELECT c.id, c.name, cl.name AS client_name, start, end, c.type, c.confirmedClosed FROM contract c  LEFT JOIN clien\
 t cl ON c.client_id=cl.id WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE()
 ORDER BY c.type DESC, client_name;'''
 
@@ -69,6 +71,12 @@ SELECT  sales_person AS SP, c.id, c.name, c.pilot_length - DATEDIFF(CURRENT_DATE
 
 
 commands << "---- DB ADMIN WARNINGS:"
+
+commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
+commands <<'''
+SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
+WHERE  c.id != p.contract_id
+'''
 
 commands << "PROBLEMS: Conatracts missing end confirmation:"
 commands << "SELECT  c.id,c.name, c.start, c.end, c.dataAccessEnd FROM contract c WHERE  c.end<CURRENT_DATE() AND c.confirmedClosed IS NULL AND (c.dataAccessEnd IS NULL OR c.dataAccessEnd<CURRENT_DATE() )"
@@ -105,17 +113,25 @@ Properties p = g.properties;
 
 uri = "jdbc:mysql://${p.host}:${p.port}/${p.db}"
 def sql = Sql.newInstance(uri, p.user, g.properties.pass, "com.mysql.jdbc.Driver")
-
+msg="";
+none = "";
 def i =0;
 while (i<commands.size()) {
       if (commands[i].startsWith("---")) {
       msg += "\n\n\n<h2>"+commands[i].substring(3)+"</h2>\n\n";
       i++;
 } else {
+      table = showCommand(commands[i],commands[i+1], sql);
+      if (table!=null) {
       msg += showCommand(commands[i],commands[i+1], sql);
-      i+=2
+      } else {
+      none +="<li>${commands[i]}</li>\n";
+      }
+      i+=2      
 };
 }
+
+msg = "<html><body>\n${msg}\n<hr/><h3>Queries with no results:</h3>\n<ul>\n${none}\n</ul>";
 
 if (toAddress!="") {
  simpleMail(toAddress,emailTitle,msg,p);
@@ -127,20 +143,26 @@ if (toAddress!="") {
 // FUNTCIONS:
 
 String showCommand(title, command, Sql sql) {
-     String ret = "\n\n\n<h4>${title}</h4>\n\n<table>\n"
+     
      first = true;  
+     String header = "";
+     String table = "";
+     
      sql.rows(command).each {  Map row ->
-       ret += "<tr><td>";
+       table += "<tr><td>";
        if (first) {
          first=false;
-         ret += "<u>"+(row.keySet().join("</u></td><td><u>"))+"\n</u></tr><tr><td>\n";         
+         header = "<u>"+(row.keySet().join("</u></td><td><u>"))+"</u></tr>\n<tr><td>";         
        }
-       ret += (row.values().join("</td><td>"))+"\n";
-       ret += "</td></tr>\n";
+       table += (row.values().join("</td><td>"));
+       table += "</td></tr>\n";
+     }   
+     if (first) {
+       return null;
+     } else {
+       table = "\n<h4>${title}</h4>\n<table>\n" + header  + table+"\n</table>\n\n";
      }
-     ret +="</table>\n\n";
-     return ret;
-     
+     return table;
 }
 
 class Globals {

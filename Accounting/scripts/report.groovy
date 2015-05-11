@@ -28,55 +28,56 @@ commands = [];
 // DEFINE COMMANDS TO RUN:
 // -----------------------
 
+def cols1 = "c.sales_person AS SP, c.id, c.name as contract_name, cl.name AS client_name,start,end, c.type";
+
 emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
 commands << "--- ENDING, AUTORENEWING, ETC."
 
-commands << "TEST"
-commands << "SELECT * FROM profiles WHERE name='xxxxxxx'"
-
 commands << "Contracts ending in the next 30 days:";
-commands << '''SELECT c.id,c.name, cl.name AS client_name, start, end, c.type FROM contract c LEFT JOIN client \
-cl ON c.client_id=cl.id WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30
-ORDER BY c.type DESC, client_name;'''
-
+commands << """SELECT $cols1, DATEDIFF(c.end,CURRENT_DATE()) as days_remaining
+FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
+WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30
+ORDER BY c.type DESC, client_name;
+"""
 
 commands << "Contracts auto-renewing in the next 30 days:";
-commands << '''
-SELECT c.id,c.name, cl.name AS client_name, start, DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) AS renewing , c.type 
+commands << """
+SELECT $cols1, contractedMonths, DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE()) as days_remaining
 FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
 WHERE 
  DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 
  AND end IS NULL
  AND (c.type != 'internal' AND c.type != 'pilot') 
-ORDER BY c.type DESC, client_name;'''
+ORDER BY c.type DESC, client_name;"""
 
 
 commands << "Contracts that ended in the last 30 days"
-commands << '''SELECT c.id, c.name, cl.name AS client_name, start, end, c.type, c.confirmedClosed FROM contract c  LEFT JOIN clien\
+commands << """SELECT $cols1, c.confirmedClosed, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
+FROM contract c  LEFT JOIN clien\
 t cl ON c.client_id=cl.id WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE()
-ORDER BY c.type DESC, client_name;'''
+ORDER BY c.end, client_name;"""
 
 commands << "--- PILOTS"
 
 commands << "Active Pilots:";
-commands << '''
-SELECT  sales_person AS SP, c.id, c.name, c.pilot_length - DATEDIFF(CURRENT_DATE(), c.start) AS daysReamining, COUNT(c.id) AS '#profiles',
-     GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
-  FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id
+commands << """
+SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
+  FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id LEFT JOIN client cl ON c.client_id=cl.id
   WHERE (c.type='internal' OR c.type='pilot')
     AND ( c.confirmedClosed IS NULL )
-  GROUP BY c.id ORDER BY sales_person, daysReamining, c.name;
-'''
+  GROUP BY c.id
+  ORDER BY days_remaining, sales_person, c.name;
+"""
 
 
 commands << "---- DB ADMIN WARNINGS:"
 
 commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
-commands <<'''
+commands <<"""
 SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
 WHERE  c.id != p.contract_id
-'''
+"""
 
 commands << "PROBLEMS: Conatracts missing end confirmation:"
 commands << "SELECT  c.id,c.name, c.start, c.end, c.dataAccessEnd FROM contract c WHERE  c.end<CURRENT_DATE() AND c.confirmedClosed IS NULL AND (c.dataAccessEnd IS NULL OR c.dataAccessEnd<CURRENT_DATE() )"
@@ -88,21 +89,21 @@ commands << "PROBLEMS: Active profiles missing contract_id"
 commands << "SELECT  p.profile_id, p.name FROM profiles p WHERE contract_id IS NULL AND deleted != 1"
 
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
-commands << '''
+commands << """
 SELECT p.name AS "Profile_Name", c.name AS "Client_Name", DATE(p.created) AS created, deleted, schedule FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id
 WHERE
   (deleted =0) AND (`schedule` != 'Frozen') 
   AND ( NOT EXISTS( SELECT * FROM contract c WHERE c.confirmedClosed IS NULL AND p.contract_id=c.id) )
   order by c.name, p.created DESC
-'''
+"""
 commands << "--- ALL ACTIVE CONTRACTS"
 
 commands << "Active Contracts"
-commands << '''
+commands << """
 SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
  ON c.client_id=cl.id WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
  ORDER BY c.type DESC, client_name;
-'''
+"""
 
 
 
@@ -147,8 +148,9 @@ String showCommand(title, command, Sql sql) {
      first = true;  
      String header = "";
      String table = "";
+//     println "COMMAND: ${command}\n----\n";
      
-     sql.rows(command).each {  Map row ->
+     sql.rows(command.toString()).each {  Map row ->
        table += "<tr><td>";
        if (first) {
          first=false;

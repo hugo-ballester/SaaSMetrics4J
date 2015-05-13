@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -83,7 +84,9 @@ public class ContractDAO extends MySQLDAO {
         pricings.put(pr.name, pr);
         n++;
       } catch (Exception e) {
-        System.err.println("PARSING ERROR line:" + n + "\n" + line);
+        String[] r = line.split("[\t ,;]+");
+        System.err.println("PARSING ERROR line:" + n + "\n" + line + "\n" + StringUtils.join(r, "|"));
+        System.err.println(e.getMessage());
       }
     }
     logger.info("Pricing names loaded: " + pricings.size());

@@ -38,7 +38,7 @@ commands << "Contracts ending in the next 30 days:";
 commands << """SELECT $cols1, DATEDIFF(c.end,CURRENT_DATE()) as days_remaining
 FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
 WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30
-ORDER BY c.type DESC, client_name;
+ORDER BY days_remaining ASC;
 """
 
 commands << "Contracts auto-renewing in the next 30 days:";
@@ -67,7 +67,7 @@ SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.start,INTERVA
   WHERE (c.type='internal' OR c.type='pilot')
     AND ( c.confirmedClosed IS NULL )
   GROUP BY c.id
-  ORDER BY days_remaining, sales_person, c.name;
+  ORDER BY days_remaining, c.sales_person, c.name;
 """
 
 
@@ -79,7 +79,7 @@ SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id
 WHERE  c.id != p.contract_id
 """
 
-commands << "PROBLEMS: Conatracts missing end confirmation:"
+commands << "PROBLEMS: Contracts missing end confirmation:"
 commands << "SELECT  c.id,c.name, c.start, c.end, c.dataAccessEnd FROM contract c WHERE  c.end<CURRENT_DATE() AND c.confirmedClosed IS NULL AND (c.dataAccessEnd IS NULL OR c.dataAccessEnd<CURRENT_DATE() )"
 
 commands << "PROBLEMS: Contracts missing main_profile_id"

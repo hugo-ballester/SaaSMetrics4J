@@ -150,25 +150,30 @@ if (toAddress!="") {
 // FUNTCIONS:
 
 String showCommand(title, command, Sql sql) {
-     
+     style1 = "style=\"padding: .5rem; border: 1px solid black; \"";
+     style2 = "style=\"padding: .5rem; border: 1px solid black; font-size: 85%; background-color: lightgray; \"";
+     tableStart = "<table style=\"border-collapse:collapse;\">";
+     trStart = "\n\n<tr $style1>";
+     tdStart = "<td $style1>";
+     thStart = "<th $style2>";
+     // td = "<td style=\"\">";
      first = true;  
      String header = "";
      String table = "";
 //     println "COMMAND: ${command}\n----\n";
      
      sql.rows(command.toString()).each {  Map row ->
-       table += "<tr><td>";
+
        if (first) {
          first=false;
-         header = "<u>"+(row.keySet().join("</u></td><td><u>"))+"</u></tr>\n<tr><td>";         
+         header = trStart+thStart+(row.keySet().join("</th>"+thStart))+"</th>\n</tr>\n";         
        }
-       table += (row.values().join("</td><td>"));
-       table += "</td></tr>\n";
+       table += trStart+tdStart+(row.values().join("</td>"+tdStart))+"</td></tr>\n";
      }   
      if (first) {
        return null;
      } else {
-       table = "\n<h4>${title}</h4>\n<table border=\"3\">\n" + header  + table+"\n</table>\n\n";
+       table = "\n<h4>${title}</h4>\n$tableStart\n" + header  + table+"\n</table>\n\n";
      }
      return table;
 }

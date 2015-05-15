@@ -179,10 +179,12 @@ public class BasicCommandLineApp {
   public Contracts initContracts() throws Exception {
     
     // String pricingFile = ContractDAO.getPricingFileFromFile(props.getProperty("pricingFile"));
-    // TODO move column names to properties
     String pricingFile = ContractDAO.getPriceFileFromDB("frontend_property", "key", "value", "updated");
+    
     Contracts con = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile);
+    
     con.normalizeContracts(MIN_CONTRACT_LENGTH);
+    
     if (connectToDB) {
       logger.info("Loaded Contracts from DB");
     } else {

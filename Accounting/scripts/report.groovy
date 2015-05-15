@@ -138,7 +138,9 @@ while (i<commands.size()) {
 };
 }
 
-msg = "<html><body>\n${msg}\n<hr/><h3>Queries with no results:</h3>\n<ul>\n${none}\n</ul>";
+def today = new Date()
+
+msg = "<html><body>\n<p>Report generated on: $today.</p>\n${msg}\n<hr/><h3>Queries with no results:</h3>\n<ul>\n${none}\n</ul>";
 
 if (toAddress!="") {
  simpleMail(toAddress,emailTitle,msg,p);

@@ -43,7 +43,7 @@ public class ContractDAO extends MySQLDAO {
   
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
   
-  public ContractDAO(File pricingFile) {
+  public ContractDAO(String pricingFile) {
     super();
     HashMap<String,Pricing> p = loadPriceNames(pricingFile);
     if (p != null) {
@@ -51,27 +51,51 @@ public class ContractDAO extends MySQLDAO {
     }
   }
   
-  protected Connection getConnection() throws SQLException {
-    return DatabaseManager.getConnection();
+  public static String getPriceFileFromDB(String table, String key, String value, String orderField) {
+    
+    String st = "SELECT `" + value + "` FROM `" + table + "` WHERE `" + key + "`='accounting_pricing' ORDER BY `" + orderField + "` DESC";
+    
+    PreparedStatement p = null;
+    Connection connection = null;
+    ResultSet r = null;
+    try {
+      connection = DatabaseManager.getConnection();
+      p = connection.prepareStatement(st);
+      r = p.executeQuery();
+      r.next();
+      String pricingFile = r.getString(1);
+      return pricingFile;
+    } catch (Exception e) {
+      logger.error(e);
+      return null;
+    } finally {
+      close(r);
+      close(p);
+      close(connection);
+    }
   }
   
-  public static HashMap<String,Pricing> loadPriceNames(File priceFile) {
-    HashMap<String,Pricing> pricings = new HashMap<String,Pricing>();
-    String[] p = null;
+  public static String getPricingFileFromFile(File priceFile) {
+    String ret;
     try {
-      p = file_read(priceFile).split("\n");
+      ret = file_read(priceFile);
+      return ret;
     } catch (Exception e) {
       System.err.print("\nCOULD NOT LOAD priceNames from file: ");
       System.err.println((priceFile == null ? "null" : priceFile.getAbsolutePath()) + "\n");
       return null;
     }
-    
+  }
+  
+  public static HashMap<String,Pricing> loadPriceNames(String priceFile) {
+    HashMap<String,Pricing> pricings = new HashMap<String,Pricing>();
     DateTimeFormatter df = DateTimeFormat.forPattern("yyyy/MM/dd");
     
     int n = 0;
-    for (String line : p) {
+    String[] lines = priceFile.split("\n");
+    for (String line : lines) {
       try {
-        if (line.startsWith("#")) {
+        if (line.startsWith("#") || line.length() == 0) {
           continue;
         }
         String[] r = line.split("[\t ,;]+");
@@ -102,7 +126,7 @@ public class ContractDAO extends MySQLDAO {
     Connection connection = null;
     ResultSet r = null;
     try {
-      connection = getConnection();
+      connection = DatabaseManager.getConnection();
       p = connection.prepareStatement(st);
       r = p.executeQuery();
       r.next();
@@ -129,7 +153,7 @@ public class ContractDAO extends MySQLDAO {
     Connection connection = null;
     ResultSet r = null;
     try {
-      connection = getConnection();
+      connection = DatabaseManager.getConnection();
       p = connection.prepareStatement(st);
       r = p.executeQuery();
       while (r.next()) {
@@ -249,7 +273,7 @@ public class ContractDAO extends MySQLDAO {
   }
   
   // TODO: replace Queries.initContext by a stand-alone option
-  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, File pricingFile) throws Exception {
+  public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, String pricingFile) throws Exception {
     Contracts contracts;
     if (connectToDB) {
       ContractDAO adao = new ContractDAO(pricingFile);

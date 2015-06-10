@@ -1,0 +1,583 @@
+<html><body>
+
+
+
+<h2> ENDING SOON</h2>
+
+
+<h4>Contracts ending in the next 30 days:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">SP</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contract_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_C</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_A</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">days_remaining</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">220</td><td style="padding: .5rem; border: 1px solid black; ">Reparalia</td><td style="padding: .5rem; border: 1px solid black; ">Markethink</td><td style="padding: .5rem; border: 1px solid black; ">2014-07-17</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-16</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">1</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">256</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA3 (Contract 2)</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-27</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-26</td><td style="padding: .5rem; border: 1px solid black; ">13</td><td style="padding: .5rem; border: 1px solid black; ">project</td><td style="padding: .5rem; border: 1px solid black; ">11</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">257</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA4</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-28</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-27</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">project</td><td style="padding: .5rem; border: 1px solid black; ">12</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">251</td><td style="padding: .5rem; border: 1px solid black; ">Comercial Mexicana</td><td style="padding: .5rem; border: 1px solid black; ">Carritus Technology</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-31</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">project</td><td style="padding: .5rem; border: 1px solid black; ">16</td></tr>
+
+</table>
+
+
+<h4>Contracts auto-renewing in the next 30 days:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">SP</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contract_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_C</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_A</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contractedMonths</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">days_remaining</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">212</td><td style="padding: .5rem; border: 1px solid black; ">ACNUR</td><td style="padding: .5rem; border: 1px solid black; ">ACNUR</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">12</td><td style="padding: .5rem; border: 1px solid black; ">17</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">254</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Sant Feliu</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Sant Feliu</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-23</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">8</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">214</td><td style="padding: .5rem; border: 1px solid black; ">JuntaDeAndalucia</td><td style="padding: .5rem; border: 1px solid black; ">Walnuters</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">12</td><td style="padding: .5rem; border: 1px solid black; ">17</td></tr>
+
+</table>
+
+
+
+
+<h2> ENDED</h2>
+
+
+<h4>Contracts that ended in the last 30 days (BUT ARE NOT CONFIRMED!?):</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">SP</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contract_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_C</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_A</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">confirmedClosed</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">days_since_end</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">248</td><td style="padding: .5rem; border: 1px solid black; ">RepaQ_1</td><td style="padding: .5rem; border: 1px solid black; ">NPD Control</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-10</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-21</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">24</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">149</td><td style="padding: .5rem; border: 1px solid black; ">CCIP</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2013-09-01</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-30</td><td style="padding: .5rem; border: 1px solid black; ">8</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">15</td></tr>
+
+</table>
+
+
+<h4>Contracts that ended in the last 30 days (confirmed):</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">SP</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contract_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_C</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_A</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">confirmedClosed</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">days_since_end</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">211</td><td style="padding: .5rem; border: 1px solid black; ">Zumosol</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-01</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-30</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-04</td><td style="padding: .5rem; border: 1px solid black; ">15</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">201</td><td style="padding: .5rem; border: 1px solid black; ">Homely Days</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-02-01</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-30</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">contract</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-04</td><td style="padding: .5rem; border: 1px solid black; ">15</td></tr>
+
+</table>
+
+
+
+
+<h2> PILOTS</h2>
+
+
+<h4>Active Pilots:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">SP</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">contract_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_C</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end_A</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">pilot_length</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">days_remaining</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">#profiles</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">profiles</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">276</td><td style="padding: .5rem; border: 1px solid black; ">Websays_Internals</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2012-02-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">0</td><td style="padding: .5rem; border: 1px solid black; ">-1199</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">256:Kilian Jornet</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">265</td><td style="padding: .5rem; border: 1px solid black; ">SENSEI - EU FP7</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2013-11-01</td><td style="padding: .5rem; border: 1px solid black; ">2017-10-31</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">0</td><td style="padding: .5rem; border: 1px solid black; ">-560</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">1058:SENSEI</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">262</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: AECOC</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">100</td><td style="padding: .5rem; border: 1px solid black; ">-34</td><td style="padding: .5rem; border: 1px solid black; ">7</td><td style="padding: .5rem; border: 1px solid black; ">1124:Alcampo,1129:Spar España,1128:Opencor,998:El Corte Inglés,1127:Makro España,1125:Consum,1130:Supersol</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">263</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: OTHER</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">100</td><td style="padding: .5rem; border: 1px solid black; ">-34</td><td style="padding: .5rem; border: 1px solid black; ">8</td><td style="padding: .5rem; border: 1px solid black; ">1300:Diputación de Alicante,1080:Ryanair,1597:Chedraui MX,1545:Patés,1592:Eduard Mendiluce,1269:Bizzby,1584:Mercure Montparnasse,1255:Peache</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">261</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: TinkleInsurance</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">100</td><td style="padding: .5rem; border: 1px solid black; ">-34</td><td style="padding: .5rem; border: 1px solid black; ">7</td><td style="padding: .5rem; border: 1px solid black; ">990:Tinkle-LineaDirecta,1059:Tinkle- Verti,1062:Tinkle-Nuez,994:Tinkle-Mutua Madrileña,1061:Tinkle-Génesis,993:Tinkle-Mapfre,1060:Tinkle-Fénix Directo</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">260</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: Vueling</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">100</td><td style="padding: .5rem; border: 1px solid black; ">-34</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">511:Vueling</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">258</td><td style="padding: .5rem; border: 1px solid black; ">Vertical_Oscar_1</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">30</td><td style="padding: .5rem; border: 1px solid black; ">-14</td><td style="padding: .5rem; border: 1px solid black; ">34</td><td style="padding: .5rem; border: 1px solid black; ">1243:Alstom,1209:Yoigo,1222:Euskatel,1040:Orange,1227:Másmóvil,1242:R Galicia,1119:Competencia Websays - Topsy,1572:Ferrovial,1214:Imagenio,1020:Banco Guayaquil,1226:Jazzbox,1070:Mixta Mahou,1234:Tivo,1213:Canal+,1225:Pepephone,1055:Fiesta Hotels & Resorts,1137:Hazte extranjero,206:Verti,948:TheMoonMedia-Tanqueray,1232:Orange TV,1541:Freixenet,1212:Goltv,1304:Detroit Grand Prix,1126:Hipercor,1224:Simyo,1042:Ono,1229:Amena,1518:Virgin Media,1210:Vodafone,1301:Just Marketing,1223:Telecable,1041:Jazztel,1429:Salud Alimentaria,1228:Tuenti móvil</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">259</td><td style="padding: .5rem; border: 1px solid black; ">Vertical_Oscar_2</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">internal</td><td style="padding: .5rem; border: 1px solid black; ">30</td><td style="padding: .5rem; border: 1px solid black; ">-14</td><td style="padding: .5rem; border: 1px solid black; ">48</td><td style="padding: .5rem; border: 1px solid black; ">1087:Letsbonus,1483:Thyssen,1153:Groupon,550:Filmin,1158:Yomvi,769:Sant Boi del Llobregat,1395:Miele Professional,1163:Segundamano,930:request profile test1,1482:MACBA,1149:Neurs,1208:Movistar,986:test,1297:Iberdrola Marca,1157:Wuaki,761:Pamplona,1388:Kirby,1162:loquo,888:Groupon,1481:Fundació Miró,1144:Rocío Martínez Sampere,1191:Oscar Chicharoo,980:Doll Capital,1296:RATP Sensei,1091:Groupalia,1156:Ulabox,733:Viladecans,1375:Brandon Honda,1161:Rumbo,861:Festivales Musicales- Sónar,1480:Museo del Prado,1173:Presale 3,1090:BuyVip,1155:Atrápalo,700:Ranking institucional catalá,1160:Trovit,853:Bruno Sokolowicz,1479:Guggenheim,1134:Jorge Lorenzo,1165:Softonic,935:Isolated-Pamplonica,1089:Privalia,1154:Edreams,699:Sector public,1159:Uvinum,777:Ajuntament de Mataró,1164:Carritus,931:Isolated- Etxeko</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">OA</td><td style="padding: .5rem; border: 1px solid black; ">266</td><td style="padding: .5rem; border: 1px solid black; ">Energy Pitch Pilot</td><td style="padding: .5rem; border: 1px solid black; ">DKLOWE???</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-07</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">pilot</td><td style="padding: .5rem; border: 1px solid black; ">14</td><td style="padding: .5rem; border: 1px solid black; ">6</td><td style="padding: .5rem; border: 1px solid black; ">1</td><td style="padding: .5rem; border: 1px solid black; ">1622:Energy Pitch</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">HZ</td><td style="padding: .5rem; border: 1px solid black; ">277</td><td style="padding: .5rem; border: 1px solid black; ">Podemos Piloto1</td><td style="padding: .5rem; border: 1px solid black; ">Podemos</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-15</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">pilot</td><td style="padding: .5rem; border: 1px solid black; ">14</td><td style="padding: .5rem; border: 1px solid black; ">14</td><td style="padding: .5rem; border: 1px solid black; ">2</td><td style="padding: .5rem; border: 1px solid black; ">1628:PODEMOS JOSÉ MANUEL LÓPEZ,1627:PODEMOS</td></tr>
+
+</table>
+
+
+
+
+<h2>- DB ADMIN WARNINGS:</h2>
+
+
+<h4>PROBLEMS: Contract main_profile lists a different contract_id:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">Contract</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">MainProfile</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">ContractIDofProfile</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">LineaDirecta</td><td style="padding: .5rem; border: 1px solid black; ">148</td><td style="padding: .5rem; border: 1px solid black; ">990</td><td style="padding: .5rem; border: 1px solid black; ">261</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Qatar</td><td style="padding: .5rem; border: 1px solid black; ">161</td><td style="padding: .5rem; border: 1px solid black; ">610</td><td style="padding: .5rem; border: 1px solid black; ">180</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">FNAC</td><td style="padding: .5rem; border: 1px solid black; ">169</td><td style="padding: .5rem; border: 1px solid black; ">205</td><td style="padding: .5rem; border: 1px solid black; ">170</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Comision europea</td><td style="padding: .5rem; border: 1px solid black; ">197</td><td style="padding: .5rem; border: 1px solid black; ">997</td><td style="padding: .5rem; border: 1px solid black; ">152</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Conecta R&C</td><td style="padding: .5rem; border: 1px solid black; ">204</td><td style="padding: .5rem; border: 1px solid black; ">1042</td><td style="padding: .5rem; border: 1px solid black; ">258</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Alstom</td><td style="padding: .5rem; border: 1px solid black; ">205</td><td style="padding: .5rem; border: 1px solid black; ">1243</td><td style="padding: .5rem; border: 1px solid black; ">258</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Zumosol</td><td style="padding: .5rem; border: 1px solid black; ">211</td><td style="padding: .5rem; border: 1px solid black; ">904</td><td style="padding: .5rem; border: 1px solid black; ">188</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Barcelona Alertas 2014-10</td><td style="padding: .5rem; border: 1px solid black; ">233</td><td style="padding: .5rem; border: 1px solid black; ">1068</td><td style="padding: .5rem; border: 1px solid black; ">128</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Pullmantur2</td><td style="padding: .5rem; border: 1px solid black; ">234</td><td style="padding: .5rem; border: 1px solid black; ">837</td><td style="padding: .5rem; border: 1px solid black; ">141</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA3 (Contract 2)</td><td style="padding: .5rem; border: 1px solid black; ">256</td><td style="padding: .5rem; border: 1px solid black; ">1464</td><td style="padding: .5rem; border: 1px solid black; ">232</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">_OLD_AND_DEAD</td><td style="padding: .5rem; border: 1px solid black; ">264</td><td style="padding: .5rem; border: 1px solid black; ">205</td><td style="padding: .5rem; border: 1px solid black; ">170</td></tr>
+
+</table>
+
+
+<h4>PROBLEMS: Contracts missing end confirmation:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">end</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">dataAccessEnd</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">149</td><td style="padding: .5rem; border: 1px solid black; ">CCIP</td><td style="padding: .5rem; border: 1px solid black; ">2013-09-01</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-30</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-08</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">243</td><td style="padding: .5rem; border: 1px solid black; ">Saint Gobain</td><td style="padding: .5rem; border: 1px solid black; ">2014-12-16</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-15</td><td style="padding: .5rem; border: 1px solid black; ">null</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">248</td><td style="padding: .5rem; border: 1px solid black; ">RepaQ_1</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-10</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-21</td><td style="padding: .5rem; border: 1px solid black; ">null</td></tr>
+
+</table>
+
+
+<h4>Profiles that are ACTIVE but DO NOT HAVE a contract:</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">Profile_Name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">Client_Name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">created</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">deleted</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">schedule</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Lazio Open Data</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-14</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Dolce Gusto</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-07</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">HRA Pharma</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-06</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Scottish Power</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-01</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Tower Hamlets</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-29</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">MadridPM_Test</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-22</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Quique Antún</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-22</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Fracking</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Rome transportation</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Test</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-17</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Crimson Hexagon</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-09</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Cafeambllet</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-08</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Mordaza</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-30</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">testjorge</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-23</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">RAR</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-17</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Test nat</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-10</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Ako</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-12-15</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Casa Ronald McDonald</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-12-05</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Master IE Big Data</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-12-05</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Ajuntament L'Hospitalet</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-31</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Revivelanoche</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-22</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Smart cities</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Mejores restaurantes del mundo</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Sector monitorización</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Augure</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Nuvi</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">zalando</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Radian6</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Amazon</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">ING DIRECT</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Sysomos</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Engagor</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Meltwater</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Nuvi</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Allianz</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">SENSEI (Presence)</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">CDTI   </td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-24</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">BCN (Ajuntament)</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-12</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Websays Competitor - Brandwatch</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-03</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">YoComproSano</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-08-07</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Teach For America</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Social Publisher</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-16</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planCrawlingAndReprocess</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">SENSEI - RATP</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-05-12</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Catalan/ Spanish Beer Tracking</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-04-10</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">PeoplePerHour</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-04-07</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">TaskPandas</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-04-07</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">oscarTest</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-19</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Caracter</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-14</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Axesor</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-14</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Durex</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-12</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Banesto</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-03</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">WWF Deutschland</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-02-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Alitalia</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-02-14</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Nuevos dominios</td><td style="padding: .5rem; border: 1px solid black; ">null</td><td style="padding: .5rem; border: 1px solid black; ">2014-01-13</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Carrefour España</td><td style="padding: .5rem; border: 1px solid black; ">Eroski</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Europcar 3 - Hertz</td><td style="padding: .5rem; border: 1px solid black; ">Europcar Contest</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Europcar 1 - Europcar</td><td style="padding: .5rem; border: 1px solid black; ">Europcar Contest</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Europcar 2 - Avis</td><td style="padding: .5rem; border: 1px solid black; ">Europcar Contest</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Europcar 4 - Sixt</td><td style="padding: .5rem; border: 1px solid black; ">Europcar Contest</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Tinkle- Pullmantur</td><td style="padding: .5rem; border: 1px solid black; ">Pullmantur</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Tinkle- Costacruceros</td><td style="padding: .5rem; border: 1px solid black; ">Pullmantur</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Tinkle- Royal Caribbean España</td><td style="padding: .5rem; border: 1px solid black; ">Pullmantur</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Tinkle- MSC cruceros</td><td style="padding: .5rem; border: 1px solid black; ">Pullmantur</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">Rock by Shakira</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA3 (Contract 1)</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-08</td><td style="padding: .5rem; border: 1px solid black; ">false</td><td style="padding: .5rem; border: 1px solid black; ">planStandardAll</td></tr>
+
+</table>
+
+
+
+
+<h2> ALL ACTIVE CONTRACTS</h2>
+
+
+<h4>Active Contracts</h4>
+<table style="border-collapse:collapse;">
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">id</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">client_name</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">start</th><th style="padding: .5rem; border: 1px solid black; font-size: 85%; bgcolor=#F0F0F0 ">type</th>
+</tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">258</td><td style="padding: .5rem; border: 1px solid black; ">Vertical_Oscar_1</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">261</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: TinkleInsurance</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">276</td><td style="padding: .5rem; border: 1px solid black; ">Websays_Internals</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2012-02-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">265</td><td style="padding: .5rem; border: 1px solid black; ">SENSEI - EU FP7</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2013-11-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">260</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: Vueling</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">263</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: OTHER</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">259</td><td style="padding: .5rem; border: 1px solid black; ">Vertical_Oscar_2</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">262</td><td style="padding: .5rem; border: 1px solid black; ">Oscar Pilot: AECOC</td><td style="padding: .5rem; border: 1px solid black; ">Websays</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-01</td><td style="padding: .5rem; border: 1px solid black; ">internal</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">266</td><td style="padding: .5rem; border: 1px solid black; ">Energy Pitch Pilot</td><td style="padding: .5rem; border: 1px solid black; ">DKLOWE???</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-07</td><td style="padding: .5rem; border: 1px solid black; ">pilot</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">277</td><td style="padding: .5rem; border: 1px solid black; ">Podemos Piloto1</td><td style="padding: .5rem; border: 1px solid black; ">Podemos</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-15</td><td style="padding: .5rem; border: 1px solid black; ">pilot</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">251</td><td style="padding: .5rem; border: 1px solid black; ">Comercial Mexicana</td><td style="padding: .5rem; border: 1px solid black; ">Carritus Technology</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">project</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">249</td><td style="padding: .5rem; border: 1px solid black; ">Bronco</td><td style="padding: .5rem; border: 1px solid black; ">Jaime Rodríguez Calderón</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-25</td><td style="padding: .5rem; border: 1px solid black; ">project</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">257</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA4</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-28</td><td style="padding: .5rem; border: 1px solid black; ">project</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">256</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA3 (Contract 2)</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-27</td><td style="padding: .5rem; border: 1px solid black; ">project</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">212</td><td style="padding: .5rem; border: 1px solid black; ">ACNUR</td><td style="padding: .5rem; border: 1px solid black; ">ACNUR</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">128</td><td style="padding: .5rem; border: 1px solid black; ">Barcelona</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Barcelona</td><td style="padding: .5rem; border: 1px solid black; ">2013-01-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">223</td><td style="padding: .5rem; border: 1px solid black; ">Gavà</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Gavà</td><td style="padding: .5rem; border: 1px solid black; ">2014-08-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">254</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Sant Feliu</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Sant Feliu</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-23</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">144</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Tarragona</td><td style="padding: .5rem; border: 1px solid black; ">Aj. Tarragona</td><td style="padding: .5rem; border: 1px solid black; ">2013-10-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">252</td><td style="padding: .5rem; border: 1px solid black; ">Audi</td><td style="padding: .5rem; border: 1px solid black; ">Audi / VW</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">127</td><td style="padding: .5rem; border: 1px solid black; ">Camper</td><td style="padding: .5rem; border: 1px solid black; ">Camper</td><td style="padding: .5rem; border: 1px solid black; ">2012-07-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">222</td><td style="padding: .5rem; border: 1px solid black; ">Caprabo</td><td style="padding: .5rem; border: 1px solid black; ">Caprabo</td><td style="padding: .5rem; border: 1px solid black; ">2014-08-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">221</td><td style="padding: .5rem; border: 1px solid black; ">Cemex</td><td style="padding: .5rem; border: 1px solid black; ">Cemex (US)</td><td style="padding: .5rem; border: 1px solid black; ">2014-07-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">131</td><td style="padding: .5rem; border: 1px solid black; ">Cofidis</td><td style="padding: .5rem; border: 1px solid black; ">Evercom</td><td style="padding: .5rem; border: 1px solid black; ">2013-01-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">168</td><td style="padding: .5rem; border: 1px solid black; ">FAD</td><td style="padding: .5rem; border: 1px solid black; ">FAD</td><td style="padding: .5rem; border: 1px solid black; ">2014-02-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">226</td><td style="padding: .5rem; border: 1px solid black; ">Life Screening</td><td style="padding: .5rem; border: 1px solid black; ">FATHOM 1</td><td style="padding: .5rem; border: 1px solid black; ">2014-08-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">245</td><td style="padding: .5rem; border: 1px solid black; ">INU/Greenride</td><td style="padding: .5rem; border: 1px solid black; ">INU / Greenride</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-26</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">240</td><td style="padding: .5rem; border: 1px solid black; ">CaixaSeguretat</td><td style="padding: .5rem; border: 1px solid black; ">LaCaixa</td><td style="padding: .5rem; border: 1px solid black; ">2015-02-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">193</td><td style="padding: .5rem; border: 1px solid black; ">LaCaixa</td><td style="padding: .5rem; border: 1px solid black; ">LaCaixa</td><td style="padding: .5rem; border: 1px solid black; ">2014-01-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">220</td><td style="padding: .5rem; border: 1px solid black; ">Reparalia</td><td style="padding: .5rem; border: 1px solid black; ">Markethink</td><td style="padding: .5rem; border: 1px solid black; ">2014-07-17</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">244</td><td style="padding: .5rem; border: 1px solid black; ">Obra Social LaCaixa</td><td style="padding: .5rem; border: 1px solid black; ">Obra Social LaCaixa</td><td style="padding: .5rem; border: 1px solid black; ">2014-11-17</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">246</td><td style="padding: .5rem; border: 1px solid black; ">CTICC</td><td style="padding: .5rem; border: 1px solid black; ">ProsperIS</td><td style="padding: .5rem; border: 1px solid black; ">2015-02-06</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">247</td><td style="padding: .5rem; border: 1px solid black; ">Abertis</td><td style="padding: .5rem; border: 1px solid black; ">The Walkers</td><td style="padding: .5rem; border: 1px solid black; ">2015-03-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">151</td><td style="padding: .5rem; border: 1px solid black; ">Areas</td><td style="padding: .5rem; border: 1px solid black; ">The Walkers</td><td style="padding: .5rem; border: 1px solid black; ">2013-10-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">225</td><td style="padding: .5rem; border: 1px solid black; ">Día</td><td style="padding: .5rem; border: 1px solid black; ">The Walkers</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">250</td><td style="padding: .5rem; border: 1px solid black; ">Anticipa</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (BCN)</td><td style="padding: .5rem; border: 1px solid black; ">2015-04-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">206</td><td style="padding: .5rem; border: 1px solid black; ">Pastoret</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (European)</td><td style="padding: .5rem; border: 1px solid black; ">2014-04-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">140</td><td style="padding: .5rem; border: 1px solid black; ">Agbar</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (European)</td><td style="padding: .5rem; border: 1px solid black; ">2013-04-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">198</td><td style="padding: .5rem; border: 1px solid black; ">Xperia</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (European)</td><td style="padding: .5rem; border: 1px solid black; ">2014-01-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">228</td><td style="padding: .5rem; border: 1px solid black; ">PwC</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">253</td><td style="padding: .5rem; border: 1px solid black; ">Iberdrola</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2015-02-23</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">236</td><td style="padding: .5rem; border: 1px solid black; ">SAGE</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-20</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">191</td><td style="padding: .5rem; border: 1px solid black; ">Transmediterranea</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2013-11-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">227</td><td style="padding: .5rem; border: 1px solid black; ">Mastercard</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-09-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">271</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle Presale</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-05-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">234</td><td style="padding: .5rem; border: 1px solid black; ">Pullmantur2</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-13</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">241</td><td style="padding: .5rem; border: 1px solid black; ">La Vaca Argentina</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2015-01-22</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">269</td><td style="padding: .5rem; border: 1px solid black; ">HRA Pharma</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2015-05-11</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">231</td><td style="padding: .5rem; border: 1px solid black; ">Gilead</td><td style="padding: .5rem; border: 1px solid black; ">Tinkle (Madrid)</td><td style="padding: .5rem; border: 1px solid black; ">2014-10-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">218</td><td style="padding: .5rem; border: 1px solid black; ">Udon</td><td style="padding: .5rem; border: 1px solid black; ">Udon</td><td style="padding: .5rem; border: 1px solid black; ">2014-07-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">129</td><td style="padding: .5rem; border: 1px solid black; ">VIPS</td><td style="padding: .5rem; border: 1px solid black; ">VIPS</td><td style="padding: .5rem; border: 1px solid black; ">2013-05-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">126</td><td style="padding: .5rem; border: 1px solid black; ">Volotea</td><td style="padding: .5rem; border: 1px solid black; ">Volotea</td><td style="padding: .5rem; border: 1px solid black; ">2012-09-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">214</td><td style="padding: .5rem; border: 1px solid black; ">JuntaDeAndalucia</td><td style="padding: .5rem; border: 1px solid black; ">Walnuters</td><td style="padding: .5rem; border: 1px solid black; ">2014-06-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+
+<tr style="padding: .5rem; border: 1px solid black; "><td style="padding: .5rem; border: 1px solid black; ">199</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo NDA1</td><td style="padding: .5rem; border: 1px solid black; ">Zinkdo</td><td style="padding: .5rem; border: 1px solid black; ">2014-03-01</td><td style="padding: .5rem; border: 1px solid black; ">contract</td></tr>
+
+</table>
+
+
+<hr/><h3>Queries with no results:</h3>
+<ul>
+
+</ul>

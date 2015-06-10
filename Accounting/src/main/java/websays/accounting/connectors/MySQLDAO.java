@@ -41,7 +41,7 @@ public class MySQLDAO {
         }
       }
     } finally {
-      this.close(con);
+      close(con);
     }
   }
   
@@ -68,9 +68,9 @@ public class MySQLDAO {
       p = con.prepareStatement(query);
       p.executeUpdate();
     } finally {
-      this.close(p);
+      close(p);
       if (closeConnection) {
-        this.close(con);
+        close(con);
       }
     }
   }
@@ -84,8 +84,8 @@ public class MySQLDAO {
       p.executeUpdate();
       
     } finally {
-      this.close(p);
-      this.close(con);
+      close(p);
+      close(con);
     }
   }
   
@@ -97,12 +97,12 @@ public class MySQLDAO {
       p.setInt(1, id);
       p.executeUpdate();
     } finally {
-      this.close(p);
-      this.close(con);
+      close(p);
+      close(con);
     }
   }
   
-  protected void close(ResultSet r, PreparedStatement p, Connection c) {
+  public static void close(ResultSet r, PreparedStatement p, Connection c) {
     if (r != null) {
       close(r);
     }
@@ -114,7 +114,7 @@ public class MySQLDAO {
     }
   }
   
-  protected void close(ResultSet r) {
+  public static void close(ResultSet r) {
     if (r != null) {
       try {
         r.close();
@@ -124,7 +124,7 @@ public class MySQLDAO {
     }
   }
   
-  protected void close(PreparedStatement p) {
+  public static void close(PreparedStatement p) {
     if (p != null) {
       try {
         p.close();
@@ -134,7 +134,7 @@ public class MySQLDAO {
     }
   }
   
-  protected void close(Statement stmt) {
+  public static void close(Statement stmt) {
     if (stmt != null) {
       try {
         stmt.close();
@@ -144,7 +144,7 @@ public class MySQLDAO {
     }
   }
   
-  protected void close(Connection con) {
+  public static void close(Connection con) {
     if (con != null) {
       try {
         con.close();
@@ -160,8 +160,8 @@ public class MySQLDAO {
       stm = con.createStatement();
       stm.executeUpdate(cmd);
     } finally {
-      this.close(stm);
-      this.close(con);
+      close(stm);
+      close(con);
     }
   }
   
@@ -191,11 +191,11 @@ public class MySQLDAO {
           stm = con.createStatement();
           stm.executeUpdate(sql);
         } finally {
-          this.close(stm);
+          close(stm);
         }
       }
     } finally {
-      this.close(con);
+      close(con);
     }
     
   }
@@ -226,9 +226,9 @@ public class MySQLDAO {
       }
       return false;
     } finally {
-      this.close(rs);
-      this.close(stmt);
-      this.close(con);
+      close(rs);
+      close(stmt);
+      close(con);
     }
   }
   
@@ -319,9 +319,9 @@ public class MySQLDAO {
         ret.add(rs.getString(1));
       }
     } finally {
-      this.close(rs);
-      this.close(stmt);
-      this.close(con);
+      close(rs);
+      close(stmt);
+      close(con);
     }
     return ret;
   }
@@ -338,9 +338,9 @@ public class MySQLDAO {
       rs = stmt.executeQuery(cmd);
       return this.getNumRows(rs);
     } finally {
-      this.close(rs);
-      this.close(stmt);
-      this.close(connection);
+      close(rs);
+      close(stmt);
+      close(connection);
     }
     
   }
@@ -365,9 +365,9 @@ public class MySQLDAO {
       rs = p.executeQuery();
       return this.getNumRows(rs);
     } finally {
-      this.close(rs);
-      this.close(p);
-      this.close(connection);
+      close(rs);
+      close(p);
+      close(connection);
     }
   }
   
@@ -394,9 +394,9 @@ public class MySQLDAO {
       
       return maxValue;
     } finally {
-      this.close(rs);
-      this.close(stmt);
-      this.close(con);
+      close(rs);
+      close(stmt);
+      close(con);
     }
   }
   

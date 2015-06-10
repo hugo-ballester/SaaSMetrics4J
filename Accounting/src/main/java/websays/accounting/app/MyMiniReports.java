@@ -43,8 +43,9 @@ public class MyMiniReports extends BasicCommandLineApp {
         if (email != null) {
           email("Mini MRR Report " + nowStr, ret);
           logger.info("MRR Report e-mail sent");
+        } else {
+          System.out.println(ret);
         }
-        System.out.println(ret);
         
       }
     }

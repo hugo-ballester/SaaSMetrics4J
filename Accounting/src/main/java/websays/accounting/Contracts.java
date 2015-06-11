@@ -66,9 +66,9 @@ public class Contracts extends ArrayList<Contract> {
       if (c == null) {
         return null;
       } else if (this == CONTRACT) {
-        return c.type.equals(Type.contract);
+        return c.type.equals(Type.subscription);
       } else if (this == CONTRACTED_OR_PROJECT) {
-        return c.type.equals(Type.contract) || c.type.equals(Type.project);
+        return c.type.equals(Type.subscription) || c.type.equals(Type.project);
       } else if (this == PROJECT) {
         return c.type.equals(Type.project);
       } else if (this == BILLCENTER_ES) {
@@ -209,7 +209,7 @@ public class Contracts extends ArrayList<Contract> {
       
       if (filter != null) {
         if (filter == AccountFilter.CONTRACT) {
-          if (a.type != Type.contract) {
+          if (a.type != Type.subscription) {
             continue;
           }
         } else if (filter == AccountFilter.PROJECT) {
@@ -217,7 +217,7 @@ public class Contracts extends ArrayList<Contract> {
             continue;
           }
         } else if (filter == AccountFilter.CONTRACTED_OR_PROJECT) {
-          if (a.type != Type.project && a.type != Type.contract) {
+          if (a.type != Type.project && a.type != Type.subscription) {
             continue;
           }
         } else if (filter == AccountFilter.CHANGED) {
@@ -429,7 +429,7 @@ public class Contracts extends ArrayList<Contract> {
       // } else {
       if (
       //
-      (!c.type.equals(Type.contract)) //
+      (!c.type.equals(Type.subscription)) //
           && //
           (c.getDays() > 0 && c.getDays() < minContractLength) //
       ) {

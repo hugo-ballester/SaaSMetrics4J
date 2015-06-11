@@ -38,7 +38,7 @@ public class BillingTest {
     
     double fee = 100.;
     BilledItem bi;
-    Contract c = new Contract(0, "ContractName", Type.contract, billing, 1,//
+    Contract c = new Contract(0, "ContractName", Type.subscription, billing, 1,//
         dateStart, dateEnd, fee, null, lis);
     
     for (int month = 1; month <= 12; month++) {
@@ -84,7 +84,7 @@ public class BillingTest {
     // ------------------------------------------------------------------------------
     // SIMPLE TEST WITH MONTHS_1
     // ------------------------------------------------------------------------------
-    Contract c = new Contract(0, "ContractName", Type.contract, billing, 1,//
+    Contract c = new Contract(0, "ContractName", Type.subscription, billing, 1,//
         dateStart, dateEnd, fee, null, lis);
     
     int month = 6;
@@ -122,7 +122,7 @@ public class BillingTest {
     // ------------------------------------------------------------------------------
     // SIMPLE TEST WITH MONTHS_1
     // ------------------------------------------------------------------------------
-    Contract c = new Contract(0, "ContractName", Type.contract, BillingSchema.MONTHS_1, 1,//
+    Contract c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_1, 1,//
         dateStart, dateEnd, fee, null, lis);
     
     for (int month = 1; month < 12; month++) {
@@ -159,7 +159,7 @@ public class BillingTest {
     // : 1 - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9
     // [F3 - 4 - 5 - F6 - 7]
     
-    c = new Contract(0, "ContractName", Type.contract, BillingSchema.MONTHS_3, 1,//
+    c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_3, 1,//
         dateStart, dateEnd, fee, null, lis);
     
     for (int month = 1; month < 12; month++) {
@@ -195,7 +195,7 @@ public class BillingTest {
     // BILLS . - . - [1 - . - . - 2] - . - . - . // Second bill for one month
     // COMMS . - . - [C - C - C - c] - . - .
     
-    c = new Contract(0, "ContractName", Type.contract, BillingSchema.MONTHS_3, 1,//
+    c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_3, 1,//
         dateStart, dateEnd, fee, null, lis);
     
     for (int month = 1; month < 12; month++) {
@@ -235,7 +235,7 @@ public class BillingTest {
     // M5: 15/5 - 14/6
     // M6: 15/6 - 15/6 : Note that even though it ends the second day of the period, we bill at the end of month because one days left
     
-    Contract c = new Contract(0, "first", Type.contract, BillingSchema.MONTHS_1, 1,//
+    Contract c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1,//
         dateStart, dateEnd, fee, null, null);
     
     BilledItem bi = Billing.bill(c, 2010, 2);

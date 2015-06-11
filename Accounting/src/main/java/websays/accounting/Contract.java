@@ -53,7 +53,7 @@ public class Contract {
   }
   
   public enum Type {
-    contract, project, pilot, internal, budget, test
+    subscription, project, pilot, internal, budget, test
   };
   
   // =============================================

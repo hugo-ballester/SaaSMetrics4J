@@ -33,7 +33,7 @@ public class MetricsTest1 {
     start.plusDays(200);
     
     // Simple MRR Contract with no Commission
-    Type type = Type.contract;
+    Type type = Type.subscription;
     BillingSchema bschema = BillingSchema.MONTHS_3;
     double mrr = 100.0;
     ArrayList<Commission> commission = new ArrayList<Commission>();
@@ -79,7 +79,7 @@ public class MetricsTest1 {
     LocalDate cal = start.plusMonths(duration).plusDays(-1);
     LocalDate cal2 = cal.plusDays(+1);
     
-    Type type = Type.contract;
+    Type type = Type.subscription;
     BillingSchema bschema = BillingSchema.MONTHS_3;
     double fixed = 100.0;
     ArrayList<Commission> commission = new ArrayList<Commission>();

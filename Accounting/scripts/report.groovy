@@ -1,18 +1,30 @@
 // Generate simple email report about contracts ending soon
 // Hugo Zaragoza, Websays, 2015
 
-
-// HEADER
-if (args.size()>2 || args.size()<1) {
-  println "ARGUMENTS:\n\t<WEBSAYS_HOME> [<email>]\n\t email format: 'first@mail.com;second@othermail.com'"
+// ARGUMENTS
+if (args.size()>1) {
+  println "ARGUMENTS:\n\t[<email>]\n\t email format: 'first@mail.com;second@othermail.com'"
   return;
 }
-Globals g = new Globals(args[0]);
+
+home = System.getenv("WEBSAYS_HOME")
+if (home==null) {
+  println "YOU NEED TO DEFINE ENVIRONMENT VARIABLE WEBSAYS_HOME"
+  return;
+} else {
+  homeF = new File( home )
+  if (!homeF.exists()) {
+    println "COULD NOT FIND WEBSAYS_HOME = "+home
+    return;  
+  }
+}
 
 toAddress="";
 if (args.size()>1) {
   toAddress=args[1];
 }
+
+// IMPORTS
 import groovy.sql.*
 import javax.mail.*
 import javax.mail.internet.*
@@ -21,66 +33,71 @@ import javax.mail.internet.*
 @Grab( group = 'javax.mail', module = 'mail', version = '1.4.7' )
 @Grab( group = 'javax.activation', module = 'activation', version = '1.1.1' )
 
-commands = [];
-
-
 // -----------------------
 // DEFINE COMMANDS TO RUN:
 // -----------------------
+Globals g = new Globals(home);
+commands = [];
 
 def cols1 = """
 c.sales_person AS SP, c.id, c.name as contract_name, cl.name AS client_name,start,
 end AS end_C,
-DATEDIFF( dataAccessEnd, end)  AS end_A,
+DATEDIFF( dataAccessEnd, end)  AS extra_days,
  c.type""";
+ 
+def FROM1 = """
+FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
+"""
 
 emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
 commands << "--- ENDING SOON"
 
+commands << "Contracts that ended in the last 30 days BUT NOT CONFIRMED!"
+commands << """SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
+$FROM1
+WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NULL
+ORDER BY c.end, client_name;"""
+
 commands << "Contracts ending in the next 30 days:";
-commands << """SELECT $cols1, DATEDIFF(c.end,CURRENT_DATE()) as days_remaining
-FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
+commands << """SELECT $cols1, DATEDIFF(c.end,CURRENT_DATE()) as remaining_days
+$FROM1
 WHERE c.end>=CURRENT_DATE() AND DATEDIFF(c.end, CURRENT_DATE())<=30
-ORDER BY days_remaining ASC;
+ORDER BY remaining_days ASC;
 """
 
 commands << "Contracts auto-renewing in the next 30 days:";
 commands << """
 SELECT $cols1, contractedMonths, DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE()) as days_remaining
-FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
+$FROM1
 WHERE 
  DATEDIFF( DATE_ADD(c.start,INTERVAL c.contractedMonths MONTH) , CURRENT_DATE())<=30 
  AND end IS NULL
  AND (c.type != 'internal' AND c.type != 'pilot') 
 ORDER BY c.type DESC, client_name;"""
 
-commands << "--- ENDED"
-
-commands << "Contracts that ended in the last 30 days (BUT ARE NOT CONFIRMED!?):"
-commands << """SELECT $cols1, c.confirmedClosed, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
-FROM contract c  LEFT JOIN client cl ON c.client_id=cl.id 
-WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NULL
-ORDER BY c.end, client_name;"""
-
-commands << "Contracts that ended in the last 30 days (confirmed):"
-commands << """SELECT $cols1, c.confirmedClosed, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
-FROM contract c  LEFT JOIN client cl ON c.client_id=cl.id 
-WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NOT NULL
-ORDER BY c.end, client_name;"""
-
-commands << "--- PILOTS"
 
 commands << "Active Pilots:";
 commands << """
 SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
-  FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id LEFT JOIN client cl ON c.client_id=cl.id
-  WHERE (c.type='internal' OR c.type='pilot')
+  FROM profiles p 
+    LEFT JOIN contract c ON p.contract_id=c.id 
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE 
+    p.deleted=0
+    AND ( c.type='internal' OR c.type='pilot' )
     AND ( c.confirmedClosed IS NULL )
   GROUP BY c.id
   ORDER BY days_remaining, c.sales_person, c.name;
 """
 
+commands << "---- SALES PEOPLE WARNINGS:"
+
+commands << "Contracts that ended in the last 30 days (confirmed):"
+commands << """SELECT $cols1, c.confirmedClosed
+$FROM1
+WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NOT NULL
+ORDER BY c.end, client_name;"""
 
 commands << "---- DB ADMIN WARNINGS:"
 
@@ -90,24 +107,24 @@ SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id
 WHERE  c.id != p.contract_id
 """
 
-commands << "PROBLEMS: Contracts missing end confirmation:"
-commands << "SELECT  c.id,c.name, c.start, c.end, c.dataAccessEnd FROM contract c WHERE  c.end<CURRENT_DATE() AND c.confirmedClosed IS NULL AND (c.dataAccessEnd IS NULL OR c.dataAccessEnd<CURRENT_DATE() )"
-
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
 commands << """
-SELECT p.name AS "Profile_Name", c.name AS "Client_Name", DATE(p.created) AS created, deleted, schedule FROM profiles p LEFT JOIN contract c ON p.contract_id=c.id
-WHERE
-  (deleted =0) AND (`schedule` != 'Frozen') 
-  AND ( NOT EXISTS( SELECT * FROM contract c WHERE c.confirmedClosed IS NULL AND p.contract_id=c.id) )
-  order by c.name, p.created DESC
+SELECT u.name AS created_by,  p.profile_id, p.name AS "Profile_Name", DATE(p.created) AS created, p.status, p.schedule
+   FROM profiles p
+   LEFT JOIN contract c ON p.contract_id=c.id
+   LEFT JOIN users u ON p.owner_id=u.id
+ WHERE
+  (deleted =0) AND p.`contract_id` IS NULL
+ORDER BY  created_by, p.schedule, p.created DESC
 """
 
 commands << "--- ALL ACTIVE CONTRACTS"
 
 commands << "Active Contracts"
 commands << """
-SELECT  c.id, c.name, cl.name AS client_name, start, c.type FROM contract c  LEFT JOIN client cl\
- ON c.client_id=cl.id WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
+SELECT  $cols1 
+$FROM1 
+WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
  ORDER BY c.type DESC, client_name;
 """
 
@@ -128,11 +145,13 @@ while (i<commands.size()) {
       msg += "\n\n\n<h2>"+commands[i].substring(3)+"</h2>\n\n";
       i++;
 } else {
+      msg += "\n<h4>${commands[i]}</h4>\n";
       table = showCommand(commands[i],commands[i+1], sql);
       if (table!=null) {
-      msg += showCommand(commands[i],commands[i+1], sql);
+        msg += table;
       } else {
-      none +="<li>${commands[i]}</li>\n";
+        none +="<li>${commands[i]}</li>\n";
+        msg += "<p>none</p>\n";
       }
       i+=2      
 };
@@ -162,20 +181,27 @@ String showCommand(title, command, Sql sql) {
      first = true;  
      String header = "";
      String table = "";
+     rows=0;
 //     println "COMMAND: ${command}\n----\n";
      
      sql.rows(command.toString()).each {  Map row ->
-
-       if (first) {
-         first=false;
-         header = trStart+thStart+(row.keySet().join("</th>"+thStart))+"</th>\n</tr>\n";         
+       if (rows==0) { // build header
+         header = trStart+thStart+(row.keySet().join("</th>"+thStart))+"</th>\n</tr>\n"
        }
-       table += trStart+tdStart+(row.values().join("</td>"+tdStart))+"</td></tr>\n";
+       if (rows%20==0) { // show header at intervals
+         table += header
+       }
+       first=false;
+       line = trStart+tdStart+(row.values().join("</td>"+tdStart))+"</td></tr>\n"
+       line = line.replaceAll(">null<",">-<")
+       table += line
+       rows++;
+       
      }   
      if (first) {
-       return null;
+       table=null;
      } else {
-       table = "\n<h4>${title}</h4>\n$tableStart\n" + header  + table+"\n</table>\n\n";
+       table = "$tableStart\n" +  table + "\n</table>\n\n";
      }
      return table;
 }
@@ -231,3 +257,7 @@ public static void simpleMail(String to,
     transport.sendMessage(message, message.getAllRecipients());
     transport.close();
 }
+
+    
+    
+    

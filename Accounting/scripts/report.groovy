@@ -2,8 +2,8 @@
 // Hugo Zaragoza, Websays, 2015
 
 // ARGUMENTS
-if (args.size()>1) {
-  println "ARGUMENTS:\n\t[<email>]\n\t email format: 'first@mail.com;second@othermail.com'"
+if ( args.size() <1 ||  args.size() >2 ) {
+  errorArgs();
   return;
 }
 
@@ -20,9 +20,11 @@ if (home==null) {
 }
 
 toAddress="";
+reportType=args[0];
 if (args.size()>1) {
   toAddress=args[1];
 }
+
 
 // IMPORTS
 import groovy.sql.*
@@ -39,25 +41,33 @@ import javax.mail.internet.*
 Globals g = new Globals(home);
 commands = [];
 
+
 def cols1 = """
-c.sales_person AS SP, c.id, c.name as contract_name, cl.name AS client_name,start,
+c.type, c.sales_person AS SP, c.id, c.name as contract_name, cl.name AS client_name,start,
 end AS end_C,
 DATEDIFF( dataAccessEnd, end)  AS extra_days,
- c.type""";
+dataAccessEnd AS end_A
+""";
  
 def FROM1 = """
 FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
 """
 
-emailTitle = "ACCOUNTING: Contracts Ending or Renewing Soon";
 
-commands << "--- ENDING SOON"
-
-commands << "Contracts that ended in the last 30 days BUT NOT CONFIRMED!"
-commands << """SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
+if (reportType=="urgent") {
+  emailTitle = "URGENT ACCOUNTING REPORT: Actions needed";
+  commands << "Contracts that ended in the last 30 days BUT NOT CONFIRMED!"
+  commands << """SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
 $FROM1
 WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NULL
 ORDER BY c.end, client_name;"""
+  
+
+} else if (reportType=="periodic") {
+  emailTitle = "PERIODIC ACCOUNTING REPORT: Contracts Ending or Renewing Soon";
+
+commands << "--- ENDING SOON"
+
 
 commands << "Contracts ending in the next 30 days:";
 commands << """SELECT $cols1, DATEDIFF(c.end,CURRENT_DATE()) as remaining_days
@@ -91,20 +101,13 @@ SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.start,INTERVA
   ORDER BY days_remaining, c.sales_person, c.name;
 """
 
-commands << "---- SALES PEOPLE WARNINGS:"
-
-commands << "Contracts that ended in the last 30 days (confirmed):"
-commands << """SELECT $cols1, c.confirmedClosed
-$FROM1
-WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NOT NULL
-ORDER BY c.end, client_name;"""
-
 commands << "---- DB ADMIN WARNINGS:"
 
 commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
 commands <<"""
-SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
-WHERE  c.id != p.contract_id
+SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile 
+  FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
+  WHERE  c.id != p.contract_id
 """
 
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
@@ -128,6 +131,12 @@ WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
  ORDER BY c.type DESC, client_name;
 """
 
+} else {
+
+  println "ERROR: unknwon report type '$reportType'"
+  errorArgs();
+  return;
+}
 
 
 // -----------------------
@@ -259,5 +268,8 @@ public static void simpleMail(String to,
 }
 
     
+public static void errorArgs(){
+  println "ARGUMENTS:\n\treportType{urgent,periodic} [<email>]\n\t email format: 'first@mail.com;second@othermail.com'"  
+}
     
     

@@ -70,9 +70,8 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
             ), connectToDB));
     
     System.out.println(//
-        app.printer.box1("Total MRR per Client",//
-            printer.preserveString(Reporting.displayClientMRR(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts)), //
-            connectToDB));
+        app.printer.box1("MRRs per Client",//
+            printer.preserveString(app.displayAverages(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts)), connectToDB));
     
     System.out.println(//
         app.printer.box1(
@@ -82,5 +81,4 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
             connectToDB));
     
   }
-  
 }

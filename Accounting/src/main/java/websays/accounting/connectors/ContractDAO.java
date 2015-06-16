@@ -51,7 +51,39 @@ public class ContractDAO extends MySQLDAO {
     }
   }
   
-  public static String getPriceFileFromDB(String table, String key, String value, String orderField) {
+  public static void updateProfilesPerContract(Contracts cs) {
+    String cmd = "SELECT c.id, COUNT(c.name) FROM profiles p JOIN contract c ON p.contract_id=c.id GROUP BY c.id";
+    PreparedStatement p = null;
+    Connection connection = null;
+    ResultSet r = null;
+    try {
+      connection = DatabaseManager.getConnection();
+      p = connection.prepareStatement(cmd);
+      r = p.executeQuery();
+      while (r.next()) {
+        int id = r.getInt(0);
+        int profiles = r.getInt(1);
+        Contract c = cs.get(id);
+        if (c == null) {
+          logger.error("COULD NOT FIND contract.id []" + id);
+          continue;
+        }
+        c.profiles = profiles;
+      }
+    } catch (Exception e) {
+      logger.error(e);
+    } finally {
+      close(r);
+      close(p);
+      close(connection);
+    }
+  }
+  
+  public static String getPriceFileFromDB() {
+    String table = "frontend_property";
+    String key = "key";
+    String value = "value";
+    String orderField = "updated";
     
     String st = "SELECT `" + value + "` FROM `" + table + "` WHERE `" + key + "`='accounting_pricing' ORDER BY `" + orderField + "` DESC";
     

@@ -34,7 +34,7 @@ public class ContractFactory {
       ret.add(com1);
       ret.add(com2);
     } else {
-      logger.error("ERROR: unknown commission type");
+      logger.error("ERROR: unknown commission type [" + schema + "]");
       return null;
     }
     return ret;

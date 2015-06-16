@@ -38,6 +38,7 @@
       		</archive>
       	</configuration>
       
+      
       </plugin>
       
     </plugins>
@@ -52,6 +53,7 @@
     <artifactId>commons-pool</artifactId>
     <version>1.6</version>
 </dependency>
+              
                  
   <dependency>
   <groupId>joda-time</groupId>
@@ -71,6 +73,12 @@
 		<version>4.0</version>
 	</dependency>
    
+   <dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-math3</artifactId>
+	<version>3.0</version>
+</dependency>
+
     <dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>

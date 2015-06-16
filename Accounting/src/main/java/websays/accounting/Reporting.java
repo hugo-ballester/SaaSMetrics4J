@@ -13,9 +13,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 import org.apache.commons.collections4.map.DefaultedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
@@ -64,6 +66,13 @@ public class Reporting {
       return err;
     }
     sb.append("CONTRACTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(d) + "\n");
+    sb.append(String.format("%4s\t%-20s\t%-20s"//
+        + "\t%-5s\t%4s\t%-5s\t%3s\t"//
+        + "%4s\t%8s\t%8s\t%4s\t%8s\n", //
+        "id", "contract", "client" //
+        , "mrr", "#P", "MRR/p", "comm." //
+        , "type", "billing", "start", "months", "end"));
+    
     Contracts cs = contracts.getActive(d, filter, metricDate);
     cs.sort(SortType.client); // cs.sort(SortType.contract);
     double totM = 0, totCom = 0;
@@ -87,15 +96,60 @@ public class Reporting {
       
       double mrr = Metrics.computeMRR(c, d, metricDate);
       double commission = Metrics.computeCommission(c, d, metricDate);
-      sb.append(String.format("%4d %-20s %-20s %10.2f\t%9.2f\t%s\t%s \t%s-%s\n", //
-          c.getId(), c.name, c.client_name, mrr, commission, c.type, c.billingSchema, startS, endS));
+      sb.append(String.format("%4d\t%-20s\t%-20s" //
+          + "\t%5.0f\t%4d\t%5.0f\t%4.0f" //
+          + "\t%4s\t%8s\t%8s\t%4s\t%8s\n", //
+          c.getId(), c.name, c.client_name//
+          , mrr, c.profiles, (mrr / c.profiles), commission//
+          , c.type.name().substring(0, 3), c.billingSchema, startS, c.contractedMonths, endS));
       totM += mrr;
       totCom += commission;
       totC++;
     }
-    sb.append(String.format("%4d %-20s %-20s %10.2f\t%9.2f\n", totC, "TOTAL", "", totM, totCom));
+    sb.append(String.format("%4d %-20s %-20s %8.2f\t%8.2f\n", totC, "TOTAL", "", totM, totCom));
     return sb.toString();
     
+  }
+  
+  public String displayAverages(LocalDate d, AccountFilter filter, boolean metricDate, Contracts contracts) {
+    StringBuffer sb = new StringBuffer();
+    
+    if (contracts == null) {
+      String err = "ERROR: NULL contracts?";
+      System.err.println(err);
+      return err;
+    }
+    sb.append("ACCOUNTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(d) + "\n");
+    
+    Contracts cs = contracts.getActive(d, filter, metricDate);
+    double totM = 0, totCom = 0;
+    int totC = 0;
+    TreeMap<String,Vector3D> map = new TreeMap<String,Vector3D>();
+    Vector3D tot = new Vector3D(0, 0, 0);
+    for (Contract c : cs) {
+      String endS = "", startS = "";
+      double mrr = Metrics.computeMRR(c, d, metricDate);
+      double profs = c.profiles;
+      
+      Vector3D v = map.get(c.client_name);
+      if (v == null) {
+        v = new Vector3D(0, 0, 0);
+      }
+      Vector3D n = new Vector3D(new double[] {1, c.profiles, mrr});
+      v = v.add(n);
+      tot = tot.add(n);
+      map.put(c.client_name, v);
+    }
+    sb.append(String.format("%4s\t%-20s\t%4s\t%s\t%12s\t%12s\n", "cnt", "client", "conts", "profs", "MRR", "MRR/Prof"));
+    
+    int cnt = 1;
+    for (String n : map.keySet()) {
+      Vector3D v = map.get(n);
+      sb.append(String.format("%4d\t%-20s\t%4.0f\t%4.0f\t%10.1f\t%10.1f\n", cnt++, n, v.getX(), v.getY(), v.getZ(), v.getZ() / v.getY()));
+    }
+    sb.append(String.format("\n%4s\t%-20s\t%4.0f\t%4.0f\t%10.1f\t%10.1f\n", "-", "TOTAL", tot.getX(), tot.getY(), tot.getZ(), tot.getZ()
+        / tot.getY()));
+    return sb.toString();
   }
   
   @SuppressWarnings("unused")
@@ -139,56 +193,6 @@ public class Reporting {
       String invoices = p.printBills(bs, false);
       sb.append(printer.preserveString(invoices));
     }
-    return sb.toString();
-  }
-  
-  public static String displayClientMRR(LocalDate date, AccountFilter filter, boolean metricDate, Contracts contracts)
-      throws ParseException, SQLException {
-    StringBuffer sb = new StringBuffer();
-    
-    sb.append("displayClientMRR   : " + (filter == null ? "ALL" : filter.toString()) + " " + MonthlyMetrics.df.print(date) + "\n");
-    if (contracts == null) {
-      String err = "ERROR: NULL contracts?";
-      System.err.println(err);
-      return err;
-    }
-    
-    Contracts lis = contracts.getActive(date, filter, metricDate);
-    lis.sort(SortType.client);
-    
-    String lastN = null;
-    double sum = 0., summ = 0.;
-    int count = 0, countt = 0, clientN = 1;
-    sb.append(String.format("%3s %-20s\t%s\t%s\n", "#", "CLIENT", "Conts.", "MRR"));
-    
-    for (int i = 0; i < lis.size(); i++) {
-      Contract c = lis.get(i);
-      double mrr = Metrics.computeMRR(c, date, metricDate);
-      
-      if (lastN == null) {
-        lastN = c.client_name;
-      } else if ((i == lis.size() - 1) || (!lastN.equals(c.client_name))) {
-        sb.append(String.format("%3d %-20s\t(%d)\t%10.2f\n", clientN, lastN, count, sum));
-        if (sum == 0) {
-          sb.append("\n!!! ERROR: 0 MRR for Client: " + lastN + "\n");
-        }
-        sum = 0;
-        count = 0;
-        lastN = c.client_name;
-        clientN++;
-      }
-      sum += mrr;
-      summ += mrr;
-      count++;
-      countt++;
-      // System.out.println(String.format("%20s\t%s\t%.2f", c.name,
-      // c.client, mrr));
-    }
-    
-    sb.append(String.format("%3d %-20s\t(%d)\t%10.2f", clientN, lastN, count, sum));
-    
-    sb.append(String.format("%3s %-20s\t(%d)\t%10.2f", "", "TOTAL", countt, summ));
-    
     return sb.toString();
   }
   

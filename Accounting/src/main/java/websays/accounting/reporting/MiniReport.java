@@ -16,7 +16,7 @@ public class MiniReport {
   
   public static String miniReport(Contracts contracts, BillingReportPrinter printer, int year, int monthStart, int months) throws Exception {
     StringBuffer sb = new StringBuffer();
-    Contracts contAll = contracts.getView(AccountFilter.CONTRACTED_OR_PROJECT);
+    Contracts contAll = contracts.getView(AccountFilter.PAID_CONTRACT);
     Contracts contCont = contracts.getView(AccountFilter.CONTRACT);
     YearMonth ym = (new YearMonth()).minusMonths(1);
     

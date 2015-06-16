@@ -96,12 +96,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     String lastTitle = "Last Contracts";
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
-    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, false, contracts);
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
+        Reporting.report_last(app.printer, false, contracts, Contracts.AccountFilter.PAID_CONTRACT);
     FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
     
     lastTitle += " (new clients only)";
     indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
-    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + Reporting.report_last(app.printer, true, contracts);
+    content = HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n"
+        + Reporting.report_last(app.printer, true, contracts, Contracts.AccountFilter.PAID_CONTRACT);
     FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
     
     lastTitle = "Commissions";
@@ -209,9 +211,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true, contracts));
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PROJECT, true, contracts));
-    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PAID_CONTRACT, true, contracts));
     
-    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts);
+    String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PAID_CONTRACT, false, contracts);
     FileUtils.writeStringToFile(tsvOut, tsv);
     
   }

@@ -142,6 +142,7 @@ WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
 // -----------------------
 // CODE
 // -----------------------
+something=false;
 Properties p = g.properties;
 
 uri = "jdbc:mysql://${p.host}:${p.port}/${p.db}"
@@ -158,6 +159,7 @@ while (i<commands.size()) {
       table = showCommand(commands[i],commands[i+1], sql);
       if (table!=null) {
         msg += table;
+        something=true;
       } else {
         none +="<li>${commands[i]}</li>\n";
         msg += "<p>none</p>\n";
@@ -168,9 +170,13 @@ while (i<commands.size()) {
 
 def today = new Date()
 
-msg = "<html><body>\n<p>Report generated on: $today.</p>\n${msg}\n<hr/><h3>Queries with no results:</h3>\n<ul>\n${none}\n</ul>";
+msg = "<html><body>\n<p>Report generated on: $today.</p>\n${msg}\n"
 
-if (toAddress!="") {
+if (none!="") {
+  msg += "<hr/><h3>Queries with no results:</h3>\n<ul>\n${none}\n</ul>";
+}
+
+if (something && toAddress!="") {
  simpleMail(toAddress,emailTitle,msg,p);
 } else {
  println msg;

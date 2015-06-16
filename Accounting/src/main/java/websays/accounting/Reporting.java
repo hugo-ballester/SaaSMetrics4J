@@ -351,9 +351,11 @@ public class Reporting {
    * 
    * @param onlyFirstOfEachClient
    *          show only contracts for new clients
+   * @param contractFilter
    * @return
    */
-  public static String report_last(BillingReportPrinter printer, boolean onlyFirstOfEachClient, Contracts contracts) {
+  public static String report_last(BillingReportPrinter printer, boolean onlyFirstOfEachClient, Contracts contracts,
+      AccountFilter contractFilter) {
     // sort by reverse date
     contracts.sort(SortType.date_ASC);
     
@@ -365,6 +367,10 @@ public class Reporting {
     double total = 0;
     
     for (Contract c : contracts) {
+      if (!contractFilter.accept(c)) {
+        continue;
+      }
+      ;
       if (onlyFirstOfEachClient && clients.contains(c.client_name)) { // skip
         continue;
       }

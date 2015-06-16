@@ -39,18 +39,20 @@ public class Contracts extends ArrayList<Contract> {
   public enum AccountFilter {
     CONTRACT, //
     PROJECT, //
-    CONTRACTED_OR_PROJECT, //
+    PAID_CONTRACT, //
     STARTING, // starting at a given supplied date
     ENDING, // ending at a given supplied date (because {@code endContract})
     AUTORENEW, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
-    CHANGED, BILLCENTER_ES, BILLCENTER_UK; // changed at a given supplied date
+    CHANGED, //
+    BILLCENTER_ES, //
+    BILLCENTER_UK; // changed at a given supplied date
     
     public String whereBoolean() {
       if (this == CONTRACT) {
         return "contract.type='contract'";
       } else if (this == PROJECT) {
         return "contract.type='project'";
-      } else if (this == CONTRACTED_OR_PROJECT) {
+      } else if (this == PAID_CONTRACT) {
         return "contract.type='project' OR contract.type='contract'";
       } else if (this == BILLCENTER_ES) {
         return "client.billingCenter='Websays_ES'";
@@ -67,7 +69,7 @@ public class Contracts extends ArrayList<Contract> {
         return null;
       } else if (this == CONTRACT) {
         return c.type.equals(Type.subscription);
-      } else if (this == CONTRACTED_OR_PROJECT) {
+      } else if (this == PAID_CONTRACT) {
         return c.type.equals(Type.subscription) || c.type.equals(Type.project);
       } else if (this == PROJECT) {
         return c.type.equals(Type.project);
@@ -216,7 +218,7 @@ public class Contracts extends ArrayList<Contract> {
           if (a.type != Type.project) {
             continue;
           }
-        } else if (filter == AccountFilter.CONTRACTED_OR_PROJECT) {
+        } else if (filter == AccountFilter.PAID_CONTRACT) {
           if (a.type != Type.project && a.type != Type.subscription) {
             continue;
           }

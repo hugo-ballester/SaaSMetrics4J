@@ -51,11 +51,11 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
     System.out.println(//
         app.printer.box1("Contracts ending soon:",
-            printer.preserveString(app.displayEndingSoon(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, contracts)), connectToDB));
+            printer.preserveString(app.displayEndingSoon(begOfMonth, AccountFilter.PAID_CONTRACT, contracts)), connectToDB));
     
     System.out.println(//
         app.printer.box1("Totals",
-            printer.preserveString(app.displayTotals(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts)), connectToDB));
+            printer.preserveString(app.displayTotals(begOfMonth, AccountFilter.PAID_CONTRACT, false, contracts)), connectToDB));
     
     System.out.println(//
         app.printer.box1(
@@ -71,7 +71,7 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     
     System.out.println(//
         app.printer.box1("MRRs per Client",//
-            printer.preserveString(app.displayAverages(begOfMonth, AccountFilter.CONTRACTED_OR_PROJECT, false, contracts)), connectToDB));
+            printer.preserveString(app.displayAverages(begOfMonth, AccountFilter.PAID_CONTRACT, false, contracts)), connectToDB));
     
     System.out.println(//
         app.printer.box1(

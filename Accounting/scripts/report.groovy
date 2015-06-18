@@ -57,11 +57,18 @@ FROM contract c LEFT JOIN client cl ON c.client_id=cl.id
 if (reportType=="urgent") {
   emailTitle = "URGENT ACCOUNTING REPORT: Actions needed";
   commands << "Contracts that ended in the last 30 days BUT NOT CONFIRMED!"
-  commands << """SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
+  commands << """
+SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
 $FROM1
 WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NULL
-ORDER BY c.end, client_name;"""
-  
+ORDER BY c.end, client_name;
+"""
+
+commands << "Contracts with 0 MRR!"
+commands << """
+SELECT * FROM contract WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (type='subscription' OR type='project')
+"""
+
 
 } else if (reportType=="periodic") {
   emailTitle = "PERIODIC ACCOUNTING REPORT: Contracts Ending or Renewing Soon";

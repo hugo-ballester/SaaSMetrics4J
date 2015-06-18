@@ -66,7 +66,9 @@ ORDER BY c.end, client_name;
 
 commands << "Contracts with 0 MRR!"
 commands << """
-SELECT * FROM contract WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (type='subscription' OR type='project')
+SELECT $cols1 
+$FROM1
+WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (type='subscription' OR type='project')
 """
 
 

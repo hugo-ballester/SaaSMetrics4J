@@ -68,7 +68,7 @@ commands << "Contracts with 0 MRR!"
 commands << """
 SELECT $cols1 
 $FROM1
-WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (type='subscription' OR type='project')
+WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (c.type='subscription' OR c.type='project')
 """
 
 
@@ -271,7 +271,7 @@ public static void simpleMail(String to,
     message.setFrom(new InternetAddress(p.SMTP_USER));
     message.setContent(body, 'text/html');
     message.setSubject(subject);    
-    for(email in to.split(";")) {
+    for(email in to.split("[;,]")) {
        InternetAddress toAddress = new InternetAddress(email); 
        message.addRecipient(Message.RecipientType.TO, toAddress);
     }
@@ -284,7 +284,7 @@ public static void simpleMail(String to,
 
     
 public static void errorArgs(){
-  println "ARGUMENTS:\n\treportType{urgent,periodic} [<email>]\n\t email format: 'first@mail.com;second@othermail.com'"  
+  println "ARGUMENTS:\n\treportType{urgent,periodic} [<email>]\n\t email format: 'first@mail.com,second@othermail.com'"  
 }
     
     

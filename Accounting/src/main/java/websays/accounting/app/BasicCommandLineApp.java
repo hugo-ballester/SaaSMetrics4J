@@ -43,7 +43,6 @@ public class BasicCommandLineApp {
   private static final int MIN_CONTRACT_LENGTH = 120;
   
   public static Properties props = new Properties();
-  public static String pricingFile;
   public static String reportingHTMLDir;
   public static String reportingHTMLDirRemote;
   public static String dumpDataFile;
@@ -128,7 +127,6 @@ public class BasicCommandLineApp {
     
     GlobalConstants.load(props);
     
-    pricingFile = props.getProperty("pricingFile", null);
     dumpDataFile = props.getProperty("dumpDBFile", null);
     reportingHTMLDir = props.getProperty("reportingHTMLDir", null);
     reportingHTMLDirRemote = props.getProperty("reportingHTMLDirRemote", null);
@@ -156,7 +154,7 @@ public class BasicCommandLineApp {
       (new File(reportingHTMLDir)).mkdir();
     }
     
-    String[] showParams = new String[] {"pricingFile", "dumpDataFile", "reportingHTMLDir", "reportingHTMLDirRemote", "reportingTxtFile"};
+    String[] showParams = new String[] {"dumpDataFile", "reportingHTMLDir", "reportingHTMLDirRemote", "reportingTxtFile"};
     logger.info("Loaded Parameters from: " + propFile.getAbsolutePath());
     logger.info("  Started with the following params:\n" + showFields(showParams));
     

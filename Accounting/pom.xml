@@ -1,4 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<!-- 
+
+(hugoz 2015-6: 
+
+In production this project is build form gradle, not Maven,
+
+Maven is only used to run locally in Eclipse... should move all to gradle eventually
+
+)
+ -->
+
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>Accounting</groupId>

@@ -36,7 +36,7 @@ class Main {
 
    @PUT @Produces("text/plain")
    public Response writeReport() {
-           println "PUT /accountingSite";
+           println "PUT /accounting received";
            def root = System.getenv("WEBSAYS_HOME");
            def args = ["-p",paramFile,"-y","2015", "-m","1"] as String[];
            MyHTMLReport.main(args);

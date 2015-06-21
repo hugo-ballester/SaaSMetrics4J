@@ -30,12 +30,12 @@ class Globals {
   static String paramFile = "";
 }
 
-@Path("/accountingSite")
+@Path("/accounting")
 class Main {
   static String paramFile=null;
 
    @PUT @Produces("text/plain")
-   public Response getReport() {
+   public Response writeReport() {
            println "PUT /accountingSite";
            def root = System.getenv("WEBSAYS_HOME");
            def args = ["-p",paramFile,"-y","2015", "-m","1"] as String[];

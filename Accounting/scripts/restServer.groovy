@@ -30,11 +30,11 @@ class Globals {
   static String paramFile = "";
 }
 
-@Path("/report")
+@Path("/accountingSite")
 class Main {
   static String paramFile=null;
 
-   @GET @Produces("text/plain")
+   @PUT @Produces("text/plain")
    public Response getReport() {
            println "GET /report";
            def root = System.getenv("WEBSAYS_HOME");

@@ -48,7 +48,7 @@ class Main {
    public static startServer(String paramFile, int myport) {
        Main.paramFile=paramFile;     
        ResourceConfig resources = new ClassNamesResourceConfig(Main)
-       def uri = UriBuilder.fromUri("http://localhost/").port(myport).build();
+       def uri = UriBuilder.fromUri("http://dev1/").port(myport).build();
        HttpServer httpServer = GrizzlyServerFactory.createHttpServer(uri, resources);
        println("Jersey app started with WADL available at ${uri}application.wadl")
        while (true) { sleep(1000); };

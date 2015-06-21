@@ -1,3 +1,9 @@
+// Groovy script to build a REST API wrapper around MyHTMLReport.main
+// Used to ivoke remoetely the generation of billing reports
+//
+// depends on Accounting.jar, see https://dev1/dokuwiki/doku.php?id=accounting_procedures
+//
+// Author: hugoz 2015-6
 
 import javax.ws.rs.*
 import javax.ws.rs.core.*
@@ -16,32 +22,15 @@ import websays.accounting.app.MyHTMLReport
    @Grab(group='javax.ws.rs', module='jsr311-api', version='1.1.1')
    ])
 
-//@Path("/{code}")
-//class Main {
-//
-//   @GET @Produces("text/plain")
-//   public Response getUserByCode(@PathParam('code') String code) {
-//           def user = "hugo"
-//           return Response.ok().entity("Usage of the code '${code}': $user\n".toString()).build();
-//   }
-
-class Globals {
-  static int port = 0;
-  static String paramFile = "";
-}
-
-@Path("/accounting")
+@Path("/accountingReport")
 class Main {
   static String paramFile=null;
 
    @PUT @Produces("text/plain")
    public Response writeReport() {
-           println "PUT /accounting received";
            def root = System.getenv("WEBSAYS_HOME");
-           def args = ["-p",paramFile,"-y","2015", "-m","1"] as String[];
+           def args = ["-p",paramFile] as String[];
            MyHTMLReport.main(args);
-           return;
-           
            return Response.ok().entity("ok").build();
    }
    
@@ -51,10 +40,7 @@ class Main {
        def uri = UriBuilder.fromUri("http://dev1/").port(myport).build();
        HttpServer httpServer = GrizzlyServerFactory.createHttpServer(uri, resources);
        println("Jersey app started with WADL available at ${uri}application.wadl")
-       while (true) { sleep(1000); };
-       
-//       System.in.read();
-//       httpServer.stop();
+       while (true) { sleep(1000); }; // stay alive until stopped
    }
 }
 

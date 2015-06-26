@@ -1,6 +1,7 @@
 // Generate simple email report about contracts ending soon
 // Hugo Zaragoza, Websays, 2015
 //
+//
 
 // ARGUMENTS
 if ( args.size() <1 ||  args.size() >2 ) {

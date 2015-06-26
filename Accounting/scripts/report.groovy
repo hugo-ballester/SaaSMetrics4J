@@ -68,7 +68,7 @@ SELECT $cols1, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_
     AND ( c.type='pilot' )
     AND ( c.confirmedClosed IS NULL )
   GROUP BY c.id
-  HAVING days_remaining >=0 AND days_remainng < 5
+  HAVING days_remaining >=0 AND days_remaining < 5
   ORDER BY days_remaining, c.sales_person, c.name;
 """
   
@@ -92,6 +92,22 @@ SELECT $cols1
   HAVING ABS(days_mid-days_sofar)<2
   ORDER BY days_remaining, c.sales_person, c.name;
 """
+
+commands << "Pilots endede already (but not confirmed)"
+commands << """
+SELECT $cols1, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+    FROM profiles p
+    LEFT JOIN contract c ON p.contract_id=c.id
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE
+    p.deleted=0
+    AND ( c.type='pilot' )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  HAVING days_remaining <0
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
+
 
 } else if (reportType=="urgent") {
   emailTitle = "URGENT ACCOUNTING REPORT: Actions needed";

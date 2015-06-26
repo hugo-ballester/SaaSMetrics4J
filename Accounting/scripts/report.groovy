@@ -59,7 +59,7 @@ if (reportType=="client_notifications") {
   
   commands << "Pilots ending in less than 5 days"
   commands << """
-SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -71,16 +71,15 @@ SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CUR
   HAVING days_remaining >=0 AND days_remaining < 5
   ORDER BY days_remaining, c.sales_person, c.name;
 """
-  
 
 commands << "Pilots in the middle"
 commands << """
 SELECT $cols1
  ,c.pilot_length as days_total
  ,ROUND(c.pilot_length/2) as days_mid
- ,DATEDIFF( CURRENT_DATE(), c.pilotStart) as days_sofar
- ,DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
- ,  100.0 * DATEDIFF( CURRENT_DATE(), c.pilotStart) / c.pilot_length as frac
+ ,DATEDIFF( CURRENT_DATE(), c.pilot_start) as days_sofar
+ ,DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+ ,  100.0 * DATEDIFF( CURRENT_DATE(), c.pilot_start) / c.pilot_length as frac
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -93,9 +92,9 @@ SELECT $cols1
   ORDER BY days_remaining, c.sales_person, c.name;
 """
 
-commands << "Pilots endede already (but not confirmed)"
+commands << "Pilots ended already (but not confirmed)"
 commands << """
-SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -106,6 +105,17 @@ SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CUR
   GROUP BY c.id
   HAVING days_remaining <0
   ORDER BY days_remaining, c.sales_person, c.name;
+"""
+
+commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
+commands << """
+SELECT u.name AS created_by,  p.profile_id, p.name AS "Profile_Name", DATE(p.created) AS created, p.status, p.schedule
+   FROM profiles p
+   LEFT JOIN contract c ON p.contract_id=c.id
+   LEFT JOIN users u ON p.owner_id=u.id
+ WHERE
+  (deleted =0) AND p.`contract_id` IS NULL
+ORDER BY  created_by, p.schedule, p.created DESC
 """
 
 
@@ -153,7 +163,7 @@ ORDER BY c.type DESC, client_name;"""
 
 commands << "Active Pilots:";
 commands << """
-SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
+SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
   FROM profiles p 
     LEFT JOIN contract c ON p.contract_id=c.id 
     LEFT JOIN client cl ON c.client_id=cl.id

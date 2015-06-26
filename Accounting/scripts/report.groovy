@@ -59,7 +59,7 @@ if (reportType=="client_notifications") {
   
   commands << "Pilots ending in less than 5 days"
   commands << """
-SELECT $cols1, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -78,9 +78,9 @@ commands << """
 SELECT $cols1
  ,c.pilot_length as days_total
  ,ROUND(c.pilot_length/2) as days_mid
- ,DATEDIFF( CURRENT_DATE(), c.start) as days_sofar
- ,DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
- ,  100.0 * DATEDIFF( CURRENT_DATE(), c.start) / c.pilot_length as frac
+ ,DATEDIFF( CURRENT_DATE(), c.pilotStart) as days_sofar
+ ,DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+ ,  100.0 * DATEDIFF( CURRENT_DATE(), c.pilotStart) / c.pilot_length as frac
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -95,7 +95,7 @@ SELECT $cols1
 
 commands << "Pilots endede already (but not confirmed)"
 commands << """
-SELECT $cols1, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
     FROM profiles p
     LEFT JOIN contract c ON p.contract_id=c.id
     LEFT JOIN client cl ON c.client_id=cl.id
@@ -153,7 +153,7 @@ ORDER BY c.type DESC, client_name;"""
 
 commands << "Active Pilots:";
 commands << """
-SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
+SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilotStart,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
   FROM profiles p 
     LEFT JOIN contract c ON p.contract_id=c.id 
     LEFT JOIN client cl ON c.client_id=cl.id

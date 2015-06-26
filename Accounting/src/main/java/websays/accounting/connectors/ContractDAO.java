@@ -38,7 +38,7 @@ import websays.accounting.Pricing;
 
 public class ContractDAO extends MySQLDAO {
   
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, free, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
@@ -51,33 +51,33 @@ public class ContractDAO extends MySQLDAO {
     }
   }
   
-  public static void updateProfilesPerContract(Contracts cs) {
-    String cmd = "SELECT c.id, COUNT(c.name) FROM profiles p JOIN contract c ON p.contract_id=c.id GROUP BY c.id";
-    PreparedStatement p = null;
-    Connection connection = null;
-    ResultSet r = null;
-    try {
-      connection = DatabaseManager.getConnection();
-      p = connection.prepareStatement(cmd);
-      r = p.executeQuery();
-      while (r.next()) {
-        int id = r.getInt(0);
-        int profiles = r.getInt(1);
-        Contract c = cs.get(id);
-        if (c == null) {
-          logger.error("COULD NOT FIND contract.id []" + id);
-          continue;
-        }
-        c.profiles = profiles;
-      }
-    } catch (Exception e) {
-      logger.error(e);
-    } finally {
-      close(r);
-      close(p);
-      close(connection);
-    }
-  }
+  // public static void updateProfilesPerContract(Contracts cs) {
+  // String cmd = "SELECT c.id, COUNT(c.name) FROM profiles p JOIN contract c ON p.contract_id=c.id GROUP BY c.id";
+  // PreparedStatement p = null;
+  // Connection connection = null;
+  // ResultSet r = null;
+  // try {
+  // connection = DatabaseManager.getConnection();
+  // p = connection.prepareStatement(cmd);
+  // r = p.executeQuery();
+  // while (r.next()) {
+  // int id = r.getInt(0);
+  // int profiles = r.getInt(1);
+  // Contract c = cs.get(id);
+  // if (c == null) {
+  // logger.error("COULD NOT FIND contract.id []" + id);
+  // continue;
+  // }
+  // c.profiles = profiles;
+  // }
+  // } catch (Exception e) {
+  // logger.error(e);
+  // } finally {
+  // close(r);
+  // close(p);
+  // close(connection);
+  // }
+  // }
   
   public static String getPriceFileFromDB() {
     String table = "frontend_property";
@@ -151,8 +151,7 @@ public class ContractDAO extends MySQLDAO {
   
   public int getNumberOfProfiles(int contractId) throws SQLException {
     
-    String st = "SELECT COUNT(p.profile_id) FROM profiles p , " + tableName + " WHERE contract.id=" + contractId
-        + " AND p.contract_id=contract.id";
+    String st = "SELECT COUNT(profile_id) FROM profiles WHERE contract_id=" + contractId + " GROUP BY profile_id";
     
     PreparedStatement p = null;
     Connection connection = null;
@@ -161,8 +160,10 @@ public class ContractDAO extends MySQLDAO {
       connection = DatabaseManager.getConnection();
       p = connection.prepareStatement(st);
       r = p.executeQuery();
-      r.next();
-      int ret = r.getInt(1);
+      int ret = 0;
+      if (r.next()) {
+        ret = r.getInt(1);
+      }
       return ret;
     } catch (Exception e) {
       logger.error(e);
@@ -236,6 +237,8 @@ public class ContractDAO extends MySQLDAO {
       BigDecimal mrrBD = rs.getBigDecimal(column++);
       Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
       
+      Boolean free = rs.getBoolean(column++);
+      
       Double fix = rs.getDouble(column++); // casting to get the null
       String pricing = rs.getString(column++);
       Integer client_id = rs.getInt(column++);
@@ -280,6 +283,7 @@ public class ContractDAO extends MySQLDAO {
         }
         a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }
+      a.free = free;
       a.contractDocument = contractDocument;
       a.client_name = client_name;
       a.contractedMonths = contracteMonths;

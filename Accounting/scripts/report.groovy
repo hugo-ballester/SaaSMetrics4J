@@ -68,7 +68,7 @@ commands << "Contracts with 0 MRR!"
 commands << """
 SELECT $cols1 
 $FROM1
-WHERE pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (c.type='subscription' OR c.type='project')
+WHERE free=0 AND pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (c.type='subscription' OR c.type='project')
 """
 
 

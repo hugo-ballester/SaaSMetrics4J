@@ -122,20 +122,18 @@ public class Reporting {
     sb.append("ACCOUNTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(d) + "\n");
     
     Contracts cs = contracts.getActive(d, filter, metricDate);
-    double totM = 0, totCom = 0;
-    int totC = 0;
     TreeMap<String,Vector3D> map = new TreeMap<String,Vector3D>();
     Vector3D tot = new Vector3D(0, 0, 0);
+    
     for (Contract c : cs) {
-      String endS = "", startS = "";
       double mrr = Metrics.computeMRR(c, d, metricDate);
-      double profs = c.profiles;
       
       Vector3D v = map.get(c.client_name);
       if (v == null) {
         v = new Vector3D(0, 0, 0);
       }
       Vector3D n = new Vector3D(new double[] {1, c.profiles, mrr});
+      logger.debug("contract " + c.name + " (" + c.client_name + ") " + c.profiles);
       v = v.add(n);
       tot = tot.add(n);
       map.put(c.client_name, v);

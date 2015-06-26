@@ -75,6 +75,9 @@ public class Contract {
   // base recurring prize
   public Double monthlyPrice;
   
+  // when monthlyPrice=0, set this to free so we don't bill and don't warn
+  public Boolean free;
+  
   // fixed total price (will be added to monthlyPrice (dividing by total contract lenght) if both not null)
   public Double fixedPrice;
   

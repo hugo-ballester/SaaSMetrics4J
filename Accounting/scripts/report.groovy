@@ -53,8 +53,47 @@ def FROM1 = """
 FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
 """
 
+if (reportType=="client_notifications") {
+  
+  emailTitle = "ACCOUNTING REPORT: NOTIFICATIONS TO CLIENTS";
+  
+  commands << "Pilots ending in less than 5 days"
+  commands << """
+SELECT $cols1, DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+    FROM profiles p
+    LEFT JOIN contract c ON p.contract_id=c.id
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE
+    p.deleted=0
+    AND ( c.type='pilot' )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  HAVING days_remaining >=0 AND days_remainng < 5
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
+  
 
-if (reportType=="urgent") {
+commands << "Pilots in the middle"
+commands << """
+SELECT $cols1
+ ,c.pilot_length as days_total
+ ,ROUND(c.pilot_length/2) as days_mid
+ ,DATEDIFF( CURRENT_DATE(), c.start) as days_sofar
+ ,DATEDIFF( DATE_ADD(c.start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+ ,  100.0 * DATEDIFF( CURRENT_DATE(), c.start) / c.pilot_length as frac
+    FROM profiles p
+    LEFT JOIN contract c ON p.contract_id=c.id
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE
+    p.deleted=0
+    AND ( c.type='pilot' )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  HAVING ABS(days_mid-days_sofar)<2
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
+
+} else if (reportType=="urgent") {
   emailTitle = "URGENT ACCOUNTING REPORT: Actions needed";
   commands << "Contracts that ended in the last 30 days BUT NOT CONFIRMED!"
   commands << """
@@ -142,7 +181,7 @@ WHERE c.start < NOW() AND ( ( c.end IS NULL ) OR (c.end > NOW()) )
 
 } else {
 
-  println "ERROR: unknwon report type '$reportType'"
+  println "ERROR: unknown report type '$reportType'"
   errorArgs();
   return;
 }
@@ -235,7 +274,7 @@ class Globals {
   Properties properties = new Properties()
 
   public Globals(String websaysHome) {
-    String path = websaysHome+"/conf/accounting_stage.properties";
+    String path = websaysHome+"/conf/accounting_dev1.properties";
     File propertiesFile = new File(path)
     propertiesFile.withInputStream {
       properties.load(it)
@@ -284,7 +323,7 @@ public static void simpleMail(String to,
 
     
 public static void errorArgs(){
-  println "ARGUMENTS:\n\treportType{urgent,periodic} [<email>]\n\t email format: 'first@mail.com,second@othermail.com'"  
+  println "ARGUMENTS:\n\treportType{client_notifications,urgent,periodic} [<email>]\n\t email format: 'first@mail.com,second@othermail.com'"  
 }
     
     

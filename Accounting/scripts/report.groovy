@@ -127,7 +127,7 @@ ORDER BY  created_by, p.schedule, p.created DESC
   commands << """
 SELECT $cols1, DATEDIFF(CURRENT_DATE(),c.end) as days_since_end
 $FROM1
-WHERE DATEDIFF(NOW(),c.end)<30 AND c.end<=CURRENT_DATE() AND c.confirmedClosed IS NULL
+WHERE  ( IFNULL(dataAccessEnd,c.end) < CURRENT_DATE() ) AND c.confirmedClosed IS NULL
 ORDER BY c.end, client_name;
 """
 

@@ -176,8 +176,7 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String header() {
-    String msg = "<html>\n <head>\n  <meta charset=\"UTF-8\"/>\n </head>\n\n<body>\n" + //
-        "<h4>SaaS4J Metrics Report v" + VERSION + ". Generated on " + GlobalConstants.dtLL.print(new DateTime()) + "</h4><hr/>\n\n";
+    String msg = "SaaS4J Metrics Report v" + VERSION + " ... [last page update: " + GlobalConstants.dtLL.print(new DateTime()) + "]\n";
     return msg;
   }
   

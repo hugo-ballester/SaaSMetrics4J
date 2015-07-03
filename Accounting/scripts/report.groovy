@@ -179,13 +179,6 @@ SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,I
 
 commands << "---- DB ADMIN WARNINGS:"
 
-commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
-commands <<"""
-SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile 
-  FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
-  WHERE  c.id != p.contract_id
-"""
-
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
 commands << """
 SELECT u.name AS created_by,  p.profile_id, p.name AS "Profile_Name", DATE(p.created) AS created, p.status, p.schedule
@@ -196,6 +189,21 @@ SELECT u.name AS created_by,  p.profile_id, p.name AS "Profile_Name", DATE(p.cre
   (deleted =0) AND p.`contract_id` IS NULL
 ORDER BY  created_by, p.schedule, p.created DESC
 """
+
+commands << "Users without any active profiles (non-admins only):"
+commands << """
+SELECT id,username,name,email,created,last_login FROM auth_user u
+  WHERE u.`disconnect_date` IS NULL
+  AND NOT EXISTS (SELECT * FROM auth_user_role r WHERE r.user_id=u.id AND role='admin')
+  AND NOT EXISTS (SELECT * FROM profiles_users pu LEFT JOIN profiles p ON pu.profile_id=p.profile_id WHERE pu.user_id=u.id AND p.deleted=0);
+"""
+
+//commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
+//commands <<"""
+//SELECT c.name AS Contract, c.id, c.main_profile_id AS MainProfile, p.contract_id AS ContractIDofProfile 
+//  FROM contract c LEFT JOIN  profiles p ON c.main_profile_id=profile_id
+//  WHERE  c.id != p.contract_id
+//"""
 
 commands << "--- ALL ACTIVE CONTRACTS"
 

@@ -11,14 +11,14 @@ import org.joda.time.LocalDate;
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts;
 import websays.accounting.GlobalConstants;
-import websays.accounting.PrinterASCII;
+import websays.accounting.PrinterHTML;
 import websays.accounting.reporting.MiniReport;
 
 public class MyMiniReports extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyMiniReports.class);
   
-  static BillingReportPrinter printer = new PrinterASCII();
+  static BillingReportPrinter printer = new PrinterHTML();
   
   public MyMiniReports(String[] args) throws Exception {
     

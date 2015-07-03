@@ -15,7 +15,17 @@ import org.joda.time.LocalDate;
 
 import websays.core.utils.CurrencyUtils;
 
-public class PrinterASCII extends BillingReportPrinter {
+public class PrinterHTML extends BillingReportPrinter {
+  
+  final static String HTML_NOCACHE = //
+  "<meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />" //
+      + "<meta http-equiv=\"Pragma\" content=\"no-cache\" />" //
+      + "<meta http-equiv=\"Expires\" content=\"0\" />";
+  
+  final static String HTML_META = "<meta>" + HTML_NOCACHE + "</meta>";
+  
+  final static String HTML_HEADER = "<!DOCTYPE html>\n<html>\n" //
+      + HTML_NOCACHE + "<meta charset=\"UTF-8\">" + "\n<body>\n";
   
   static String line1 = "===========================================\n";
   static String line2 = "-------------------------------------------\n\n";
@@ -24,10 +34,10 @@ public class PrinterASCII extends BillingReportPrinter {
   String TAB = "\t";
   String RET = "\n";
   
-  private static final Logger logger = Logger.getLogger(PrinterASCII.class);
+  private static final Logger logger = Logger.getLogger(PrinterHTML.class);
   private static final String VERSION = GlobalConstants.VERSION;
   
-  public PrinterASCII() {
+  public PrinterHTML() {
     this.dateFormat1 = GlobalConstants.dtS;
   }
   
@@ -157,7 +167,7 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String title(String string, boolean connectToDB) {
-    String db = connectToDB ? "" : "(!OFFLINE)";
+    String db = connectToDB ? "" : "  <i>(!OFFLINE)</i>";
     String msg = "<hl/><h2>" + string + db + "</h2>";
     return msg;
   }
@@ -176,8 +186,10 @@ public class PrinterASCII extends BillingReportPrinter {
   
   @Override
   public String header() {
-    String msg = "SaaS4J Metrics Report v" + VERSION + " ... [last page update: " + GlobalConstants.dtLL.print(new DateTime()) + "]\n";
-    return msg;
+    String headline = "<div align=\"right\">SaaS4J Metrics Report v" + VERSION + "  [" + GlobalConstants.dtLL.print(new DateTime())
+        + "]<hr/></div>\n\n";
+    return HTML_HEADER + headline;
+    
   }
   
   @Override

@@ -20,7 +20,7 @@ import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.GlobalConstants;
-import websays.accounting.PrinterASCII;
+import websays.accounting.PrinterHTML;
 import websays.accounting.Reporting;
 import websays.accounting.reporting.MiniReport;
 import websays.accounting.reporting.MyMonthlyBillingReport;
@@ -31,20 +31,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
   
-  final static BillingReportPrinter printer = new PrinterASCII();
-  
-  final static String PAGE_HEADER = printer.header();
-  
-  final static String HTML_NOCACHE = //
-  "<meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />" //
-      + "<meta http-equiv=\"Pragma\" content=\"no-cache\" />" //
-      + "<meta http-equiv=\"Expires\" content=\"0\" />";
-  
-  final static String HTML_META = "<meta>" + HTML_NOCACHE + "</meta>";
-  
-  final static String HTML_HEADER = "<!DOCTYPE html>\n<html>\n" + HTML_NOCACHE //
-      + "<meta charset=\"UTF-8\">" + "\n<body>\n"//
-      + "<h4>" + PAGE_HEADER + "</h4><hr/>\n\n";;
+  final static BillingReportPrinter printer = new PrinterHTML();
   
   int thisYear = (new LocalDate()).getYear();
   int thisMonth = (new LocalDate()).getMonthOfYear();
@@ -74,7 +61,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     Contracts contracts = initContracts();
     
-    Reporting app = new Reporting(new PrinterASCII());
+    Reporting app = new Reporting(new PrinterHTML());
     
     File htmlDir = new File(reportingHTMLDir);
     
@@ -90,7 +77,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     // 3. Build "index.html"
     StringBuffer indexFile = new StringBuffer();
-    indexFile.append(HTML_HEADER + "<table cellpadding=\"20\" border=\"1\"  >");
+    indexFile.append(printer.header() + "<table cellpadding=\"20\" border=\"1\"  >");
     indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
     
     indexFile.append("\n<tr><td valign=\"top\">");
@@ -108,20 +95,20 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     String lastTitle = "Last Contracts";
     indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
-    content = HTML_HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
+    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
         Reporting.report_last(app.printer, false, contracts, Contracts.AccountFilter.PAID_CONTRACT);
     FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
     
     lastTitle += " (new clients only)";
     indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
-    content = HTML_HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n"
+    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n"
         + Reporting.report_last(app.printer, true, contracts, Contracts.AccountFilter.PAID_CONTRACT);
     FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
     
     // == Commissions
     lastTitle = "Commissions";
     indexFile.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
-    content = HTML_HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
+    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
     String[] commssionnees = contracts.getCommissionnees();
     for (int year : billingYears) {
       content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
@@ -133,7 +120,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     indexFile.append("<br/>");
     lastTitle = "MRR_MiniReport";
     indexFile.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
-    content = HTML_HEADER + "<h2>" + lastTitle + "</h2><pre>\n\n";
+    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
     LocalDate miniStart = new LocalDate().minusMonths(6);
     content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 9);
     FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
@@ -269,7 +256,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
         setOutput(new File(htmlDir, file));
         
         // GENERATE BILLING REPORT FOR THE MONTH
-        System.out.println("<h1><a href=\"./\">BILLING:</a> " + file + "</h1>\n");
+        // System.out.println("<h3><a href=\"./\">[home]</a></h3>\n");
         mbr.report(contracts, byear, bmonth, GlobalConstants.billingCenters);
       }
       

@@ -15,14 +15,14 @@ import org.joda.time.Months;
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
-import websays.accounting.PrinterASCII;
+import websays.accounting.PrinterHTML;
 import websays.accounting.Reporting;
 
 public class ContractMonthlyReport extends BasicCommandLineApp {
   
   final int M = Calendar.MONTH;
   final int Y = Calendar.YEAR;
-  BillingReportPrinter printer = new PrinterASCII();
+  BillingReportPrinter printer = new PrinterHTML();
   
   public static void main(String[] args) throws Exception {
     StringBuffer sb = new StringBuffer();

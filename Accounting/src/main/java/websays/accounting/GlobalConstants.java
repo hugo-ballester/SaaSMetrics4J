@@ -21,7 +21,7 @@ public class GlobalConstants {
   public static boolean roundDatesForMetrics = false;
   
   public static final DateTimeFormatter dtS = DateTimeFormat.forPattern("dd/MM/YY");
-  public static final DateTimeFormatter dtLL = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss");
+  public static final DateTimeFormatter dtLL = DateTimeFormat.forPattern("YYYY/MM/dd HH:mm:ss");
   
   public static final String WebsaysES = "Websays_ES", WebsaysUK = "Websays_UK";
   

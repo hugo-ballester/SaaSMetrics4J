@@ -42,7 +42,7 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     } else {
       for (AccountFilter af : billingCenters) {
         Contracts conts = contracts.getView(af);
-        billingSection += app.printer.box1("BILLING FOR CENTER " + af.name(),
+        billingSection += app.printer.box1("BILLING FOR CENTER: " + af.name() + "",
             app.displayBilling(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), conts), connectToDB);
       }
     }
@@ -54,8 +54,8 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
             printer.preserveString(app.displayEndingSoon(begOfMonth, AccountFilter.PAID_CONTRACT, contracts)), connectToDB));
     
     System.out.println(//
-        app.printer.box1("Totals",
-            printer.preserveString(app.displayTotals(begOfMonth, AccountFilter.PAID_CONTRACT, false, contracts)), connectToDB));
+        app.printer.box1("Totals", printer.preserveString(app.displayTotals(begOfMonth, AccountFilter.PAID_CONTRACT, false, contracts)),
+            connectToDB));
     
     System.out.println(//
         app.printer.box1(

@@ -179,7 +179,7 @@ public class Reporting {
     }
     
     StringBuffer sb = new StringBuffer();
-    BillingReportPrinter p = new PrinterASCII();
+    BillingReportPrinter p = new PrinterHTML();
     ArrayList<Bill> bs = Billing.bill(contracts, year, month);
     
     if (bs.size() > 0) {
@@ -443,9 +443,9 @@ public class Reporting {
       for (String s : names) {
         Double c = mapMonth.get(s);
         tot += c;
-        row.add(PrinterASCII.euros(c));
+        row.add(PrinterHTML.euros(c));
       }
-      row.add(PrinterASCII.euros(tot));
+      row.add(PrinterHTML.euros(tot));
       rows.add(join(row));
       
     }
@@ -460,9 +460,9 @@ public class Reporting {
     for (String s : names) {
       Double c = mapYear.get(s);
       total += c;
-      ret.append(String.format("\t%10s", PrinterASCII.euros(c)));
+      ret.append(String.format("\t%10s", PrinterHTML.euros(c)));
     }
-    ret.append(String.format("\t%10s", PrinterASCII.euros(total)));
+    ret.append(String.format("\t%10s", PrinterHTML.euros(total)));
     
     return ret.toString();
   }
@@ -511,7 +511,7 @@ public class Reporting {
     
     sb.append("  Active Contracts:\t" + lis.size() + "\n");
     sb.append("  Active Clients:\t" + clients.size() + "\n");
-    sb.append("  Total MRR:     \t" + PrinterASCII.euros(totMRR, true) + "\n");
+    sb.append("  Total MRR:     \t" + PrinterHTML.euros(totMRR, true) + "\n");
     
     return sb.toString();
   }

@@ -158,12 +158,36 @@ SELECT u.name AS created_by,  p.profile_id, p.name AS "Profile_Name", DATE(p.cre
   (deleted =0) AND p.`contract_id` IS NULL
 ORDER BY  created_by, p.schedule, p.created DESC
 """
+
 commands << "Users without any active profiles (non-admins only):"
 commands << """
 SELECT id,username,name,email,created,last_login FROM auth_user u  JOIN auth_user_role r ON u.id=r.user_id AND role='login'
   WHERE  
   NOT EXISTS (SELECT * FROM auth_user_role r WHERE r.user_id=u.id AND role='admin')
   AND NOT EXISTS (SELECT * FROM profiles_users pu LEFT JOIN profiles p ON pu.profile_id=p.profile_id WHERE pu.user_id=u.id AND p.deleted=0);
+"""
+
+/* MySQL query to delete these:
+DELETE auth_user_role FROM auth_user_role WHERE role ='login' AND 
+auth_user_role.user_id NOT IN (
+SELECT user_id FROM 
+   ( SELECT pu.user_id FROM profiles_users pu LEFT JOIN profiles p ON pu.profile_id=p.profile_id WHERE  p.deleted=0 ) 
+AS user_id )
+
+AND auth_user_role.user_id NOT IN (
+SELECT user_id FROM
+  ( SELECT a2.user_id FROM auth_user_role a2 WHERE a2.role ='admin' )
+AS user_id )
+; 
+ */
+
+
+commands << "Active Profiles in Deleted Machines!"
+commands << """
+SELECT p.name AS profile, c.name AS contract, machineAlias AS machine FROM profiles p
+ JOIN machineAlias m ON ( p.machineAlias=m.alias AND m.deleted=1 )
+ LEFT JOIN contract c ON p.contract_id=c.id
+ WHERE p.deleted=0
 """
 
 //commands << "PROBLEMS: Contract main_profile lists a different contract_id:"
@@ -181,7 +205,41 @@ SELECT id,username,name,email,created,last_login FROM auth_user u  JOIN auth_use
 
   emailTitle = "[ACCOUNTING] SALES ACTIONS NEEDED";
 
-commands << "--- ENDING SOON"
+  commands << "--- PILOTS ENDED OR ENDING:"  
+  
+  commands << "Pilots ended already (WILL BE DISCONNECTED!)"
+  commands << """
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) ,CURRENT_DATE()) as days_remaining
+    FROM profiles p
+    LEFT JOIN contract c ON p.contract_id=c.id
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE
+    p.deleted=0
+    AND ( c.type='pilot' )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  HAVING days_remaining <0
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
+  
+  commands << "Pilots ending in less than 10 days"
+  commands << """
+SELECT $cols1, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY),CURRENT_DATE()) as days_remaining
+    FROM profiles p
+    LEFT JOIN contract c ON p.contract_id=c.id
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE
+    p.deleted=0
+    AND ( c.type='pilot' )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  HAVING days_remaining >=0 AND days_remaining < 10
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
+  
+
+  
+commands << "--- CONTRACTS ENDING SOON"
 
 
 commands << "Contracts ending in the next 30 days:";
@@ -221,7 +279,7 @@ SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,I
 
 } else {
 
-  println "ERROR: unknown report type '$reportType'"
+  println "\nERROR: unknown report type '$reportType'\n"
   errorArgs();
   return;
 }
@@ -363,7 +421,7 @@ public static void simpleMail(String to,
 
     
 public static void errorArgs(){
-  println "ARGUMENTS:\n\treportType{client_notifications,urgent,periodic} [<email>]\n\t email format: 'first@mail.com,second@othermail.com'"  
+  println "ARGUMENTS:\n\treportType{client_notifications,urgent,sales} [<email>]\n\t email format: 'first@mail.com,second@othermail.com'"  
 }
     
     

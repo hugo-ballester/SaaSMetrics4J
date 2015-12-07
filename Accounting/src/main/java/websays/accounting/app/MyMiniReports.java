@@ -20,6 +20,10 @@ public class MyMiniReports extends BasicCommandLineApp {
   
   static BillingReportPrinter printer = new PrinterHTML();
   
+  public static void main(String[] args) throws Exception {
+    new MyMiniReports(args);
+  }
+  
   public MyMiniReports(String[] args) throws Exception {
     
     LocalDate c = (new LocalDate()).plusMonths(-8);

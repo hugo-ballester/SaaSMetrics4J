@@ -112,6 +112,11 @@ public class Contract {
   // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema at DAO time)
   public ArrayList<Commission> commission = new ArrayList<Commission>();
   
+  /**
+   * basic, gold, etc.
+   */
+  public String plan;
+  
   Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end,
       ArrayList<Commission> commission, String comments_billing) {
     super();

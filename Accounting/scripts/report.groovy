@@ -51,9 +51,11 @@ DATEDIFF( dataAccessEnd, end)  AS extra_days,
 dataAccessEnd AS end_A
 """;
  
-def FROM1 = """
-FROM contract c LEFT JOIN client cl ON c.client_id=cl.id 
-"""
+def FROM1 = """"
+FROM contract c LEFT JOIN client cl ON c.client_id=cl.id
+""""
+
+def TypeIsSubscriptionOrProject = " (c.type='subscription' OR c.type='project') "
 
 if (reportType=="client_notifications") {
   
@@ -145,7 +147,7 @@ commands << "Contracts with 0 MRR!"
 commands << """
 SELECT $cols1 
 $FROM1
-WHERE free=0 AND pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND (c.type='subscription' OR c.type='project')
+WHERE free=0 AND pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND $TypeIsSubscriptionOrProject
 """
 
 commands << "Profiles that are ACTIVE but DO NOT HAVE a contract:"
@@ -205,7 +207,7 @@ SELECT p.name AS profile, c.name AS contract, machineAlias AS machine FROM profi
 
   emailTitle = "[ACCOUNTING] SALES ACTIONS NEEDED";
 
-  commands << "--- PILOTS ENDED OR ENDING:"  
+  commands << "### PILOTS ENDED OR ENDING:"  
   
   commands << "Pilots ended already (WILL BE DISCONNECTED!)"
   commands << """
@@ -239,7 +241,7 @@ SELECT $cols1, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY),CUR
   
 
   
-commands << "--- CONTRACTS ENDING SOON"
+commands << "### SUBSCRIPTIONS ENDING SOON"
 
 
 commands << "Contracts ending in the next 30 days:";
@@ -260,6 +262,8 @@ WHERE
 ORDER BY c.type DESC, client_name;"""
 
 
+commands << "### Active Contracts:";
+
 commands << "Active Pilots:";
 commands << """
 SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
@@ -274,6 +278,20 @@ SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,I
   ORDER BY days_remaining, c.sales_person, c.name;
 """
 
+
+commands << "Active Subscriptions and Projects:";
+commands << """
+SELECT  $cols1, pilot_length AS pilot_length, DATEDIFF( DATE_ADD(c.pilot_start,INTERVAL c.pilot_length DAY) , CURRENT_DATE()) days_remaining, COUNT(c.id) AS '#profiles', GROUP_CONCAT(profile_id, ':', p.name) AS profiles 
+  FROM profiles p 
+    LEFT JOIN contract c ON p.contract_id=c.id 
+    LEFT JOIN client cl ON c.client_id=cl.id
+  WHERE 
+    p.deleted=0
+    AND ( $TypeIsSubscriptionOrProject )
+    AND ( c.confirmedClosed IS NULL )
+  GROUP BY c.id
+  ORDER BY days_remaining, c.sales_person, c.name;
+"""
 
 
 
@@ -297,7 +315,7 @@ msg="";
 none = "";
 def i =0;
 while (i<commands.size()) {
-      if (commands[i].startsWith("---")) {
+      if (commands[i].startsWith("###")) {
       msg += "\n\n\n<h2>"+commands[i].substring(3)+"</h2>\n\n";
       i++;
 } else {

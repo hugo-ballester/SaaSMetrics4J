@@ -13,6 +13,7 @@ import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Reporting;
+import websays.accounting.app.AgencyBilling;
 import websays.accounting.app.BasicCommandLineApp;
 
 public class MyMonthlyBillingReport extends BasicCommandLineApp {
@@ -68,6 +69,9 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
                 + app.displayContracts(begOfMonth, AccountFilter.AUTORENEW, false, contracts)
                 + app.displayContracts(begOfMonth, AccountFilter.CHANGED, false, contracts)//
             ), connectToDB));
+    
+    System.out.println(app.printer.box1("Special Agency Billing", //
+        connectToDB ? AgencyBilling.agencyBillingReport(endOfM.toDate()) : "CANT DO IF NOT CONNECTED TO DB", connectToDB));
     
     System.out.println(//
         app.printer.box1("MRRs per Client",//

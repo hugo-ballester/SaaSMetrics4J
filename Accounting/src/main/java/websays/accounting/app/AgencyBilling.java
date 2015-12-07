@@ -42,43 +42,53 @@ public class AgencyBilling {
   }
   
   public static String agencyBillingReport(Date reportDate) throws SQLException {
-    Connection con = DatabaseManager.getConnection();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    String date = "DATE('" + sdf.format(reportDate) + "')";
-    String cmdA = "" + //
-        "CREATE TEMPORARY TABLE active_contracts (" + //
-        "  SELECT * FROM contract c WHERE " + //
-        "    (c.start <= DATE_FORMAT(" + date + ", '%Y-%m-01'))" + //
-        "    AND " + "(end IS NULL OR c.end >= DATE_FORMAT(DATE_ADD(" + date + ",INTERVAL 1 MONTH)  ,'%Y-%m-01') ) " + //
-        ")";
-    
-    String cmdB = "" + "CREATE TEMPORARY TABLE active_agency (" + //
-        "SELECT cl.name AS Client,c.name AS Contract,COUNT(*) AS profiles, 200+50*(COUNT(*)-1) AS MRR " + //
-        "FROM profiles p  " + //
-        "LEFT JOIN active_contracts c ON p.contract_id=c.id " + //
-        "LEFT JOIN client cl ON c.client_id=cl.id " + //
-        "WHERE  " + //
-        "  p.deleted=0 " + //
-        "  AND (c.type='subscription' OR c.type='project') " + //
-        "  AND ( c.confirmedClosed IS NULL ) " + //
-        "  AND  (cl.name LIKE '%Tinkle%' OR cl.name LIKE '%Shac%'  OR cl.name LIKE '%Walk%' ) " + //
-        "  AND  c.name NOT LIKE '%Presale%'  " + //
-        "GROUP BY c.name " + //
-        "ORDER BY cl.name, c.name, profiles DESC " + //
-        ")";
-    
-    String cmd1 = "SELECT * FROM active_agency";
-    
-    String cmd2 = "" + //
-        "SELECT mrr.Client, SUM(mrr.profiles) AS profiles, SUM(mrr.MRR) AS MRR FROM " + //
-        "  active_agency " + //
-        " AS mrr GROUP BY mrr.Client";
-    
-    // System.out.println("\n" + cmdA + "\n" + cmdB + "\n" + cmd1 + "\n" + cmd2 + "\n");
-    execute(cmdA, con);
-    execute(cmdB, con);
-    String ret = "<h4>Total per Agency:</h4>" + printResults(cmd2, con) + "<h4>Detail of each agency:</h4>" + printResults(cmd1, con);
-    return ret;
+    Connection con = null;
+    try {
+      con = DatabaseManager.getConnection();
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+      String date = "DATE('" + sdf.format(reportDate) + "')";
+      String cmdA = "" + //
+          "CREATE TEMPORARY TABLE active_contracts (" + //
+          "  SELECT * FROM contract c WHERE " + //
+          "    (c.start <= DATE_FORMAT(" + date + ", '%Y-%m-01'))" + //
+          "    AND " + "(end IS NULL OR c.end >= DATE_FORMAT(DATE_ADD(" + date + ",INTERVAL 1 MONTH)  ,'%Y-%m-01') ) " + //
+          ")";
+      
+      String cmdB = "" + "CREATE TEMPORARY TABLE active_agency (" + //
+          "SELECT cl.name AS Client,c.name AS Contract,COUNT(*) AS profiles, 200+50*(COUNT(*)-1) AS MRR " + //
+          "FROM profiles p  " + //
+          "LEFT JOIN active_contracts c ON p.contract_id=c.id " + //
+          "LEFT JOIN client cl ON c.client_id=cl.id " + //
+          "WHERE  " + //
+          "  p.deleted=0 " + //
+          "  AND (c.type='subscription' OR c.type='project') " + //
+          "  AND ( c.confirmedClosed IS NULL ) " + //
+          "  AND  (cl.name LIKE '%Tinkle%' OR cl.name LIKE '%Shac%'  OR cl.name LIKE '%Walk%' ) " + //
+          "  AND  c.name NOT LIKE '%Presale%'  " + //
+          "GROUP BY c.name " + //
+          "ORDER BY cl.name, c.name, profiles DESC " + //
+          ")";
+      
+      String cmd1 = "SELECT * FROM active_agency";
+      
+      String cmd2 = "" + //
+          "SELECT mrr.Client, SUM(mrr.profiles) AS profiles, SUM(mrr.MRR) AS MRR FROM " + //
+          "  active_agency " + //
+          " AS mrr GROUP BY mrr.Client";
+      
+      // System.out.println("\n" + cmdA + "\n" + cmdB + "\n" + cmd1 + "\n" + cmd2 + "\n");
+      execute(cmdA, con);
+      execute(cmdB, con);
+      String ret = "<h4>Total per Agency:</h4>" + printResults(cmd2, con) + "<h4>Detail of each agency:</h4>" + printResults(cmd1, con);
+      return ret;
+    } catch (SQLException e) {
+      logger.error("MYSQL QUERY ERROR");
+      throw (e);
+    } finally {
+      if (con != null) {
+        con.close();
+      }
+    }
   }
   
   private static void execute(String cmd0, Connection con) throws SQLException {

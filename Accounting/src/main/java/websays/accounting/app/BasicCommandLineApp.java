@@ -24,8 +24,8 @@ import websays.accounting.Contracts;
 import websays.accounting.GlobalConstants;
 import websays.accounting.connectors.ContractDAO;
 import websays.accounting.connectors.DatabaseManager;
-import websays.utils.mail.MailConfiguration;
-import websays.utils.mail.SendMailUsingAuthentication;
+import websays.core.utils.MailConfiguration;
+import websays.core.utils.SendMailUsingAuthentication;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;

@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 
 import websays.accounting.GlobalConstants;
 import websays.accounting.connectors.DatabaseManager;
-import websays.utils.html.HTMLTables;
+import websays.core.utils.HTMLTables;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;

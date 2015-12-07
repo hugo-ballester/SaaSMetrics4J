@@ -60,11 +60,6 @@ Maven is only used to run locally in Eclipse... should move all to gradle eventu
   
   <dependencies>
   
-    <dependency>
-	  	<groupId>websays</groupId>
-	  	<artifactId>websays-utils</artifactId>
-	  	<version>1.0.0</version>
-    </dependency>
   
                 
    <dependency>

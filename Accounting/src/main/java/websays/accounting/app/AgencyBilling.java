@@ -77,6 +77,8 @@ public class AgencyBilling {
           " AS mrr GROUP BY mrr.Client";
       
       // System.out.println("\n" + cmdA + "\n" + cmdB + "\n" + cmd1 + "\n" + cmd2 + "\n");
+      execute("DROP TABLE IF EXISTS active_contracts", con);
+      execute("DROP TABLE IF EXISTS active_agency", con);
       execute(cmdA, con);
       execute(cmdB, con);
       String ret = "<h4>Total per Agency:</h4>" + printResults(cmd2, con) + "<h4>Detail of each agency:</h4>" + printResults(cmd1, con);

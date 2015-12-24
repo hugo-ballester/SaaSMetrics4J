@@ -42,17 +42,15 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
-    int[] billingYears = new int[] {2016, 2015};
-    int metricStarYear = 2014;
-    int metricMonths = 12 * 4;
-    (new MyHTMLReport()).execute_HTML(billingYears, metricStarYear, metricMonths);
+    int[] billingYears = new int[] {2016, 2015, 2014};
+    (new MyHTMLReport()).execute_HTML(billingYears, billingYears);
     
     System.setOut(oldOut);
     
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : END");
   }
   
-  public void execute_HTML(int[] billingYears, int yearStart, int months) throws Exception {
+  public void execute_HTML(int[] billingYears, int[] metricsyears) throws Exception {
     
     if (reportingHTMLDir == null) {
       System.out.println("You need to define parameter reportingHtmlDir in properties file");
@@ -69,6 +67,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
     File metricsFile = new File(htmlDir, "metrics.tsv");
+    int yearStart = metricsyears[0];
+    int months = (metricsyears[metricsyears.length - 1] - yearStart + 1) * 12;
     displayMetrics(app, yearStart, months, metricsFile, contracts);
     String metricChanges = metricChangesPerMonth(yearStart, months, htmlDir, app, contracts);
     

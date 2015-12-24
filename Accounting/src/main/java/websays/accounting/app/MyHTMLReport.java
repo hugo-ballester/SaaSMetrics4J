@@ -44,7 +44,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     int[] years = new int[] {2015, 2014, 2013, 2012};
     int metricStarYear = 2013;
-    int metricMonths = 12 * 3;
+    int metricMonths = 12 * 4;
     (new MyHTMLReport()).execute_HTML(years, metricStarYear, metricMonths);
     
     System.setOut(oldOut);

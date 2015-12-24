@@ -50,6 +50,13 @@ public class MyHTMLReport extends BasicCommandLineApp {
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : END");
   }
   
+  /**
+   * @param billingYears
+   *          : should be a sequence of decreasing year numbers: { 2016, 2015, etc.}
+   * @param metricsyears
+   *          : should be a sequence of decreasing year numbers: { 2016, 2015, etc.}
+   * @throws Exception
+   */
   public void execute_HTML(int[] billingYears, int[] metricsyears) throws Exception {
     
     if (reportingHTMLDir == null) {
@@ -67,8 +74,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
     setOutput(new File(htmlDir, "metrics.html"));
     System.out.println("<html><body><pre>\n");
     File metricsFile = new File(htmlDir, "metrics.tsv");
-    int yearStart = metricsyears[0];
-    int months = (metricsyears[metricsyears.length - 1] - yearStart + 1) * 12;
+    int yearStart = metricsyears[metricsyears.length - 1];
+    int months = Math.abs((metricsyears[0] - yearStart + 1) * 12);
     displayMetrics(app, yearStart, months, metricsFile, contracts);
     String metricChanges = metricChangesPerMonth(yearStart, months, htmlDir, app, contracts);
     

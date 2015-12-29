@@ -168,7 +168,7 @@ public class PrinterHTML extends BillingReportPrinter {
   @Override
   public String title(String string, boolean connectToDB) {
     String db = connectToDB ? "" : "  <i>(!OFFLINE)</i>";
-    String msg = "<hl/><h2>a name=\"" + string + "\" id=\"" + string + "\">" + string + db + "</a></h2>";
+    String msg = "<hl/><h2><a name=\"" + string + "\" id=\"" + string + "\">" + string + db + "</a></h2>";
     return msg;
   }
   

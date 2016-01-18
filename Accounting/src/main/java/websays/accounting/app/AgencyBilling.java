@@ -50,8 +50,10 @@ public class AgencyBilling {
       String cmdA = "" + //
           "CREATE TEMPORARY TABLE active_contracts (" + //
           "  SELECT * FROM contract c WHERE " + //
-          "    (c.start <= DATE_FORMAT(" + date + ", '%Y-%m-01'))" + //
-          "    AND " + "(end IS NULL OR c.end >= DATE_FORMAT(DATE_ADD(" + date + ",INTERVAL 1 MONTH)  ,'%Y-%m-01') ) " + //
+          "    (c.start <= DATE_FORMAT(" + date + ", '%Y-%m-%d'))" + //
+          // OLD LINE (added 1 month not sure why: "    AND " + "(end IS NULL OR c.end >= DATE_FORMAT(DATE_ADD(" + date +
+          // ",INTERVAL 1 MONTH)  ,'%Y-%m-01') ) " + //
+          "    AND (c.end IS NULL OR (c.end >= DATE_FORMAT(" + date + ", '%Y-%m-%d')))" + //
           ")";
       
       String cmdB = "" + "CREATE TEMPORARY TABLE active_agency (" + //
@@ -79,6 +81,9 @@ public class AgencyBilling {
       // System.out.println("\n" + cmdA + "\n" + cmdB + "\n" + cmd1 + "\n" + cmd2 + "\n");
       execute("DROP TABLE IF EXISTS active_contracts", con);
       execute("DROP TABLE IF EXISTS active_agency", con);
+      
+      logger.debug("agencyBillingReport cmdA\n" + cmdA);
+      logger.debug("agencyBillingReport cmdB\n" + cmdB);
       execute(cmdA, con);
       execute(cmdB, con);
       String ret = "<h4>Total per Agency:</h4>" + printResults(cmd2, con) + "<h4>Detail of each agency:</h4>" + printResults(cmd1, con);

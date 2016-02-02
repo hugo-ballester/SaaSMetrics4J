@@ -318,14 +318,13 @@ public class Reporting {
         String debug = "\n==============================\n"//
             + "YEAR-MONTH: " + year + "-" + month + "\n" //
             + "OLD MRR: " + old.mrr + "\n" //
-            + "NEW MRR Exp Churn New Tot= " + m.expansion + " - " + m.churn + " + " + m.mrrNew + " = " + dif + "\n"//
-            + "FINAL MRR: " + m.mrr + "  -  " + old.mrr + "=" + (m.mrr - old.mrr)//
+            + "MRR Exp-Churn+New = dif:\t" + m.expansion + " - " + m.churn + " + " + m.mrrNew + " = " + dif + "\n"//
+            + "MRR final - old = dif:\t" + m.mrr + "  -  " + old.mrr + "=" + (m.mrr - old.mrr)//
             + "\n==============================";
         logger.debug(debug);
-        if (Math.abs(old.mrr + m.expansion + m.mrrNew - m.churn - m.mrr) > 0.001) {
-          logger.error("INCONSISTENT MRR!!! " + debug);
+        if (Math.abs(m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) > 0.001) {
+          logger.error("INCONSISTENT MRR!!! dif=" + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) + debug);
         }
-        
       }
       
       m.setOldValues(old);

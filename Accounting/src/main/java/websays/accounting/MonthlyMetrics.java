@@ -116,8 +116,8 @@ public class MonthlyMetrics {
     
     accounts.sort(websays.accounting.Contracts.SortType.contract);
     
-    String debug = String.format("%5s%20s\t%s\t%s\t%s\t%s\t%s\t%s\n", //
-        "id", "name", "profs", "Sprofs", "mrr", "Smrr", "new", "churn");
+    String debug = String.format("%5s%20s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", //
+        "id", "name", "profs", "Sprofs", "mrr", "Smrr", "new", "churn", "expansion");
     
     for (Contract a : accounts) {
       
@@ -138,8 +138,8 @@ public class MonthlyMetrics {
         m.accsEnd++;
         m.churn += mrr;
         if (logger.isDebugEnabled()) {
-          debug += String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", //
-              a.id, a.name, a.profiles, 0., -mrr, 0., 0., m.churn);
+          debug += String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", //
+              a.id, a.name, a.profiles, 0., -mrr, 0., 0., m.churn, m.expansion);
         }
       }
       
@@ -157,8 +157,8 @@ public class MonthlyMetrics {
       m.expansion += Metrics.expansion(a, lastDayOfMonth);
       
       if (logger.isDebugEnabled()) {
-        debug += (String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", a.id, a.name, a.profiles, m.profilesSt.sum(), mrr,
-            m.mrrSt.sum(), m.mrrNew, m.churn));
+        debug += (String.format("%5d%20s\t%d\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\t%6.0f\n", a.id, a.name, a.profiles, m.profilesSt.sum(),
+            mrr, m.mrrSt.sum(), m.mrrNew, m.churn, m.expansion));
       }
     }
     m.mrr = m.mrrSt.sum();

@@ -323,7 +323,11 @@ public class Reporting {
             + "\n==============================";
         logger.debug(debug);
         if (Math.abs(m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) > 0.001) {
-          logger.error("INCONSISTENT MRR!!! dif=" + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) + debug);
+          logger.error("INCONSISTENT MRR!!! dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn))
+              + debug);
+        } else {
+          logger.debug("CONSISTENT MRR      dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn))
+              + debug);
         }
       }
       

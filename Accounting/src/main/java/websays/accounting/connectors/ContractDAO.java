@@ -134,6 +134,9 @@ public class ContractDAO extends MySQLDAO {
         Pricing pr = new Pricing(r[0]);
         for (int i = 1; i < r.length; i += 2) {
           LocalDate d = new LocalDate(df.parseLocalDate(r[i])); // TODO: do not parse to Date pr.add(d, Double.parseDouble(r[i + 1]));
+          if (d.getDayOfMonth() != 1) {
+            logger.error("PRICING STARTS ON A DATE DIFFERENT FORM THE 1st OF THE MONTH: " + d.toString());
+          }
           double mrr = Double.parseDouble(r[i + 1]);
           pr.add(d, mrr);
         }

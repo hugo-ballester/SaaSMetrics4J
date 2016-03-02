@@ -14,7 +14,8 @@ public class ContractFactory {
   
   private static final Logger logger = Logger.getLogger(ContractFactory.class);
   
-  public synchronized static List<Commission> commissionFromSchema(double fix, String schema, Double commission_base, String commissionnee) {
+  public synchronized static List<Commission> commissionFromSchema(double fix, String schema, Double commission_base, String commissionnee)
+      throws Exception {
     if (schema == null) {
       return null;
     }
@@ -42,7 +43,7 @@ public class ContractFactory {
     
     else {
       logger.error("ERROR: unknown commission type [" + schema + "]");
-      return null;
+      throw new Exception("ERROR: unknown commission type [" + schema + "]");
     }
     return ret;
   }

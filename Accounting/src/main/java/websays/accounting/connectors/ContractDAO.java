@@ -179,7 +179,7 @@ public class ContractDAO extends MySQLDAO {
     }
   }
   
-  public Contracts getAccounts(AccountFilter filter, boolean getNumberOfProfiles) throws SQLException {
+  public Contracts getAccounts(AccountFilter filter, boolean getNumberOfProfiles) throws Exception {
     Contracts accs = new Contracts();
     String st = "SELECT " + COLUMNS_READ + " FROM " + tableName;
     if (filter != null) {
@@ -202,8 +202,8 @@ public class ContractDAO extends MySQLDAO {
           }
         }
       }
-    } catch (SQLException e) {
-      logger.error("MYSQL QUERY ERROR ON: " + p.toString());
+    } catch (Exception e) {
+      logger.error("EXCEPTION READING DB ROW: [" + p.toString() + "]", e);
       throw (e);
       
     } finally {
@@ -215,7 +215,7 @@ public class ContractDAO extends MySQLDAO {
     return accs;
   }
   
-  private Contract readFromResulset(ResultSet rs) {
+  private Contract readFromResulset(ResultSet rs) throws Exception {
     Integer id = null;
     try {
       
@@ -302,14 +302,8 @@ public class ContractDAO extends MySQLDAO {
       
       return a;
     } catch (Exception e) {
-      String msg = null;
-      if (id != null) {
-        msg = "ERROR reading contract id=" + id + " (skipping)";
-        logger.error(msg, e);
-      } else {
-        logger.error(msg, e);
-      }
-      return null;
+      String msg = "ERROR reading contract id=" + ((id != null) ? id : "null");
+      throw new Exception(msg);
     }
     
   }

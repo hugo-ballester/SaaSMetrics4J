@@ -14,18 +14,23 @@ public class ContractFactory {
   
   private static final Logger logger = Logger.getLogger(ContractFactory.class);
   
-  public synchronized static List<Commission> commissionFromSchema(String schema, Double commission_base, String commissionnee) {
+  public synchronized static List<Commission> commissionFromSchema(double fix, String schema, Double commission_base, String commissionnee) {
     if (schema == null) {
       return null;
     }
     ArrayList<Commission> ret = new ArrayList<Commission>();
     Double pct = null;
+    
+    // Basic C_x% : a fixed x%
     if (schema.startsWith("C_")) {
       Integer i = Integer.parseInt(schema.substring(2));
       pct = 1.0 * i / 100.0;
       Commission com = new Commission(pct, commission_base, GlobalConstants.COMMMISSION_MONTHS, commissionnee);
       ret.add(com);
-    } else if (schema.equals("UK1")) {
+    }
+    
+    // UK 2015: Viqui .3, Oscar .2
+    else if (schema.equals("UK1")) {
       if (commissionnee != null) {
         logger.warn("UK1 schema should not have commissionee! ignoring: " + commissionnee);
       }
@@ -33,7 +38,9 @@ public class ContractFactory {
       Commission com2 = new Commission(.3, commission_base, GlobalConstants.COMMMISSION_MONTHS, "VC");
       ret.add(com1);
       ret.add(com2);
-    } else {
+    }
+    
+    else {
       logger.error("ERROR: unknown commission type [" + schema + "]");
       return null;
     }

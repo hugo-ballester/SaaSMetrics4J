@@ -21,6 +21,8 @@ public class Commission {
   public Double commission_base;
   
   /**
+   * (Convert all to EUROS, Comission does not have currency)
+   * 
    * @param pct
    *          [0-1] commission
    * @param commission_base
@@ -37,7 +39,12 @@ public class Commission {
   public Commission() {};
   
   public double computeCommission(double fee, int month) {
-    double commBase = fee * pct;
+    double commBase = 0;
+    if (commission_base != null) {
+      commBase = commission_base * pct;
+    } else {
+      commBase = fee * pct;
+    }
     if (month > commission_months) {
       commBase *= GlobalConstants.COMMMISSION_REMAINING;
     }

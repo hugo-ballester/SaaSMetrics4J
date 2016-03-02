@@ -35,6 +35,7 @@ import websays.accounting.ContractFactory;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Pricing;
+import websays.core.utils.CurrencyUtils;
 
 public class ContractDAO extends MySQLDAO {
   
@@ -154,7 +155,7 @@ public class ContractDAO extends MySQLDAO {
   
   public int getNumberOfProfiles(int contractId) throws SQLException {
     
-    String st = "SELECT COUNT(profile_id) FROM profiles WHERE contract_id=" + contractId + " GROUP BY profile_id";
+    String st = "SELECT COUNT(profile_id) FROM profiles WHERE contract_id=" + contractId + " GROUP BY contract_id";
     
     PreparedStatement p = null;
     Connection connection = null;
@@ -241,8 +242,7 @@ public class ContractDAO extends MySQLDAO {
       Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
       
       Boolean free = rs.getBoolean(column++);
-      
-      Double fix = rs.getDouble(column++); // casting to get the null
+      Double fix = rs.getDouble(column++);
       String pricing = rs.getString(column++);
       Integer client_id = rs.getInt(column++);
       String client_name = rs.getString(column++);
@@ -250,7 +250,10 @@ public class ContractDAO extends MySQLDAO {
       String client_type = rs.getString(column++);
       
       BigDecimal bd = (BigDecimal) rs.getObject(column++);
-      Double cmb = bd == null ? null : bd.doubleValue(); // casting to get the null
+      Double cmb = null;
+      if (bd != null) {
+        cmb = CurrencyUtils.toEuros(bd.doubleValue(), Currency.getInstance(currency));
+      }
       String commissionee = rs.getString(column++);
       String commisionLabel = rs.getString(column++);
       String commissionee2 = rs.getString(column++);
@@ -260,11 +263,11 @@ public class ContractDAO extends MySQLDAO {
       
       ArrayList<Commission> comms = new ArrayList<Commission>();
       if (commisionLabel != null) {
-        List<Commission> comm = ContractFactory.commissionFromSchema(commisionLabel, cmb, commissionee);
+        List<Commission> comm = ContractFactory.commissionFromSchema(fix, commisionLabel, cmb, commissionee);
         comms.addAll(comm);
       }
       if (commisionLabel2 != null) {
-        List<Commission> comm = ContractFactory.commissionFromSchema(commisionLabel2, null, commissionee2);
+        List<Commission> comm = ContractFactory.commissionFromSchema(fix, commisionLabel2, null, commissionee2);
         comms.addAll(comm);
       }
       

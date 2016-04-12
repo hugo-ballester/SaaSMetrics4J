@@ -421,11 +421,12 @@ public class Reporting {
     StringBuffer ret = new StringBuffer();
     DefaultedMap<String,Double> mapMonth = new DefaultedMap<String,Double>(0.0);
     DefaultedMap<String,Double> mapYear = new DefaultedMap<String,Double>(0.0);
+    DefaultedMap<String,Double> mapMonthBilled = new DefaultedMap<String,Double>(0.0);
+    DefaultedMap<String,Double> mapYearBilled = new DefaultedMap<String,Double>(0.0);
     ArrayList<String> rows = new ArrayList<String>(); // to keep them in order for the rows
     
     for (int month = 1; month <= 12; month++) {
       mapMonth.clear();
-      
       ArrayList<Bill> bs = Billing.bill(contracts, year, month);
       
       for (Bill b : bs) {
@@ -434,12 +435,16 @@ public class Reporting {
             if (c.commissionnee != null) {
               mapMonth.put(c.commissionnee, mapMonth.get(c.commissionnee) + c.commission);
               mapYear.put(c.commissionnee, mapYear.get(c.commissionnee) + c.commission);
-              
+              if (c.commission > 0) {
+                mapMonthBilled.put(c.commissionnee, mapMonthBilled.get(c.commissionnee) + c.bi.getFee());
+                mapYearBilled.put(c.commissionnee, mapYearBilled.get(c.commissionnee) + c.bi.getFee());
+              }
             }
           }
         }
       }
       
+      // Print Commissions
       ArrayList<String> row = new ArrayList<String>(names.length + 5);
       row.add(month + "/" + year);
       double tot = 0;
@@ -457,11 +462,23 @@ public class Reporting {
     
     ret.append(StringUtils.join(rows, "\n"));
     
+    // Total Column on the right
     ret.append("\n");
-    ret.append(String.format("\n%10s", "TOTAL"));
+    ret.append(String.format("\n%10s", "TOTAL (comms.)"));
     double total = 0;
     for (String s : names) {
       Double c = mapYear.get(s);
+      total += c;
+      ret.append(String.format("\t%10s", PrinterHTML.euros(c)));
+    }
+    ret.append(String.format("\t%10s", PrinterHTML.euros(total)));
+    
+    // Total Billed
+    ret.append("\n");
+    ret.append(String.format("\n%10s", "TOTAL (billed)"));
+    total = 0;
+    for (String s : names) {
+      Double c = mapYearBilled.get(s);
       total += c;
       ret.append(String.format("\t%10s", PrinterHTML.euros(c)));
     }

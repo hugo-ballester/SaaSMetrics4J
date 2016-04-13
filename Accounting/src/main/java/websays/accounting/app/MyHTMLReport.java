@@ -130,7 +130,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     for (int year : billingYears) {
       content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
       ContractMonthlyReport cmr = new ContractMonthlyReport();
-      content += cmr.allContractReport(contracts, billingYears);
+      content += cmr.allContractReport(contracts, year);
     }
     FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     

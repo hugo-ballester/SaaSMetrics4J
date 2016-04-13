@@ -176,8 +176,12 @@ public class BasicCommandLineApp {
   
   public Contracts initContracts() throws Exception {
     
-    // String pricingFile = ContractDAO.getPricingFileFromFile(props.getProperty("pricingFile"));
-    String pricingFile = ContractDAO.getPriceFileFromDB();
+    String pricingFile = "";
+    if (connectToDB) {
+      pricingFile = ContractDAO.getPriceFileFromDB();
+    } else {
+      logger.warn("NOT LOADING PRICING FILE IN OFFLINE MODE!");
+    }
     
     Contracts con = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile);
     

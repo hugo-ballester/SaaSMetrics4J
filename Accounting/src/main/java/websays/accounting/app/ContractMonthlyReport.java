@@ -7,16 +7,23 @@ package websays.accounting.app;
 
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.TreeSet;
 
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 
+import websays.accounting.Bill;
+import websays.accounting.Billing;
 import websays.accounting.BillingReportPrinter;
 import websays.accounting.Contract;
 import websays.accounting.Contracts;
 import websays.accounting.PrinterHTML;
 import websays.accounting.Reporting;
+import websays.core.utils.CurrencyUtils;
 
 public class ContractMonthlyReport extends BasicCommandLineApp {
   
@@ -29,28 +36,27 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     sb.append("<head><meta charset=\"UTF-8\"></head>");
     
     init(args);
-    if (contractID == null) {
-      System.err.println("ERROR You much define --contract contractID");
-      return;
-    }
-    
     ContractMonthlyReport cmr = new ContractMonthlyReport();
     sb.append(cmr.report(contractID));
     System.out.println(sb.toString());
+    
   }
   
-  String report(int contractID) throws Exception {
-    
+  public String report(Integer contractID) throws Exception {
     Contracts contracts = initContracts();
-    Contract c = contracts.getContract(contractID);
-    if (c == null) {
-      return "ERROR: NO CONTRACT FOUND WITH contractID=" + contractID;
+    if (contractID != null) {
+      Contract c = contracts.getContract(contractID);
+      if (c == null) {
+        return "ERROR: NO CONTRACT FOUND WITH contractID=" + contractID;
+      }
+      return oneContractReport(c);
+    } else {
+      return allContractReport(contracts, new int[] {2015, 2016});
     }
     
-    return report(c);
   }
   
-  String report(Contract c) throws ParseException, SQLException {
+  String oneContractReport(Contract c) throws ParseException, SQLException {
     LocalDate cS = c.startContract;
     int months = 12;
     if (c.endContract != null) {
@@ -64,6 +70,69 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       ret += "... and continues forever ...\n";
     }
     return ret;
+  }
+  
+  public String allContractReport(Contracts contracts, int[] years) throws ParseException, SQLException {
+    TreeSet<String> clients = new TreeSet<String>();
+    ArrayList<HashMap<String,Double>> billed = new ArrayList<HashMap<String,Double>>();
+    StringBuffer sb = new StringBuffer();
+    for (int year : years) {
+      sb.append("\n\n### " + year + "\n");
+      for (int i = 1; i <= 12; i++) {
+        HashMap<String,Double> map = allContractReport(contracts, year, i);
+        billed.add(map);
+        clients.addAll(map.keySet());
+      }
+      
+      sb.append(String.format("\n\n%20s\t", "CLIENT"));
+      ArrayList<Double> totCols = new ArrayList<Double>();
+      for (int i = 0; i <= 11; i++) {
+        sb.append(String.format("%9d\t", i + 1));
+        totCols.add(0.0);
+      }
+      sb.append(String.format("%9s\n", "Tot"));
+      
+      for (String s : clients) {
+        sb.append(String.format("%20s\t", s));
+        Double totRow = 0.0;
+        for (int i = 0; i <= 11; i++) {
+          Double d = billed.get(i).get(s);
+          d = d == null ? 0.0 : d;
+          totRow += d;
+          totCols.set(i, totCols.get(i) + d);
+          sb.append(String.format("%9.2f\t", d));
+        }
+        sb.append(String.format("%9.2f\n", totRow != null ? totRow : 0.0));
+      }
+      
+      sb.append(String.format("\n\n%20s\t", "Total"));
+      double tott = 0.0;
+      for (int i = 0; i <= 11; i++) {
+        tott += totCols.get(i);
+        sb.append(String.format("%9.2f\t", totCols.get(i)));
+      }
+      sb.append(String.format("%9.2f\n", tott));
+      
+    }
+    return sb.toString();
+  }
+  
+  HashMap<String,Double> allContractReport(Contracts contracts, int year, int month) throws ParseException, SQLException {
+    HashMap<String,Double> map = new LinkedHashMap<String,Double>();
+    
+    ArrayList<Bill> bs = Billing.bill(contracts, year, month);
+    for (Bill b : bs) {
+      String key = b.clientName;
+      Double fee = b.getTotalFee();
+      if (!b.currency.equals(CurrencyUtils.EUR)) {
+        fee = CurrencyUtils.convert(fee, b.currency, CurrencyUtils.EUR);
+      }
+      Double tot = map.get(key);
+      tot = (tot == null ? 0 : tot) + fee;
+      map.put(key, tot);
+      
+    }
+    return map;
   }
   
   /**

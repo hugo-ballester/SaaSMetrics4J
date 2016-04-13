@@ -116,10 +116,21 @@ public class MyHTMLReport extends BasicCommandLineApp {
     lastTitle = "Commissions";
     indexFile.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
     content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
-    String[] commssionnees = contracts.getCommissionnees();
+    String[] commssionees = contracts.getCommissionnees();
     for (int year : billingYears) {
       content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
-      content += Reporting.report_comm(year, commssionnees, contracts);
+      content += Reporting.report_comm(year, commssionees, contracts);
+    }
+    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+    
+    // == Client Monthly Report
+    lastTitle = "Client Monthly";
+    indexFile.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
+    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
+    for (int year : billingYears) {
+      content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
+      ContractMonthlyReport cmr = new ContractMonthlyReport();
+      content += cmr.allContractReport(contracts, billingYears);
     }
     FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     

@@ -99,6 +99,9 @@ public class BasicCommandLineApp {
     
     if (config.contains("year")) {
       fixYear = config.getInt("year");
+    }
+    
+    if (config.contains("month")) {
       fixMonth = config.getInt("month");
     }
     

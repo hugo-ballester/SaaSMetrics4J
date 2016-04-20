@@ -42,7 +42,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
     PrintStream oldOut = System.out;
     init(args);
     
-    int[] billingYears = new int[] {2016, 2015, 2014};
+    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
     (new MyHTMLReport()).execute_HTML(billingYears, billingYears);
     
     System.setOut(oldOut);

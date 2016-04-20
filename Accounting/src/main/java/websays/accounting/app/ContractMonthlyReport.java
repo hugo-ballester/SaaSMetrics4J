@@ -39,12 +39,15 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     
     init(args);
     ContractMonthlyReport cmr = new ContractMonthlyReport();
-    sb.append(cmr.report(contractID));
+    sb.append(cmr.report(contractID, fixYear));
     System.out.println(sb.toString());
     
   }
   
-  public String report(Integer contractID) throws Exception {
+  public String report(Integer contractID, Integer year) throws Exception {
+    if (year == null) {
+      year = Calendar.getInstance().get(Calendar.YEAR);
+    }
     Contracts contracts = initContracts();
     if (contractID != null) {
       Contract c = contracts.getContract(contractID);
@@ -53,7 +56,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       }
       return oneContractReport(c);
     } else {
-      return allContractReport(contracts, 2016);
+      return allContractReport(contracts, year);
     }
     
   }

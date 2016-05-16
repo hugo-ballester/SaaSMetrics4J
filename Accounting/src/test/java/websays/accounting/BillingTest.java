@@ -22,14 +22,25 @@ import websays.accounting.Contract.Type;
 public class BillingTest {
   
   private static final double delta = 0.0001;
+  private Double[] coms2, coms1;
+  private Integer months;
+  
+  private ArrayList<Commission> testComms() {
+    months = 3;
+    coms2 = new Double[] {0.01, 0.02};
+    coms1 = new Double[] {0.1, 0.2};
+    ArrayList<Commission> lis;
+    lis = new ArrayList<Commission>();
+    lis.add(new Commission(coms1[0], coms2[0], months, null, "MrX"));
+    lis.add(new Commission(coms1[1], coms2[1], months, null, "MrY"));
+    return lis;
+  }
   
   @Test
   public void full() {
     LocalDate dateStart = new LocalDate(2010, 3, 29);
     LocalDate dateEnd = dateStart.plusMonths(4).minusDays(1);
-    ArrayList<Commission> lis = new ArrayList<Commission>();
-    lis.add(new Commission(.1, null, 3, "MrX"));
-    lis.add(new Commission(.2, null, 3, "MrY"));
+    ArrayList<Commission> lis = testComms();
     BillingSchema billing = BillingSchema.MONTHS_12;
     
     // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
@@ -69,9 +80,8 @@ public class BillingTest {
   public void PartilaMonthWithMultiMmonthBill() {
     LocalDate dateStart = new LocalDate(2010, 3, 29);
     LocalDate dateEnd = dateStart.plusMonths(5).minusDays(1);
-    ArrayList<Commission> lis = new ArrayList<Commission>();
-    lis.add(new Commission(.1, null, 3, "MrX"));
-    lis.add(new Commission(.2, null, 3, "MrY"));
+    ArrayList<Commission> lis = testComms();
+    
     BillingSchema billing = BillingSchema.MONTHS_3;
     
     // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
@@ -91,11 +101,14 @@ public class BillingTest {
     bi = Billing.bill(c, 2010, month);
     Assert.assertNotNull("M" + month, bi);
     Assert.assertEquals("M" + month, 2 * fee, bi.getFee(), 0.001);
-    double com1 = bi.getFee() * .1, com2 = bi.getFee() * .2;
+    
+    double pct1 = coms1[0], pct2 = coms1[1];
     if (month >= 6) {
-      com1 *= GlobalConstants.COMMMISSION_REMAINING;
-      com2 *= GlobalConstants.COMMMISSION_REMAINING;
+      pct1 = coms2[0];
+      pct2 = coms2[1];
     }
+    double com1 = bi.getFee() * pct1, com2 = bi.getFee() * pct2;
+    
     Assert.assertEquals("M" + month, com1, bi.commissions.get(0).commission, delta);
     Assert.assertEquals("M" + month, "MrX", bi.commissions.get(0).commissionnee);
     Assert.assertEquals("M" + month, com2, bi.commissions.get(1).commission, delta);
@@ -106,9 +119,7 @@ public class BillingTest {
   
   @Test
   public void testMonthSchedules() throws Exception {
-    ArrayList<Commission> lis = new ArrayList<Commission>();
-    lis.add(new Commission(.1, null, 3, "MrX"));
-    lis.add(new Commission(.2, null, 3, "MrY"));
+    ArrayList<Commission> lis = testComms();
     
     // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
     // BILLS . - . - [1 - 2 - 3 - 4 - 5] - . - .
@@ -137,11 +148,14 @@ public class BillingTest {
       } else if (month <= 7) {
         Assert.assertNotNull("M" + month, bi);
         Assert.assertEquals("M" + month, fee, bi.getFee(), 0.001);
-        double com1 = bi.getFee() * .1, com2 = bi.getFee() * .2;
+        
+        double pct1 = coms1[0], pct2 = coms1[1];
         if (month >= 6) {
-          com1 *= GlobalConstants.COMMMISSION_REMAINING;
-          com2 *= GlobalConstants.COMMMISSION_REMAINING;
+          pct1 = coms2[0];
+          pct2 = coms2[1];
         }
+        double com1 = bi.getFee() * pct1, com2 = bi.getFee() * pct2;
+        
         Assert.assertEquals("M" + month, com1, bi.commissions.get(0).commission, delta);
         Assert.assertEquals("M" + month, "MrX", bi.commissions.get(0).commissionnee);
         Assert.assertEquals("M" + month, com2, bi.commissions.get(1).commission, delta);

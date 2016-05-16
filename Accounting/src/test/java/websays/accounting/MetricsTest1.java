@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import websays.accounting.Commission;
-import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
@@ -44,22 +42,22 @@ public class MetricsTest1 {
     assertEquals(0.0, Metrics.computeCommission(c, start, true), eps);
     
     // Simple MRR Contract with one Commissions
-    Commission c1 = new Commission(.10, null, commission_months, "T1");
+    Commission c1 = new Commission(.10, .025, commission_months, null, "T1");
     
     c.commission.add(c1);
     assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
-    assertEquals(c1.pct * mrr, Metrics.computeCommission(c, start, true), eps);
+    assertEquals(c1.pct1 * mrr, Metrics.computeCommission(c, start, true), eps);
     
     // Simple MRR Contract with two compounded Commissions
-    Commission c2 = new Commission(.20, null, commission_months, "T2");
+    Commission c2 = new Commission(.20, .050, commission_months, null, "T2");
     c.commission.add(c2);
     assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
-    assertEquals(c1.pct * mrr + (mrr - (c1.pct * mrr)) * c2.pct, Metrics.computeCommission(c, start, true), eps);
+    assertEquals(c1.pct1 * mrr + (mrr - (c1.pct1 * mrr)) * c2.pct1, Metrics.computeCommission(c, start, true), eps);
     
     // Change commission base:
     c1.commission_base = mrr / 2.0;
     assertEquals(mrr, Metrics.computeMRR(c, start, true), eps);
-    assertEquals(c1.pct * mrr / 2 + (mrr / 2 - (c1.pct * mrr / 2)) * c2.pct, Metrics.computeCommission(c, start, true), eps);
+    assertEquals(c1.pct1 * mrr / 2 + (mrr / 2 - (c1.pct1 * mrr / 2)) * c2.pct1, Metrics.computeCommission(c, start, true), eps);
     
   }
   

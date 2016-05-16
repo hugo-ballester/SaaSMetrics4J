@@ -44,16 +44,16 @@ Globals g = new Globals(home);
 commands = [];
 
 
-def cols1 = """
+def cols1 = '''
 c.type, c.sales_person AS SP, c.id, c.name as contract_name, cl.name AS client_name,start,
 end AS end_C,
 DATEDIFF( dataAccessEnd, end)  AS extra_days,
 dataAccessEnd AS end_A
-""";
+''';
  
-def FROM1 = """"
+def FROM1 = '''
 FROM contract c LEFT JOIN client cl ON c.client_id=cl.id
-""""
+'''
 
 def TypeIsSubscriptionOrProject = " (c.type='subscription' OR c.type='project') "
 

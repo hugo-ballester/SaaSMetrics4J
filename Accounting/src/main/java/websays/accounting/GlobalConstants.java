@@ -28,21 +28,11 @@ public class GlobalConstants {
   public static final List<AccountFilter> billingCenters = Arrays.asList(new AccountFilter[] {AccountFilter.BILLCENTER_ES,
       AccountFilter.BILLCENTER_UK});
   
-  /**
-   * number of months of normal commission before it is discounted
-   */
-  public static int COMMMISSION_MONTHS = 1;
-  
-  /**
-   * % of remaining commission after COMMISSION_MONTHS elapsed (e.g. 0.25 would mean commission goes down to 1/4th; 0.0 would mean no commission)
-   */
-  public static double COMMMISSION_REMAINING = 0.0;
-  
   public static TimeZone timezone = TimeZone.getTimeZone("Europe/Madrid");
   
   public static void load(Properties props) {
-    COMMMISSION_MONTHS = Integer.parseInt(props.getProperty("commission_months"));
-    COMMMISSION_REMAINING = Double.parseDouble(props.getProperty("commission_remaining"));
+    // e.f. param = Integer.parseInt(props.getProperty("param"));
+    
   }
   
 }

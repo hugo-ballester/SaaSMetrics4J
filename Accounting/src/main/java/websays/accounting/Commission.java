@@ -17,20 +17,22 @@ public class Commission {
   
   int commission_months;
   public String commissionnee;
-  public double pct;
+  public double pct1, pct2;
   public Double commission_base;
   
   /**
-   * (Convert all to EUROS, Comission does not have currency)
-   * 
-   * @param pct
-   *          [0-1] commission
+   * @param pct1
+   *          : % commission during the first commission_months
+   * @param pct2
+   *          : % commission after the first commission_months
+   * @param commission_months
    * @param commission_base
    * @param commissionnee
    */
-  public Commission(Double pct, Double commission_base, int commission_months, String commissionnee) {
+  public Commission(Double pct1, Double pct2, int commission_months, Double commission_base, String commissionnee) {
     super();
-    this.pct = pct;
+    this.pct1 = pct1;
+    this.pct2 = pct2;
     this.commissionnee = commissionnee;
     this.commission_base = commission_base;
     this.commission_months = commission_months;
@@ -39,14 +41,12 @@ public class Commission {
   public Commission() {};
   
   public double computeCommission(double fee, int month) {
+    double pct = (month <= commission_months ? pct1 : pct2);
     double commBase = 0;
     if (commission_base != null) {
       commBase = commission_base * pct;
     } else {
       commBase = fee * pct;
-    }
-    if (month > commission_months) {
-      commBase *= GlobalConstants.COMMMISSION_REMAINING;
     }
     return commBase;
     

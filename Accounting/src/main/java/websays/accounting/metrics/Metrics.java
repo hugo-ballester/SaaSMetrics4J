@@ -20,7 +20,7 @@ public class Metrics {
    * 
    * Metrics does not use BillItems nor CommissionItems, and therefore must compute commissions on the fly here.
    * 
-   * Commissions are compounded in order: firs is MRR*x1, then MRR*(1-x1)*x2, etc.
+   * Commissions are compounded in order: first is MRR*x1, then MRR*(1-x1)*x2, etc.
    * 
    * 
    * @param c
@@ -37,10 +37,11 @@ public class Metrics {
     double ret = 0.0;
     Commission comInit = coms.get(0);
     double mrrLeft = comInit.commission_base != null ? comInit.commission_base : computeMRR(c, d, roundDate);
+    int monthsFromStartOfContract = JodaUtils.monthsDifference(c.startContract, d) + 1;
     for (Commission com : coms) {
-      double x = mrrLeft * com.pct;
-      mrrLeft -= x;
-      ret += x;
+      double comm = com.computeCommission(mrrLeft, monthsFromStartOfContract);
+      mrrLeft -= comm;
+      ret += comm;
     }
     
     return ret;

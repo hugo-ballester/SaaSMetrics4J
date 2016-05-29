@@ -29,7 +29,7 @@ public class ContractTest {
     int months = 5;
     LocalDate start = new LocalDate(2010, 3, 1);
     LocalDate end = start.plusMonths(months).plusDays(-1);
-    Contract c = new Contract(0, "test", Type.subscription, BillingSchema.MONTHS_12, 1, start, end, 100., null, null);
+    Contract c = new Contract(0, "test", Type.subscription, BillingSchema.MONTHS_12, 1, start, end, 100., null, null, null);
     
     LocalDate d = start;
     Assert.assertEquals(months - 1, c.getMonthsRemaining(d)); // actual duration in months, but number of months in between in months-1

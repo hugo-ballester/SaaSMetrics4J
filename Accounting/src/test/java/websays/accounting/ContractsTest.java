@@ -37,7 +37,7 @@ public class ContractsTest {
     LocalDate start1 = new LocalDate(year, startMonth, 1);
     LocalDate end1 = start1.plusMonths(months).plusDays(-1);
     
-    contracts.add(new Contract(++id, "first", Type.subscription, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null));
+    contracts.add(new Contract(++id, "first", Type.subscription, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null, null));
     _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 1, 0}, new int[] {0, 0, 0, 0, 0});
     
     // ------------------------------
@@ -45,7 +45,7 @@ public class ContractsTest {
     System.out.println("2.");
     contracts = new Contracts();
     Contract c = new Contract(++id, "first", Type.subscription,//
-        BillingSchema.MONTHS_1, 1, start1, null, 100., null, null);
+        BillingSchema.MONTHS_1, 1, start1, null, 100., null, null, null);
     contracts.add(c);
     c.contractedMonths = months;
     _monthSequenceTest(year, startMonth - 1, contracts, new int[] {0, 1, 0, 0, 0}, new int[] {0, 0, 0, 0, 0}, new int[] {0, 0, 0, 0, 1});

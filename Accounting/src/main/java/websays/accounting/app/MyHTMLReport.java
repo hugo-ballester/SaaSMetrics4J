@@ -38,11 +38,15 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   public static void main(String[] args) throws Exception {
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : START");
+    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
     
     PrintStream oldOut = System.out;
     init(args);
     
-    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
+    if (fixYear != null) {
+      billingYears = new int[] {fixYear};
+    }
+    
     (new MyHTMLReport()).execute_HTML(billingYears, billingYears);
     
     System.setOut(oldOut);

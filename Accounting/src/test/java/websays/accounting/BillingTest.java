@@ -25,14 +25,14 @@ public class BillingTest {
   private Double[] coms2, coms1;
   private Integer months;
   
-  private ArrayList<Commission> testComms() {
+  private ArrayList<CommissionPlan> testComms() {
     months = 3;
     coms2 = new Double[] {0.01, 0.02};
     coms1 = new Double[] {0.1, 0.2};
-    ArrayList<Commission> lis;
-    lis = new ArrayList<Commission>();
-    lis.add(new Commission(coms1[0], coms2[0], months, null, "MrX"));
-    lis.add(new Commission(coms1[1], coms2[1], months, null, "MrY"));
+    ArrayList<CommissionPlan> lis;
+    lis = new ArrayList<CommissionPlan>();
+    lis.add(new CommissionPlan(coms1[0], coms2[0], months, "MrX"));
+    lis.add(new CommissionPlan(coms1[1], coms2[1], months, "MrY"));
     return lis;
   }
   
@@ -40,7 +40,7 @@ public class BillingTest {
   public void full() {
     LocalDate dateStart = new LocalDate(2010, 3, 29);
     LocalDate dateEnd = dateStart.plusMonths(4).minusDays(1);
-    ArrayList<Commission> lis = testComms();
+    ArrayList<CommissionPlan> lis = testComms();
     BillingSchema billing = BillingSchema.MONTHS_12;
     
     // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
@@ -50,7 +50,7 @@ public class BillingTest {
     double fee = 100.;
     BilledItem bi;
     Contract c = new Contract(0, "ContractName", Type.subscription, billing, 1,//
-        dateStart, dateEnd, fee, null, lis);
+        dateStart, dateEnd, fee, null, null, lis);
     
     for (int month = 1; month <= 12; month++) {
       bi = Billing.bill(c, 2010, month);
@@ -80,7 +80,7 @@ public class BillingTest {
   public void PartilaMonthWithMultiMmonthBill() {
     LocalDate dateStart = new LocalDate(2010, 3, 29);
     LocalDate dateEnd = dateStart.plusMonths(5).minusDays(1);
-    ArrayList<Commission> lis = testComms();
+    ArrayList<CommissionPlan> lis = testComms();
     
     BillingSchema billing = BillingSchema.MONTHS_3;
     
@@ -95,7 +95,7 @@ public class BillingTest {
     // SIMPLE TEST WITH MONTHS_1
     // ------------------------------------------------------------------------------
     Contract c = new Contract(0, "ContractName", Type.subscription, billing, 1,//
-        dateStart, dateEnd, fee, null, lis);
+        dateStart, dateEnd, fee, null, null, lis);
     
     int month = 6;
     bi = Billing.bill(c, 2010, month);
@@ -119,7 +119,7 @@ public class BillingTest {
   
   @Test
   public void testMonthSchedules() throws Exception {
-    ArrayList<Commission> lis = testComms();
+    ArrayList<CommissionPlan> lis = testComms();
     
     // MONTH 1 - 2 - [3 - 4 - 5 - 6 - 7] - 8 - 9
     // BILLS . - . - [1 - 2 - 3 - 4 - 5] - . - .
@@ -134,7 +134,7 @@ public class BillingTest {
     // SIMPLE TEST WITH MONTHS_1
     // ------------------------------------------------------------------------------
     Contract c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_1, 1,//
-        dateStart, dateEnd, fee, null, lis);
+        dateStart, dateEnd, fee, null, null, lis);
     
     for (int month = 1; month < 12; month++) {
       bi = Billing.bill(c, 2010, month);
@@ -174,7 +174,7 @@ public class BillingTest {
     // [F3 - 4 - 5 - F6 - 7]
     
     c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_3, 1,//
-        dateStart, dateEnd, fee, null, lis);
+        dateStart, dateEnd, fee, null, null, lis);
     
     for (int month = 1; month < 12; month++) {
       bi = Billing.bill(c, 2010, month);
@@ -210,7 +210,7 @@ public class BillingTest {
     // COMMS . - . - [C - C - C - c] - . - .
     
     c = new Contract(0, "ContractName", Type.subscription, BillingSchema.MONTHS_3, 1,//
-        dateStart, dateEnd, fee, null, lis);
+        dateStart, dateEnd, fee, null, null, lis);
     
     for (int month = 1; month < 12; month++) {
       bi = Billing.bill(c, 2010, month);
@@ -250,7 +250,7 @@ public class BillingTest {
     // M6: 15/6 - 15/6 : Note that even though it ends the second day of the period, we bill at the end of month because one days left
     
     Contract c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1,//
-        dateStart, dateEnd, fee, null, null);
+        dateStart, dateEnd, fee, null, null, null);
     
     BilledItem bi = Billing.bill(c, 2010, 2);
     Assert.assertNull(bi);

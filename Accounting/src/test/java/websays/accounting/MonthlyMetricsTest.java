@@ -35,11 +35,11 @@ public class MonthlyMetricsTest {
     // C2: _ [ * * ] _
     
     int id = 0;
-    Contract c1 = new Contract(++id, "first", Type.subscription, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null);
+    Contract c1 = new Contract(++id, "first", Type.subscription, BillingSchema.MONTHS_1, 1, start1, end1, 100., null, null, null);
     Assert.assertTrue(c1.startRoundDate.equals((new LocalDate(year, 3, 1))));
     Assert.assertEquals(((new LocalDate(year, 5, 31))), c1.endRoundDate);
     
-    Contract c2 = new Contract(++id, "second", Type.subscription, BillingSchema.MONTHS_1, 1, start2, end2, 1000., null, null);
+    Contract c2 = new Contract(++id, "second", Type.subscription, BillingSchema.MONTHS_1, 1, start2, end2, 1000., null, null, null);
     Assert.assertTrue(c2.startRoundDate.equals((new LocalDate(year, 3, 1))));
     Assert.assertEquals(((new LocalDate(year, 6, 30))), c2.endRoundDate);
     

@@ -27,7 +27,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import websays.accounting.Commission;
+import websays.accounting.CommissionPlan;
 import websays.accounting.Contract;
 import websays.accounting.Contract.BillingSchema;
 import websays.accounting.Contract.ContractDocument;
@@ -241,7 +241,7 @@ public class ContractDAO extends MySQLDAO {
       BigDecimal mrrBD = rs.getBigDecimal(column++);
       Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
       
-      Boolean free = rs.getBoolean(column++);
+      Boolean fee = rs.getBoolean(column++);
       Double fix = rs.getDouble(column++);
       String pricing = rs.getString(column++);
       Integer client_id = rs.getInt(column++);
@@ -249,10 +249,10 @@ public class ContractDAO extends MySQLDAO {
       String billingCenter = rs.getString(column++);
       String client_type = rs.getString(column++);
       
-      BigDecimal bd = (BigDecimal) rs.getObject(column++);
-      Double cmb = null;
-      if (bd != null) {
-        cmb = CurrencyUtils.toEuros(bd.doubleValue(), Currency.getInstance(currency));
+      BigDecimal tmp = (BigDecimal) rs.getObject(column++);
+      Double commissionMonthyBase = null;
+      if (tmp != null) {
+        commissionMonthyBase = CurrencyUtils.toEuros(tmp.doubleValue(), Currency.getInstance(currency));
       }
       String commissionee = rs.getString(column++);
       String commisionLabel = rs.getString(column++);
@@ -261,13 +261,13 @@ public class ContractDAO extends MySQLDAO {
       
       String comments_billing = rs.getString(column++);
       
-      ArrayList<Commission> comms = new ArrayList<Commission>();
+      ArrayList<CommissionPlan> comms = new ArrayList<CommissionPlan>();
       if (commisionLabel != null) {
-        List<Commission> comm = ContractFactory.commissionFromSchema(fix, commisionLabel, cmb, commissionee);
+        List<CommissionPlan> comm = ContractFactory.commissionFromSchema(fix, commisionLabel, mrr, commissionMonthyBase, commissionee);
         comms.addAll(comm);
       }
       if (commisionLabel2 != null) {
-        List<Commission> comm = ContractFactory.commissionFromSchema(fix, commisionLabel2, null, commissionee2);
+        List<CommissionPlan> comm = ContractFactory.commissionFromSchema(fix, commisionLabel2, mrr, null, commissionee2);
         comms.addAll(comm);
       }
       
@@ -276,7 +276,7 @@ public class ContractDAO extends MySQLDAO {
       // Build object
       Contract a = null;
       if (pricing == null) {
-        a = new Contract(id, name, type, bs, client_id, startJ, endJ, mrr, fix, comms);
+        a = new Contract(id, name, type, bs, client_id, startJ, endJ, mrr, commissionMonthyBase, fix, comms);
       } else {
         if (pricingSchemaNames == null) {
           logger.error("PRCING SCHEMAS NOT LOADED!? Skipping.");
@@ -289,7 +289,7 @@ public class ContractDAO extends MySQLDAO {
         }
         a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }
-      a.free = free;
+      a.free = fee;
       a.contractDocument = contractDocument;
       a.client_name = client_name;
       a.contractedMonths = contracteMonths;
@@ -303,7 +303,7 @@ public class ContractDAO extends MySQLDAO {
       return a;
     } catch (Exception e) {
       String msg = "ERROR reading contract id=" + ((id != null) ? id : "null");
-      throw new Exception(msg);
+      throw new Exception(msg, e);
     }
     
   }

@@ -50,7 +50,7 @@ public class BasicCommandLineApp {
   public static int commission_months;
   public static MailConfiguration mc;
   
-  public static int fixYear = 0, fixMonth = 0;
+  public static Integer fixYear = null, fixMonth = null;
   protected static Integer contractID = null;
   public static String[] email = null;
   public static String[] actions = null;

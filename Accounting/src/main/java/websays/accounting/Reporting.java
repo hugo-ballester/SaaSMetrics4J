@@ -54,7 +54,7 @@ public class Reporting {
   
   public String displayContracts_header() {
     return String.format("%4s %-20s %-20s %-12s\t%-11s\t%s\t%s    \t%s-%s\n", //
-        "ID", "Contract Name", "Client Name", "MRR", "Commission", "Type     ", "Billing", "start", "end");
+        "ID", "Contract Name", "Client Name", "MRR", "CommissionPlan", "Type     ", "Billing", "start", "end");
   }
   
   public String displayContracts(LocalDate d, AccountFilter filter, boolean metricDate, Contracts contracts) {
@@ -95,12 +95,13 @@ public class Reporting {
       }
       
       double mrr = Metrics.computeMRR(c, d, metricDate);
-      double commission = Metrics.computeCommission(c, d, metricDate);
+      double commission = 0.0; // Metrics.computeCommission(c, d, metricDate); // COMMISSIONS NO LONGER COMPUTED IN METRICS (redo this)
       sb.append(String.format("%4d\t%-20s\t%-20s" //
           + "\t%5.0f\t%4d\t%5.0f\t%4.0f" //
           + "\t%4s\t%8s\t%8s\t%4s\t%8s\n", //
           c.getId(), c.name, c.client_name//
-          , mrr, c.profiles, (mrr / c.profiles), commission//
+          , mrr, c.profiles, (mrr / c.profiles), //
+          commission // COMMISSIONS NO LONGER COMPUTED IN METRICS (redo this)
           , c.type.name().substring(0, 3), c.billingSchema, startS, c.contractedMonths, endS));
       totM += mrr;
       totCom += commission;
@@ -389,20 +390,20 @@ public class Reporting {
       }
       
       clients.add(c.client_name);
-      double mrr = c.getMonthlyPrize(c.startContract, true, false);
+      double[] prize = c.getMonthlyPrize(c.startContract, true, false);
       
       line = String.format(format, //
           toStringShort_commissionees(c), //
           (c.name == null ? "" : c.name), //
           ("(" + (c.client_name == null ? "" : c.client_name) + ")"), //
-          BillingReportPrinter.money(mrr, true, c.currency), //
+          BillingReportPrinter.money(prize[0], true, c.currency), //
           printer.stringMonths(c), //
           printer.stringPeriod(c) //
           );
       // c.endContract != null ? sdf.print(c.endContract) :
       
       lis.push(line); // oldest to the bottom
-      total += CurrencyUtils.toEuros(mrr, c.currency);
+      total += CurrencyUtils.toEuros(prize[0], c.currency);
     }
     String monthStr = "MONTH " + lastyear + "-" + lastmonth;
     line = String.format("\n" + format, "", "", "TOTAL:", BillingReportPrinter.money(total, true, CurrencyUtils.EUR), "", monthStr);
@@ -432,17 +433,19 @@ public class Reporting {
       for (Bill b : bs) {
         for (BilledItem bi : b.items) {
           for (CommissionItem c : bi.commissions) {
-            if (c.commissionnee != null) {
+            if (c.commissionnee != null && c.commission > 0) {
               mapMonth.put(c.commissionnee, mapMonth.get(c.commissionnee) + c.commission);
               mapYear.put(c.commissionnee, mapYear.get(c.commissionnee) + c.commission);
-              if (c.commission > 0) {
-                mapMonthBilled.put(c.commissionnee, mapMonthBilled.get(c.commissionnee) + c.bi.getFee());
-                mapYearBilled.put(c.commissionnee, mapYearBilled.get(c.commissionnee) + c.bi.getFee());
-              }
+              mapMonthBilled.put(c.commissionnee, mapMonthBilled.get(c.commissionnee) + c.bi.getFee());
+              mapYearBilled.put(c.commissionnee, mapYearBilled.get(c.commissionnee) + c.bi.getFee());
+              logger.trace("COMMISSION " + year + "-" + month + "\t" + c.commissionnee + ":\t" + //
+                  "\t" + bi.contract_name + "\t" + "+" + c.commission + "\t=\t" + mapMonth.get(c.commissionnee));
             }
           }
         }
       }
+      
+      logger.trace("-------------- END COMMISSIONS " + year + "-" + month);
       
       // Print Commissions
       ArrayList<String> row = new ArrayList<String>(names.length + 5);
@@ -498,7 +501,7 @@ public class Reporting {
   
   private static String toStringShort_commissionees(Contract c) {
     String ret = "";
-    for (Commission com : c.commission) {
+    for (CommissionPlan com : c.commission) {
       ret += (com == null ? "NULL" : com.commissionnee) + ", ";
     }
     if (ret.length() == 0) {

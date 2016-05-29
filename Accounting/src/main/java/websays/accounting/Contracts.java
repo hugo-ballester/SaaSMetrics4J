@@ -399,7 +399,7 @@ public class Contracts extends ArrayList<Contract> {
   public String[] getCommissionnees() {
     HashSet<String> ret = new HashSet<String>();
     for (Contract c : this) {
-      for (Commission com : c.commission) {
+      for (CommissionPlan com : c.commission) {
         if (com.commissionnee != null) {
           ret.add(com.commissionnee);
         }

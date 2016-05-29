@@ -17,7 +17,7 @@ import websays.accounting.Contracts.AccountFilter;
 
 public class GlobalConstants {
   
-  public static final String VERSION = "2.8.3";
+  public static final String VERSION = "2.9";
   public static boolean roundDatesForMetrics = false;
   
   public static final DateTimeFormatter dtS = DateTimeFormat.forPattern("dd/MM/YY");

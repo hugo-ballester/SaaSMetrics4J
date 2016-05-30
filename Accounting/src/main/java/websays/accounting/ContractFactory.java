@@ -29,6 +29,10 @@ public class ContractFactory {
     // Basic C_x% : a fixed x%
     if (schema == null || schema.startsWith("NONE")) {}
     
+    // ----------------------------------------------------------
+    // Planes 2015
+    // ----------------------------------------------------------
+    
     // Basic C_x% : a fixed x%
     else if (schema.startsWith("C_")) {
       Integer i = Integer.parseInt(schema.substring(2));
@@ -37,25 +41,15 @@ public class ContractFactory {
       ret.add(com);
     }
     
-    // Basic C_x% : a fixed x%
-    else if (schema.startsWith("RES_2016_1")) {
+    // RES_2016_0 are previous to 2016-05 change
+    else if (schema.startsWith("RES_2016_0")) {
       CommissionPlan com1 = new CommissionPlan(0.30, 0.0, COMMMISSION_MONTHS, commissionnee);
       com1.commissionAppliesToFullFee = true;
-      CommissionPlan com2 = new CommissionPlan(0.7 * 0.05, 0.01, COMMMISSION_MONTHS, "OA");
+      CommissionPlan com2 = new CommissionPlan(0.70 * 0.10, 0.025, COMMMISSION_MONTHS, "OA");
       com1.commissionAppliesToFullFee = true;
       ret.add(com1);
       ret.add(com2);
-      if (!commission_base.equals(billTotal)) {
-        if (commission_base.equals(billTotal * .7)) {
-          logger.warn("RES_2016_1 commision base is correct but should be left empty!");
-        }
-        logger.error("RES_2016_1 commission base should be empty or [" + (.7 * billTotal) + "] but is [" + commission_base + "].");
-      }
-    }
-    
-    else if (schema.startsWith("COM_2016_1")) {
-      CommissionPlan com = new CommissionPlan(0.05, 0.01, COMMMISSION_MONTHS, commissionnee);
-      ret.add(com);
+      checkCOM1(billTotal, commission_base, .7, schema);
     }
     
     // UK 2015: Viqui .3, Oscar .2
@@ -69,10 +63,45 @@ public class ContractFactory {
       ret.add(com2);
     }
     
+    // ----------------------------------------------------------
+    // Planes 2016 Q2-4
+    // ----------------------------------------------------------
+    
+    // RES_2016_1 are post to 2016-05 change
+    else if (schema.startsWith("RES_2016_1")) {
+      CommissionPlan com1 = new CommissionPlan(0.30, 0.0, COMMMISSION_MONTHS, commissionnee);
+      com1.commissionAppliesToFullFee = true;
+      CommissionPlan com2 = new CommissionPlan(0.70 * 0.05, 0.01, COMMMISSION_MONTHS, "OA");
+      com1.commissionAppliesToFullFee = true;
+      ret.add(com1);
+      ret.add(com2);
+      checkCOM1(billTotal, commission_base, .7, schema);
+    }
+    
+    // RES_2016_1 are post to 2016-05 change
+    else if (schema.startsWith("COM_2016_1")) {
+      CommissionPlan com = new CommissionPlan(0.05, 0.01, COMMMISSION_MONTHS, commissionnee);
+      ret.add(com);
+    }
+    
     else {
       logger.error("ERROR: unknown commission type [" + schema + "]");
       throw new Exception("ERROR: unknown commission type [" + schema + "]");
     }
     return ret;
+  }
+  
+  private static void checkCOM1(Double billTotal, Double commission_base, double pct, String schema) {
+    if (diff(commission_base, billTotal)) { // different commission base specified.
+      if (diff(commission_base, (billTotal * .7))) {
+        logger.error(schema + ": commission base should be empty or [" + (pct * billTotal) + "] but is [" + commission_base + "].");
+      } else {
+        logger.warn(schema + ": don't specify the commission base for RES_2016_0 contracts");
+      }
+    }
+  }
+  
+  private static boolean diff(double d1, double d2) {
+    return (Math.abs(d1 - d2) > 0.0001);
   }
 }

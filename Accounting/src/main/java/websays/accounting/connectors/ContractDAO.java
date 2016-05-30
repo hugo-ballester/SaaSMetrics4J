@@ -35,7 +35,6 @@ import websays.accounting.ContractFactory;
 import websays.accounting.Contracts;
 import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Pricing;
-import websays.core.utils.CurrencyUtils;
 
 public class ContractDAO extends MySQLDAO {
   
@@ -250,10 +249,8 @@ public class ContractDAO extends MySQLDAO {
       String client_type = rs.getString(column++);
       
       BigDecimal tmp = (BigDecimal) rs.getObject(column++);
-      Double commissionMonthyBase = null;
-      if (tmp != null) {
-        commissionMonthyBase = CurrencyUtils.toEuros(tmp.doubleValue(), Currency.getInstance(currency));
-      }
+      Double commissionMonthyBase = tmp == null ? null : tmp.doubleValue();
+      
       String commissionee = rs.getString(column++);
       String commisionLabel = rs.getString(column++);
       String commissionee2 = rs.getString(column++);

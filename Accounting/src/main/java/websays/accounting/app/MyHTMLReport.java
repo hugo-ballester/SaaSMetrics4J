@@ -246,7 +246,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   }
   
   private String monthlyBillingReport(File htmlDir, int[] years, Contracts contracts) throws FileNotFoundException, Exception {
-    if (fixYear > 0) {
+    if (fixYear != null) {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
@@ -261,7 +261,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
         logger.debug("YEAR: " + byear + ", MONTH: " + bmonth);
-        if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
+        if (fixYear != null && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
         }
         boolean thisMonth = (byear == cal.getYear()) && bmonth == cal.getMonthOfYear();

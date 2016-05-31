@@ -7,6 +7,8 @@ package websays.accounting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -33,12 +35,32 @@ public class ContractFactory {
     // Planes 2015
     // ----------------------------------------------------------
     
+    Pattern p1year = Pattern.compile("C_(\\d+)_1Y");
+    
+    if (schema.startsWith("NONE")) {
+      // no commission
+    }
+    
     // Basic C_x% : a fixed x%
     else if (schema.startsWith("C_")) {
-      Integer i = Integer.parseInt(schema.substring(2));
-      pct = 1.0 * i / 100.0;
-      CommissionPlan com = new CommissionPlan(pct, pct * .25, COMMMISSION_MONTHS, commissionnee);
-      ret.add(com);
+      
+      Matcher m = p1year.matcher(schema);
+      
+      // C_XX_1Y : XX% of commissionBase on the first year, 0 afterwards
+      if (m.find()) {
+        Integer i = Integer.parseInt(m.group(1));
+        pct = 1.0 * i / 100.0;
+        CommissionPlan com = new CommissionPlan(pct, 0.0, COMMMISSION_MONTHS, commissionnee);
+        ret.add(com);
+      }
+      
+      // C_XX : XX% of commissionBase on the first year, 1/4 on subsequent years
+      else {
+        Integer i = Integer.parseInt(schema.substring(2));
+        pct = 1.0 * i / 100.0;
+        CommissionPlan com = new CommissionPlan(pct, pct * .25, COMMMISSION_MONTHS, commissionnee);
+        ret.add(com);
+      }
     }
     
     // RES_2016_0 are previous to 2016-05 change
@@ -58,7 +80,7 @@ public class ContractFactory {
         logger.warn("UK1 schema should not have commissionee! ignoring: " + commissionnee);
       }
       CommissionPlan com1 = new CommissionPlan(0.2, 0.2 * .25, COMMMISSION_MONTHS, "OA");
-      CommissionPlan com2 = new CommissionPlan(0.3, 0.3 * .25, COMMMISSION_MONTHS, "VC");
+      CommissionPlan com2 = new CommissionPlan(0.3, 0.0, COMMMISSION_MONTHS, "VC");
       ret.add(com1);
       ret.add(com2);
     }

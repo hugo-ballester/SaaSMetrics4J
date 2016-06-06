@@ -16,13 +16,13 @@ package websays.accounting;
 public class CommissionItem {
   
   String commissionnee = null;
-  double commission;
+  Double commission = null;
   
   // back references in case they are needed
-  transient Commission com;
-  transient BilledItem bi;
+  CommissionPlan com;
+  BilledItem bi;
   
-  public CommissionItem(String commissionnee, double commission, Commission com, BilledItem bi) {
+  public CommissionItem(String commissionnee, double commission, CommissionPlan com, BilledItem bi) {
     super();
     this.commissionnee = commissionnee;
     this.commission = commission;

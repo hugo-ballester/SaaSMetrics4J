@@ -38,11 +38,15 @@ public class MyHTMLReport extends BasicCommandLineApp {
   
   public static void main(String[] args) throws Exception {
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : START");
+    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
     
     PrintStream oldOut = System.out;
     init(args);
     
-    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
+    if (fixYear != null) {
+      billingYears = new int[] {fixYear};
+    }
+    
     (new MyHTMLReport()).execute_HTML(billingYears, billingYears);
     
     System.setOut(oldOut);
@@ -242,7 +246,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
   }
   
   private String monthlyBillingReport(File htmlDir, int[] years, Contracts contracts) throws FileNotFoundException, Exception {
-    if (fixYear > 0) {
+    if (fixYear != null) {
       logger.warn("WARNING: Fixing year and month to: " + fixYear + " - " + fixMonth);
     }
     
@@ -257,7 +261,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       
       for (int bmonth = 1; bmonth <= 12; bmonth++) {
         logger.debug("YEAR: " + byear + ", MONTH: " + bmonth);
-        if (fixYear > 0 && (!(byear == fixYear && bmonth == fixMonth))) {
+        if (fixYear != null && (!(byear == fixYear && bmonth == fixMonth))) {
           continue;
         }
         boolean thisMonth = (byear == cal.getYear()) && bmonth == cal.getMonthOfYear();

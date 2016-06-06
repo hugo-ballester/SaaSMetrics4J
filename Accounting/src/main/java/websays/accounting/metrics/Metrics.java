@@ -5,47 +5,45 @@
  */
 package websays.accounting.metrics;
 
-import java.util.ArrayList;
-
 import org.joda.time.LocalDate;
 
-import websays.accounting.Commission;
 import websays.accounting.Contract;
 import websays.core.utils.CurrencyUtils;
 import websays.core.utils.JodaUtils;
 
 public class Metrics {
   
-  /**
-   * 
-   * Metrics does not use BillItems nor CommissionItems, and therefore must compute commissions on the fly here.
-   * 
-   * Commissions are compounded in order: first is MRR*x1, then MRR*(1-x1)*x2, etc.
-   * 
-   * 
-   * @param c
-   * @param d
-   * @param roundDate
-   * @return
-   */
-  public static double computeCommission(Contract c, LocalDate d, boolean roundDate) {
-    ArrayList<Commission> coms = c.commission;
-    if (coms == null || coms.size() == 0) {
-      return 0;
-    }
-    
-    double ret = 0.0;
-    Commission comInit = coms.get(0);
-    double mrrLeft = comInit.commission_base != null ? comInit.commission_base : computeMRR(c, d, roundDate);
-    int monthsFromStartOfContract = JodaUtils.monthsDifference(c.startContract, d) + 1;
-    for (Commission com : coms) {
-      double comm = com.computeCommission(mrrLeft, monthsFromStartOfContract);
-      mrrLeft -= comm;
-      ret += comm;
-    }
-    
-    return ret;
-  }
+  // /**
+  // *
+  // * Metrics does not use BillItems nor CommissionItems, and therefore must compute commissions on the fly here.
+  // *
+  // * Commissions are compounded in order: first is MRR*x1, then MRR*(1-x1)*x2, etc.
+  // *
+  // *
+  // * @param c
+  // * @param d
+  // * @param roundDate
+  // * @return
+  // */
+  // public static double computeCommission(Contract c, LocalDate d, boolean roundDate) {
+  // ArrayList<CommissionPlan> coms = c.commission;
+  // if (coms == null || coms.size() == 0) {
+  // return 0;
+  // }
+  //
+  // double ret = 0.0;
+  // CommissionPlan comInit = coms.get(0);
+  // // double mrrLeft = comInit.commission_base != null ? comInit.commission_base : computeMRR(c, d, roundDate);
+  // int monthsFromStartOfContract = JodaUtils.monthsDifference(c.startContract, d) + 1;
+  // for (CommissionPlan com : coms) {
+  // // double comm = com.computeCommission(mrrLeft, monthsFromStartOfContract);
+  // double comm = com.computeCommission(monthsFromStartOfContract);
+  // // mrrLeft -= comm;
+  // ret += comm;
+  // }
+  //
+  // return ret;
+  // }
   
   /**
    * Returns monthly revenue from contract (at given date)
@@ -75,12 +73,9 @@ public class Metrics {
       }
     }
     
-    double p = 0.;
+    double p[] = c.getMonthlyPrize(d, true, true);
+    return CurrencyUtils.toEuros(p[0], c.currency);
     
-    p = c.getMonthlyPrize(d, true, true);
-    p = CurrencyUtils.toEuros(p, c.currency);
-    
-    return p;
   }
   
   public static double mrrChange(Contract c, LocalDate d, boolean roundDate) {

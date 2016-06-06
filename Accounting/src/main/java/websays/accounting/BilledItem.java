@@ -23,7 +23,7 @@ public class BilledItem {
   private static final Logger logger = Logger.getLogger(BilledItem.class);
   
   public BilledPeriod period;
-  private Double fee;
+  private Double fee, commissionBaseFee;
   
   public String contract_name;
   public int contract_id;
@@ -43,16 +43,18 @@ public class BilledItem {
    * @param contractedPeriods
    *          used to determine if a warning of last bill should be issued.
    */
-  public BilledItem(BilledPeriod billedPeriod, Double fee, String contract_name, int contract_id, Currency currency) {
+  public BilledItem(BilledPeriod billedPeriod, Double fee, Double commissionBaseFee, String contract_name, int contract_id,
+      Currency currency) {
     super();
     period = billedPeriod;
-    setFee(fee, currency);
+    setFees(fee, commissionBaseFee, currency);
     this.contract_name = contract_name;
     this.contract_id = contract_id;
   }
   
   public BilledItem(BilledItem bi) throws Exception {
-    this(new BilledPeriod(bi.period), new Double(bi.getFee()), bi.contract_name, bi.contract_id, bi.currency);
+    this(new BilledPeriod(bi.period), new Double(bi.getFee()), new Double(bi.getCommissionBaseFee()), bi.contract_name, bi.contract_id,
+        bi.currency);
   }
   
   public void warningChecks(LocalDate billingDate, Contract c) {
@@ -101,17 +103,21 @@ public class BilledItem {
     return currency;
   }
   
-  public boolean feeIsNull() {
+  public Boolean feeIsNull() {
     return this.fee == null;
   }
   
-  public double getFee() {
-    double fee = this.fee;
-    return fee;
+  public Double getFee() {
+    return this.fee;
   }
   
-  public void setFee(Double fee, Currency currency) {
+  public Double getCommissionBaseFee() {
+    return commissionBaseFee;
+  }
+  
+  public void setFees(Double fee, Double commissionBaseFee, Currency currency) {
     this.fee = fee;
+    this.commissionBaseFee = commissionBaseFee != null ? commissionBaseFee : fee;
     if (fee < 0.0) {
       logger.error("fee < 0.0");
     }

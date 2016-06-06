@@ -73,9 +73,10 @@ public class Contract {
   public Integer contractedMonths = null;
   
   // base recurring prize
-  public Double monthlyPrice;
+  private Double monthlyPrice;
+  private Double monthlyCommBase;
   
-  // when monthlyPrice=0, set this to free so we don't bill and don't warn
+  // when monthlyPrice=0, set free=true so we don't bill and don't warn
   public Boolean free;
   
   // fixed total price (will be added to monthlyPrice (dividing by total contract lenght) if both not null)
@@ -110,7 +111,7 @@ public class Contract {
   public String billingCenter;
   
   // commission % of MRR (or of commission_base if defined) (not in data model, instead computed from commision schema at DAO time)
-  public ArrayList<Commission> commission = new ArrayList<Commission>();
+  public ArrayList<CommissionPlan> commission = new ArrayList<CommissionPlan>();
   
   /**
    * basic, gold, etc.
@@ -118,7 +119,7 @@ public class Contract {
   public String plan;
   
   Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end,
-      ArrayList<Commission> commission, String comments_billing) {
+      ArrayList<CommissionPlan> commission, String comments_billing) {
     super();
     this.id = id;
     this.name = name;
@@ -192,19 +193,21 @@ public class Contract {
   }
   
   public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end, Pricing pricing,
-      ArrayList<Commission> commission) {
+      ArrayList<CommissionPlan> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
     pricingSchema = pricing;
     monthlyPrice = null;
+    monthlyCommBase = null;
     fixedPrice = null;
   }
   
-  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, LocalDate end, Double monthlyPrize,
-      Double fixPrize, ArrayList<Commission> commission) {
+  public Contract(int id, String name, Type type, BillingSchema bs, Integer client_id, LocalDate start, //
+      LocalDate end, Double monthlyPrize, Double monthlyCommBase, Double fixPrize, ArrayList<CommissionPlan> commission) {
     this(id, name, type, bs, client_id, start, end, commission, null);
-    monthlyPrice = monthlyPrize;
-    fixedPrice = fixPrize != null ? fixPrize : 0.0;
-    pricingSchema = null;
+    this.monthlyPrice = monthlyPrize;
+    this.fixedPrice = fixPrize != null ? fixPrize : 0.0;
+    this.monthlyCommBase = (monthlyCommBase != null) ? monthlyCommBase : monthlyPrize;
+    this.pricingSchema = null;
   }
   
   public int getId() {
@@ -232,10 +235,10 @@ public class Contract {
    * 
    * @param d
    *          only needd for pricing schemas that depend on date, otherwise can be null
-   * @return
+   * @return { prize, commissionBase}
    */
-  public double getMonthlyPrize(LocalDate d, boolean addFixedPrize, boolean roundDate) {
-    Double p = 0.;
+  public double[] getMonthlyPrize(LocalDate d, boolean addFixedPrize, boolean roundDate) {
+    Double p = 0., cb = null;
     if (monthlyPrice != null && pricingSchema != null) {
       logger.error("INCONSISTENT PRIZING FOR CONTRACT '" + name + "' : monthlyPrize AND prizing CANNOT BE BOTH DEFINED");
     }
@@ -246,7 +249,14 @@ public class Contract {
     // choose between monthlyPrize or pricingSchema
     if (monthlyPrice != null) {
       p = monthlyPrice;
+      cb = monthlyCommBase;
     } else if (pricingSchema != null) {
+      
+      if (monthlyCommBase != null) {
+        logger.warn("DONT KNOW HOW TO commisionBas!=0 WITH pricingSchema");
+        return null;
+      }
+      
       p = pricingSchema.getPrize(d);
       if (p == null || p == 0) {
         logger.error("Pricing schema returned prize 0 for on " + (d != null ? d.toString() : "null") + " for contract " + id
@@ -261,19 +271,18 @@ public class Contract {
     if (addFixedPrize && fixedPrice != null && fixedPrice > 0.) {
       if (endContract == null) {
         System.err.println("ERROR: fixedPrize but no endContract date !? " + name + ": " + fixedPrice);
-        return 0;
+        return new double[] {0, 0};
       }
       int months = 0;
       if (roundDate) {
         months = JodaUtils.monthsDifference(startRoundDate, endRoundDate) + 1;
       } else {
         months = JodaUtils.monthsDifference(startContract, endContract) + 1;
-        
       }
       p += fixedPrice / months;
     }
     
-    return p;
+    return new double[] {p, (cb == null) ? p : cb};
   }
   
   public boolean isActive(LocalDate d, boolean roundDate) {

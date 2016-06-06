@@ -152,7 +152,7 @@ public class MonthlyMetrics {
         m.accsNew++;
         m.mrrNew += mrr;
       }
-      m.comm += Metrics.computeCommission(a, lastDayOfMonth, metricDate);
+      // m.comm += Metrics.computeCommission(a, lastDayOfMonth, metricDate);
       m.profilesSt.add((1.0) * a.profiles);
       m.expansion += Metrics.expansion(a, lastDayOfMonth);
       

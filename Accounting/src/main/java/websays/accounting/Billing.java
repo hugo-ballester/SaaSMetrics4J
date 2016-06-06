@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 
-import websays.accounting.Contract.BillingSchema;
-
 /**
  * 
  * Computes bills.
@@ -82,44 +80,44 @@ public class Billing {
         return null;
       }
       
-      BilledItem bi = new BilledItem(bp, 0.0, c.name, c.id, c.currency);
+      BilledItem bi = new BilledItem(bp, 0.0, 0.0, c.name, c.id, c.currency);
       
       // If this month's billing date is not this period'd billing date it means that billing was in the past already, so nothing to charge
       
       if (!billingDate.isEqual(bp.billDate)) {
         // NO BILLING NEEDED, SET PRIZE TO 0.0 TO INDICATE THIS. TODO use boolean field
-        bi.setFee(0.0, c.currency);
+        bi.setFees(0.0, 0.0, c.currency);
       } else {
         //
         // COMPUTE FEE
-        BillingSchema bs = c.billingSchema;
-        Double monthly = null;
+        Double billFee = 0.0, billCommBase = 0.0;
+        double[] monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
         
-        double monthlyPrize = c.getMonthlyPrize(billingDate, true, false);
-        
-        int n = c.billingSchema.getMonths();
-        if (bp.contractEnd != null && n > 1) {
-          LocalDate firstDate = bp.periodStart;
-          LocalDate endDate = bp.contractEnd;
-          int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
-          if (m < n) {
+        if (monthlyPrize[0] > 0.0) {
+          int n = c.billingSchema.getMonths();
+          if (bp.contractEnd != null && n > 1) {
+            LocalDate firstDate = bp.periodStart;
+            LocalDate endDate = bp.contractEnd;
+            int m = Months.monthsBetween(firstDate, endDate).getMonths() + 1;
             if (m < n) {
-              n = m;
+              if (m < n) {
+                n = m;
+              }
             }
           }
+          billFee = monthlyPrize[0] * n;
+          billCommBase = monthlyPrize[1] * n;
         }
-        monthly = monthlyPrize * n;
-        
-        bi.setFee(monthly, c.currency);
+        bi.setFees(billFee, billCommBase, c.currency);
       }
       if (bi != null) {
         bi.warningChecks(billingDate, c);
       }
       
       if (c.commission != null) {
-        for (Commission com : c.commission) {
+        for (CommissionPlan com : c.commission) {
           if (com == null) {
-            logger.error("ERROR null Commission for contract " + c.name + " (#" + c.id + ")");
+            logger.error("ERROR null CommissionPlan for contract " + c.name + " (#" + c.id + ")");
             continue;
           }
           

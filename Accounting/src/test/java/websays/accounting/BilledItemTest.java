@@ -31,12 +31,12 @@ public class BilledItemTest {
     LocalDate dateStart = new LocalDate(year, startMonth, 1);
     LocalDate dateEnd = dateStart.plusMonths(months).minusDays(1);
     
-    Contract c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1, dateStart, dateEnd, 100., null, null);
+    Contract c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1, dateStart, dateEnd, 100., null, null, null);
     
     BilledPeriod bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
     // 1. Contract with defined end date
-    BilledItem bi = new BilledItem(bp, 100., "name", 0, CurrencyUtils.EUR);
+    BilledItem bi = new BilledItem(bp, 100., null, "name", 0, CurrencyUtils.EUR);
     
     LocalDate d = dateStart;
     bi.warningChecks(d, c);
@@ -75,12 +75,12 @@ public class BilledItemTest {
     Assert.assertTrue(bi.notes.get(0), bi.notes.get(0).indexOf("contract has ended") >= 0);
     
     // 2. Contract without defined end date but duration
-    c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1, dateStart, null, 100., null, null);
+    c = new Contract(0, "first", Type.subscription, BillingSchema.MONTHS_1, 1, dateStart, null, 100., null, null, null);
     c.contractedMonths = months;
     
     bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
-    bi = new BilledItem(bp, 100., "name", 0, CurrencyUtils.EUR);
+    bi = new BilledItem(bp, 100., null, "name", 0, CurrencyUtils.EUR);
     
     d = dateStart;
     bi.warningChecks(d, c);

@@ -27,6 +27,7 @@ import websays.accounting.reporting.MyMonthlyBillingReport;
 
 public class MyHTMLReport extends BasicCommandLineApp {
   
+  
   private static boolean roundDate = false;
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
@@ -152,8 +153,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     indexFile.append("\n</td></tr></table>\n");
     
-    FileUtils.writeStringToFile(new File(htmlDir, "index.html"), indexFile.toString());
-    
+    File index = new File(htmlDir, "index.html");
+    FileUtils.writeStringToFile(index, indexFile.toString());
+    logger.info("Wrote index.html at: " + index.getAbsolutePath());
   }
   
   /**
@@ -171,8 +173,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws SQLException
    * @throws FileNotFoundException
    */
-  private String metricChangesPerMonth(int yearStart, int months, File htmlDir, Reporting app, Contracts contracts) throws ParseException,
-      IOException, SQLException, FileNotFoundException {
+  private String metricChangesPerMonth(int yearStart, int months, File htmlDir, Reporting app, Contracts contracts)
+      throws ParseException, IOException, SQLException, FileNotFoundException {
     
     LocalDate date;
     String index = "";
@@ -198,7 +200,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       setOutput(new File(htmlDir, file));
       date = new LocalDate(myear, bmonth, 1);
       String content = "<html><body><pre>\n"
-      //
+          //
           + printer.title("MONTH: " + Reporting.sdf.print(date) + " " + what, connectToDB)
           //
           + printer.subtitle("Changes") //
@@ -232,8 +234,8 @@ public class MyHTMLReport extends BasicCommandLineApp {
    * @throws ParseException
    * @throws SQLException
    */
-  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut, Contracts contracts) throws IOException,
-      ParseException, SQLException {
+  private void displayMetrics(Reporting app, int yearMetricsStart, int monthsMetrics, File tsvOut, Contracts contracts)
+      throws IOException, ParseException, SQLException {
     System.out.println(printer.title("METRICS (contracted, then projects, then total)", connectToDB));
     
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true, contracts));

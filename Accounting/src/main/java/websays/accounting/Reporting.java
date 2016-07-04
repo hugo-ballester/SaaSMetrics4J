@@ -38,6 +38,7 @@ import websays.core.utils.CurrencyUtils;
  */
 public class Reporting {
   
+  
   @SuppressWarnings("unused")
   private static final Logger logger = Logger.getLogger(Reporting.class);
   
@@ -66,9 +67,10 @@ public class Reporting {
       return err;
     }
     sb.append("CONTRACTS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(d) + "\n");
-    sb.append(String.format("%4s\t%-20s\t%-20s"//
-        + "\t%-5s\t%4s\t%-5s\t%3s\t"//
-        + "%4s\t%8s\t%8s\t%4s\t%8s\n", //
+    sb.append(String.format(
+        "%4s\t%-20s\t%-20s"//
+            + "\t%-5s\t%4s\t%-5s\t%3s\t"//
+            + "%4s\t%8s\t%8s\t%4s\t%8s\n", //
         "id", "contract", "client" //
         , "mrr", "#P", "MRR/p", "comm." //
         , "type", "billing", "start", "months", "end"));
@@ -96,9 +98,10 @@ public class Reporting {
       
       double mrr = Metrics.computeMRR(c, d, metricDate);
       double commission = 0.0; // Metrics.computeCommission(c, d, metricDate); // COMMISSIONS NO LONGER COMPUTED IN METRICS (redo this)
-      sb.append(String.format("%4d\t%-20s\t%-20s" //
-          + "\t%5.0f\t%4d\t%5.0f\t%4.0f" //
-          + "\t%4s\t%8s\t%8s\t%4s\t%8s\n", //
+      sb.append(String.format(
+          "%4d\t%-20s\t%-20s" //
+              + "\t%5.0f\t%4d\t%5.0f\t%4.0f" //
+              + "\t%4s\t%8s\t%8s\t%4s\t%8s\n", //
           c.getId(), c.name, c.client_name//
           , mrr, c.profiles, (mrr / c.profiles), //
           commission // COMMISSIONS NO LONGER COMPUTED IN METRICS (redo this)
@@ -146,8 +149,8 @@ public class Reporting {
       Vector3D v = map.get(n);
       sb.append(String.format("%4d\t%-20s\t%4.0f\t%4.0f\t%10.1f\t%10.1f\n", cnt++, n, v.getX(), v.getY(), v.getZ(), v.getZ() / v.getY()));
     }
-    sb.append(String.format("\n%4s\t%-20s\t%4.0f\t%4.0f\t%10.1f\t%10.1f\n", "-", "TOTAL", tot.getX(), tot.getY(), tot.getZ(), tot.getZ()
-        / tot.getY()));
+    sb.append(String.format("\n%4s\t%-20s\t%4.0f\t%4.0f\t%10.1f\t%10.1f\n", "-", "TOTAL", tot.getX(), tot.getY(), tot.getZ(),
+        tot.getZ() / tot.getY()));
     return sb.toString();
   }
   
@@ -324,11 +327,11 @@ public class Reporting {
             + "\n==============================";
         logger.debug(debug);
         if (Math.abs(m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) > 0.001) {
-          logger.error("INCONSISTENT MRR!!! dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn))
-              + debug);
+          logger.error(
+              "INCONSISTENT MRR!!! dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) + debug);
         } else {
-          logger.debug("CONSISTENT MRR      dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn))
-              + debug);
+          logger.debug(
+              "CONSISTENT MRR      dif= MRR - (MRR' + EXP + NEW -CHURN) " + (m.mrr - (old.mrr + m.expansion + m.mrrNew - m.churn)) + debug);
         }
       }
       
@@ -399,7 +402,7 @@ public class Reporting {
           BillingReportPrinter.money(prize[0], true, c.currency), //
           printer.stringMonths(c), //
           printer.stringPeriod(c) //
-          );
+      );
       // c.endContract != null ? sdf.print(c.endContract) :
       
       lis.push(line); // oldest to the bottom
@@ -512,8 +515,8 @@ public class Reporting {
     return ret;
   }
   
-  public String displayTotals(LocalDate date, AccountFilter filter, boolean metricDate, Contracts contracts) throws ParseException,
-      SQLException {
+  public String displayTotals(LocalDate date, AccountFilter filter, boolean metricDate, Contracts contracts)
+      throws ParseException, SQLException {
     StringBuffer sb = new StringBuffer();
     sb.append("TOTALS  (" + filter.toString() + ") at " + MonthlyMetrics.df.print(date) + "\n");
     if (contracts == null) {

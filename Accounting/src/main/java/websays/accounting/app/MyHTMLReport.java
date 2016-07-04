@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Calendar;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -28,6 +29,13 @@ import websays.accounting.reporting.MyMonthlyBillingReport;
 public class MyHTMLReport extends BasicCommandLineApp {
   
   
+  // you can turn-off sections for debugging:
+  boolean section_MRRReport = true;
+  boolean section_metrics = true;
+  boolean section_billing = true;
+  boolean section_last = true;
+  boolean section_comm = true;
+  
   private static boolean roundDate = false;
   
   private static final Logger logger = Logger.getLogger(MyHTMLReport.class);
@@ -38,8 +46,11 @@ public class MyHTMLReport extends BasicCommandLineApp {
   int thisMonth = (new LocalDate()).getMonthOfYear();
   
   public static void main(String[] args) throws Exception {
+    
     logger.info("SaaSMetrics4j - MyHTMLReport " + GlobalConstants.VERSION + " : START");
-    int[] billingYears = new int[] {2016, 2015, 2014, 2013};
+    
+    Calendar cal = Calendar.getInstance();
+    int[] billingYears = new int[] {cal.get(Calendar.YEAR)};
     
     PrintStream oldOut = System.out;
     init(args);
@@ -48,7 +59,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
       billingYears = new int[] {fixYear};
     }
     
-    (new MyHTMLReport()).execute_HTML(billingYears, billingYears);
+    (new MyHTMLReport()).execute_HTML(billingYears, billingYears, true);
     
     System.setOut(oldOut);
     
@@ -62,7 +73,7 @@ public class MyHTMLReport extends BasicCommandLineApp {
    *          : should be a sequence of decreasing year numbers: { 2016, 2015, etc.}
    * @throws Exception
    */
-  public void execute_HTML(int[] billingYears, int[] metricsyears) throws Exception {
+  public void execute_HTML(int[] billingYears, int[] metricsyears, boolean metrics) throws Exception {
     
     if (reportingHTMLDir == null) {
       System.out.println("You need to define parameter reportingHtmlDir in properties file");
@@ -75,87 +86,101 @@ public class MyHTMLReport extends BasicCommandLineApp {
     
     File htmlDir = new File(reportingHTMLDir);
     
-    // 1. Write "metrics.html"
-    setOutput(new File(htmlDir, "metrics.html"));
-    System.out.println("<html><body><pre>\n");
-    File metricsFile = new File(htmlDir, "metrics.tsv");
-    int yearStart = metricsyears[metricsyears.length - 1];
-    int months = Math.abs((metricsyears[0] - yearStart + 1) * 12);
-    displayMetrics(app, yearStart, months, metricsFile, contracts);
-    String metricChanges = metricChangesPerMonth(yearStart, months, htmlDir, app, contracts);
-    
-    // 2. Write monthly billing files and get index
-    String billing = monthlyBillingReport(htmlDir, billingYears, contracts);
-    
-    // 3. Build "index.html"
-    StringBuffer indexFile = new StringBuffer();
-    indexFile.append(printer.header() + "<table cellpadding=\"20\" border=\"1\"  >");
-    indexFile.append("\n<tr><th>Billing</th><th>Metrics</th><th>Other</th></tr>\n");
-    
-    indexFile.append("\n<tr><td valign=\"top\">");
-    indexFile.append(billing);
-    indexFile.append("\n</td>\n");
-    indexFile.append("\n<td valign=\"top\">\n");
-    
-    indexFile.append("<h4><a href=\"metrics.html\">Metrics</a><h4/>Changes:\n");
-    indexFile.append(metricChanges);
-    indexFile.append("\n</td>\n");
-    
-    // == Build "Last" files
+    // vars:
     String content;
-    indexFile.append("\n<td valign=\"top\">\n");
+    StringBuffer indexCol = new StringBuffer();
+    String lastTitle;
     
-    String lastTitle = "Last Contracts";
-    indexFile.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
-    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
-        Reporting.report_last(app.printer, false, contracts, Contracts.AccountFilter.PAID_CONTRACT);
-    FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
+    // 0. Start index file:
+    StringBuffer indexContent = new StringBuffer();
+    indexContent.append(printer.header() + "<table cellpadding=\"20\" border=\"1\"  ><tr>");
     
-    lastTitle += " (new clients only)";
-    indexFile.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
-    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n"
-        + Reporting.report_last(app.printer, true, contracts, Contracts.AccountFilter.PAID_CONTRACT);
-    FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
-    
-    // == Commissions
-    lastTitle = "Commissions";
-    indexFile.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
-    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
-    String[] commssionees = contracts.getCommissionnees();
-    for (int year : billingYears) {
-      content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
-      content += Reporting.report_comm(year, commssionees, contracts);
+    // BILLING
+    if (section_billing) {
+      content = monthlyBillingReport(htmlDir, billingYears, contracts);
+      printColumn(indexContent, content, "Billing");
     }
-    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     
-    // == Client Monthly Report
-    lastTitle = "Client Monthly";
-    indexFile.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
-    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
-    for (int year : billingYears) {
-      content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
-      ContractMonthlyReport cmr = new ContractMonthlyReport();
-      content += cmr.allContractReport(contracts, year);
+    // METRICS
+    if (section_metrics) {
+      setOutput(new File(htmlDir, "metrics.html"));
+      System.out.println("<html><body><pre>\n");
+      File metricsFile = new File(htmlDir, "metrics.tsv");
+      int yearStart = metricsyears[metricsyears.length - 1];
+      int months = Math.abs((metricsyears[0] - yearStart + 1) * 12);
+      displayMetrics(app, yearStart, months, metricsFile, contracts);
+      String metricChanges = metricChangesPerMonth(yearStart, months, htmlDir, app, contracts);
+      content = "<p><a href=\"metrics.html\">Metrics</a></p>\n\n" + metricChanges;
+      printColumn(indexContent, content, "Metrics");
     }
-    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
     
-    // == MRR Report
-    indexFile.append("<br/>");
-    lastTitle = "MRR_MiniReport";
-    indexFile.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
-    content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
-    LocalDate miniStart = new LocalDate().minusMonths(6);
-    content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 9);
-    FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+    if (section_last) {
+      // == Build "Last" files
+      lastTitle = "Last Contracts";
+      indexCol.append("<a href=\"last_1.html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
+          Reporting.report_last(app.printer, false, contracts, Contracts.AccountFilter.PAID_CONTRACT);
+      FileUtils.writeStringToFile(new File(htmlDir, "last_1.html"), content);
+      
+      lastTitle += " (new clients only)";
+      indexCol.append("<a href=\"last_2.html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n"
+          + Reporting.report_last(app.printer, true, contracts, Contracts.AccountFilter.PAID_CONTRACT);
+      FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
+    }
     
-    indexFile.append("<br/>");
-    indexFile.append("<a href=\"./BACKUP\">BACKUPs</a><br/>");
+    if (section_comm) {
+      // == Commissions
+      lastTitle = "Commissions";
+      indexCol.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
+      String[] commssionees = contracts.getCommissionnees();
+      for (int year : billingYears) {
+        content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
+        content += Reporting.report_comm(year, commssionees, contracts);
+      }
+      FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+    }
     
-    indexFile.append("\n</td></tr></table>\n");
+    if (section_MRRReport) {
+      // == Client Monthly Report
+      lastTitle = "Client Monthly";
+      indexCol.append("<br/><a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
+      for (int year : billingYears) {
+        content += "\n<h4>" + lastTitle + " " + year + "</h4><pre>\n";
+        ContractMonthlyReport cmr = new ContractMonthlyReport();
+        content += cmr.allContractReport(contracts, year);
+      }
+      FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+      
+      // == MRR Report
+      lastTitle = "MRR_MiniReport";
+      indexCol.append("<a href=\"" + lastTitle + ".html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n";
+      LocalDate miniStart = new LocalDate().minusMonths(6);
+      content += MiniReport.miniReport(contracts, printer, miniStart.getYear(), miniStart.getMonthOfYear(), 9);
+      FileUtils.writeStringToFile(new File(htmlDir, lastTitle + ".html"), content);
+    }
     
-    File index = new File(htmlDir, "index.html");
-    FileUtils.writeStringToFile(index, indexFile.toString());
-    logger.info("Wrote index.html at: " + index.getAbsolutePath());
+    // Backups
+    indexCol.append("<a href=\"./BACKUP\">BACKUPs</a><br/>");
+    printColumn(indexContent, indexCol.toString(), "Other");
+    
+    indexContent.append("\n</tr>\n");
+    
+    File indexFile = new File(htmlDir, "index.html");
+    FileUtils.writeStringToFile(indexFile, indexContent.toString());
+    logger.info("Wrote index.html at: " + indexFile.getAbsolutePath());
+  }
+  
+  private void printColumn(StringBuffer indexFile, String content, String title) {
+    indexFile.append("\n<td valign=\"top\">");
+    if (title != null) {
+      indexFile.append("<h4>" + title + "</h4>\n");
+    }
+    indexFile.append(content);
+    indexFile.append("\n</td>\n");
   }
   
   /**

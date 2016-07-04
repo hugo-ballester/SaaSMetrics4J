@@ -20,6 +20,11 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Switch;
+
 import websays.accounting.Contracts;
 import websays.accounting.GlobalConstants;
 import websays.accounting.connectors.ContractDAO;
@@ -27,12 +32,8 @@ import websays.accounting.connectors.DatabaseManager;
 import websays.core.utils.MailConfiguration;
 import websays.core.utils.SendMailUsingAuthentication;
 
-import com.martiansoftware.jsap.FlaggedOption;
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.Switch;
-
 public class BasicCommandLineApp {
+  
   
   public static boolean connectToDB = true;
   
@@ -70,8 +71,8 @@ public class BasicCommandLineApp {
     
     jsap.registerParameter(new FlaggedOption("month").setStringParser(JSAP.INTEGER_PARSER).setRequired(false).setShortFlag('m'));
     
-    jsap.registerParameter(new FlaggedOption("contract").setLongFlag("contract").setShortFlag('c').setStringParser(JSAP.INTEGER_PARSER)
-        .setRequired(false));
+    jsap.registerParameter(
+        new FlaggedOption("contract").setLongFlag("contract").setShortFlag('c').setStringParser(JSAP.INTEGER_PARSER).setRequired(false));
     
     jsap.registerParameter(new Switch("offline").setLongFlag("offline").setDefault("false"));
     
@@ -147,8 +148,8 @@ public class BasicCommandLineApp {
     }
     
     if (connectToDB) {
-      DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")),
-          props.getProperty("user"), props.getProperty("pass"), props.getProperty("db"), true);
+      DatabaseManager.initDatabaseManager(props.getProperty("host"), Integer.parseInt(props.getProperty("port")), props.getProperty("user"),
+          props.getProperty("pass"), props.getProperty("db"), true);
     } else {
       System.out.println("WARNING: not connecting to DB");
     }
@@ -187,7 +188,6 @@ public class BasicCommandLineApp {
     }
     
     Contracts con = ContractDAO.loadAccounts(connectToDB, dumpDataFile != null ? new File(dumpDataFile) : null, pricingFile);
-    
     con.normalizeContracts(MIN_CONTRACT_LENGTH);
     
     if (connectToDB) {
@@ -218,8 +218,8 @@ public class BasicCommandLineApp {
       return false;
     }
     if (mc == null) {
-      logger
-          .error("You need to specify email server parameters in config file: SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_PORT, SMTP_SSL, SMTP_TSL");
+      logger.error(
+          "You need to specify email server parameters in config file: SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_PORT, SMTP_SSL, SMTP_TSL");
       return false;
     }
     

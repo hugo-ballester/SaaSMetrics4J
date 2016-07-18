@@ -23,6 +23,7 @@ import websays.core.utils.JodaUtils;
  */
 public class Contract {
   
+  
   private static final Logger logger = Logger.getLogger(Contract.class);
   
   public enum ContractDocument {

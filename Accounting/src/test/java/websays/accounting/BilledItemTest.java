@@ -16,6 +16,7 @@ import websays.core.utils.CurrencyUtils;
 
 public class BilledItemTest {
   
+  
   public static final String SDF = "dd/MM/yy";
   
   private static final Logger logger = Logger.getLogger(BilledItemTest.class);
@@ -36,7 +37,7 @@ public class BilledItemTest {
     BilledPeriod bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
     // 1. Contract with defined end date
-    BilledItem bi = new BilledItem(bp, 100., null, "name", 0, CurrencyUtils.EUR);
+    BilledItem bi = new BilledItem(bp, 100., null, "name", "plan", 0, CurrencyUtils.EUR);
     
     LocalDate d = dateStart;
     bi.warningChecks(d, c);
@@ -80,7 +81,7 @@ public class BilledItemTest {
     
     bp = new BilledPeriod(c.startContract, c.endContract, BillingSchema.MONTHS_1);
     
-    bi = new BilledItem(bp, 100., null, "name", 0, CurrencyUtils.EUR);
+    bi = new BilledItem(bp, 100., null, "name", "plan", 0, CurrencyUtils.EUR);
     
     d = dateStart;
     bi.warningChecks(d, c);

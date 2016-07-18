@@ -16,6 +16,7 @@ import websays.core.utils.JodaUtils;
 
 public class BilledItem {
   
+  
   static final String AUTORENEWED = "AUTORENEWED WITHOUT CLIENT AGREEMENT?";
   static final String WILL_RENEW_NEXT_MONTH = "WILL RENEW NEXT MONTH";
   static final String WILL_RENEW_2MONTHS = "TWO MONTHS TO AUTORENEW";
@@ -26,6 +27,7 @@ public class BilledItem {
   private Double fee, commissionBaseFee;
   
   public String contract_name;
+  public String contract_plan;
   public int contract_id;
   public ArrayList<String> notes = new ArrayList<String>(0);
   
@@ -43,18 +45,19 @@ public class BilledItem {
    * @param contractedPeriods
    *          used to determine if a warning of last bill should be issued.
    */
-  public BilledItem(BilledPeriod billedPeriod, Double fee, Double commissionBaseFee, String contract_name, int contract_id,
-      Currency currency) {
+  public BilledItem(BilledPeriod billedPeriod, Double fee, Double commissionBaseFee, String contract_name, String contact_plan,
+      int contract_id, Currency currency) {
     super();
     period = billedPeriod;
     setFees(fee, commissionBaseFee, currency);
     this.contract_name = contract_name;
     this.contract_id = contract_id;
+    this.contract_plan = contact_plan;
   }
   
   public BilledItem(BilledItem bi) throws Exception {
-    this(new BilledPeriod(bi.period), new Double(bi.getFee()), new Double(bi.getCommissionBaseFee()), bi.contract_name, bi.contract_id,
-        bi.currency);
+    this(new BilledPeriod(bi.period), new Double(bi.getFee()), new Double(bi.getCommissionBaseFee()), bi.contract_name, bi.contract_plan,
+        bi.contract_id, bi.currency);
   }
   
   public void warningChecks(LocalDate billingDate, Contract c) {

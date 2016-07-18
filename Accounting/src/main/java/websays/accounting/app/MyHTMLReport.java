@@ -266,6 +266,9 @@ public class MyHTMLReport extends BasicCommandLineApp {
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CONTRACT, true, contracts));
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PROJECT, true, contracts));
     System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PAID_CONTRACT, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CLIENT_DIRECT, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CLIENT_AGENCYPLAN, true, contracts));
+    System.out.println(app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.CLIENT_AGENCYNOTPLAN, true, contracts));
     
     String tsv = app.displayMetrics(yearMetricsStart, 1, monthsMetrics, AccountFilter.PAID_CONTRACT, false, contracts);
     FileUtils.writeStringToFile(tsvOut, tsv);

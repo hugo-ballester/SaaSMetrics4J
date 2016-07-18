@@ -102,24 +102,24 @@ public class MonthlyMetrics {
    * 
    * @param year
    * @param month
-   * @param accounts
+   * @param conrtacts
    * @param metricDate
    *          if true rounds all dates
    * @return
    * @throws ParseException
    */
-  public static MonthlyMetrics compute(int year, int month, Contracts accounts) throws ParseException {
+  public static MonthlyMetrics compute(int year, int month, Contracts conrtacts) throws ParseException {
     boolean metricDate = true;
     LocalDate lastDayOfMonth = (new LocalDate(year, month, 1)).dayOfMonth().withMaximumValue();
     
     MonthlyMetrics m = new MonthlyMetrics();
     
-    accounts.sort(websays.accounting.Contracts.SortType.contract);
+    conrtacts.sort(websays.accounting.Contracts.SortType.contract);
     
     String debug = String.format("%5s%20s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", //
         "id", "name", "profs", "Sprofs", "mrr", "Smrr", "new", "churn", "expansion");
     
-    for (Contract a : accounts) {
+    for (Contract a : conrtacts) {
       
       if (!a.isActiveBill(lastDayOfMonth)) {
         continue;

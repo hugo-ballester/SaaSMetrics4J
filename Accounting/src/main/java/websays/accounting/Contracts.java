@@ -22,15 +22,17 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import websays.accounting.Contract.ClientType;
 import websays.accounting.Contract.Type;
 import websays.accounting.metrics.Metrics;
 import websays.core.utils.JodaUtils;
 import websays.core.utils.jodatime.LocalDateSerializer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 public class Contracts extends ArrayList<Contract> {
+  
   
   private static final long serialVersionUID = 1L;
   
@@ -40,6 +42,9 @@ public class Contracts extends ArrayList<Contract> {
     CONTRACT, //
     PROJECT, //
     PAID_CONTRACT, //
+    CLIENT_AGENCYPLAN, //
+    CLIENT_AGENCYNOTPLAN, //
+    CLIENT_DIRECT, //
     STARTING, // starting at a given supplied date
     ENDING, // ending at a given supplied date (because {@code endContract})
     AUTORENEW, // ending because {@code contractedMonths} reached, but no end-date, so auto-renew
@@ -52,6 +57,12 @@ public class Contracts extends ArrayList<Contract> {
         return "contract.type='contract'";
       } else if (this == PROJECT) {
         return "contract.type='project'";
+      } else if (this == CLIENT_AGENCYPLAN) {
+        return "contract.plan='agency_1'";
+      } else if (this == CLIENT_AGENCYNOTPLAN) {
+        return "client.type='agency' AND contract.plan<>'agency_1'";
+      } else if (this == CLIENT_DIRECT) {
+        return "client.type='direct'";
       } else if (this == PAID_CONTRACT) {
         return "contract.type='project' OR contract.type='contract'";
       } else if (this == BILLCENTER_ES) {
@@ -71,6 +82,12 @@ public class Contracts extends ArrayList<Contract> {
         return c.type.equals(Type.subscription);
       } else if (this == PAID_CONTRACT) {
         return c.type.equals(Type.subscription) || c.type.equals(Type.project);
+      } else if (this == AccountFilter.CLIENT_AGENCYPLAN) {
+        return "agencies_1".equals(c.plan);
+      } else if (this == AccountFilter.CLIENT_AGENCYNOTPLAN) {
+        return "agency".equals(c.client_type) && !"agencies_1".equals(c.plan);
+      } else if (this == AccountFilter.CLIENT_DIRECT) {
+        return ClientType.direct.equals(c.client_type);
       } else if (this == PROJECT) {
         return c.type.equals(Type.project);
       } else if (this == BILLCENTER_ES) {
@@ -327,6 +344,7 @@ public class Contracts extends ArrayList<Contract> {
     if (sort == SortType.client) {
       Collections.sort(this, new Comparator<Contract>() {
         
+        
         @Override
         public int compare(Contract o1, Contract o2) {
           if (o1 == null || o2 == null || o1.client_name == null || o2.client_name == null) {
@@ -342,6 +360,7 @@ public class Contracts extends ArrayList<Contract> {
       });
     } else if (sort == SortType.date_ASC) {
       Collections.sort(this, new Comparator<Contract>() {
+        
         
         @Override
         public int compare(Contract o1, Contract o2) {
@@ -360,6 +379,7 @@ public class Contracts extends ArrayList<Contract> {
       
     } else if (sort == SortType.contract) {
       Collections.sort(this, new Comparator<Contract>() {
+        
         
         @Override
         public int compare(Contract o1, Contract o2) {

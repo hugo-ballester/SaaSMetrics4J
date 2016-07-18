@@ -174,7 +174,7 @@ public class Reporting {
    * @throws SQLException
    * 
    */
-  public String displayBilling(int year, int month, Contracts contracts) throws ParseException, SQLException {
+  public String billingMonthlyReport(int year, int month, Contracts contracts) throws ParseException, SQLException {
     
     if (contracts == null) {
       String err = "ERROR: displayBilling: NULL contracts?";

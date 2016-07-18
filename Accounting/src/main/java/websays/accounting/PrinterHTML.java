@@ -17,10 +17,11 @@ import websays.core.utils.CurrencyUtils;
 
 public class PrinterHTML extends BillingReportPrinter {
   
+  
   final static String HTML_NOCACHE = //
-  "<meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />" //
-      + "<meta http-equiv=\"Pragma\" content=\"no-cache\" />" //
-      + "<meta http-equiv=\"Expires\" content=\"0\" />";
+      "<meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />" //
+          + "<meta http-equiv=\"Pragma\" content=\"no-cache\" />" //
+          + "<meta http-equiv=\"Expires\" content=\"0\" />";
   
   final static String HTML_META = "<meta>" + HTML_NOCACHE + "</meta>";
   
@@ -66,7 +67,7 @@ public class PrinterHTML extends BillingReportPrinter {
     if (bi.commissions != null && bi.commissions.size() > 0) {
       comms = commissionsShortString(bi.commissions);
     }
-    String per = String.format("B%2s-M%2s", bi.period.period, monthNumber);
+    String per = String.format("%5s B%s-M%s", bi.contract_plan != null ? bi.contract_plan : "-", bi.period.period, monthNumber);
     s.append(String.format("   %-20s" + TAB + "(%s %s-%s %s %s)", bi.contract_name, per, GlobalConstants.dtS.print(bi.period.periodStart),
         dateFormat1.print(bi.period.periodEnd), //
         money(bi.getFee(), false, bi.getCurrency())

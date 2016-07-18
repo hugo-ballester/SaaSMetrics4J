@@ -167,7 +167,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     r.showInvoicesHeadlineWhenNone = false;
     
     for (int m = 0; m < months; m++) {
-      sb.append(r.displayBilling(cal.getYear(), cal.getMonthOfYear(), contracts) + "\n");
+      sb.append(r.billingMonthlyReport(cal.getYear(), cal.getMonthOfYear(), contracts) + "\n");
       cal = cal.plusMonths(1);
     }
     return sb.toString();

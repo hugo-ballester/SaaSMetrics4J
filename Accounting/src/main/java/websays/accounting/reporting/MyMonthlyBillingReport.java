@@ -39,12 +39,12 @@ public class MyMonthlyBillingReport extends BasicCommandLineApp {
     if (billingCenters == null) {
       billingSection = app.printer.box1(//
           "BILLING", //
-          app.displayBilling(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), contracts), connectToDB);
+          app.billingMonthlyReport(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), contracts), connectToDB);
     } else {
       for (AccountFilter af : billingCenters) {
         Contracts conts = contracts.getView(af);
         billingSection += app.printer.box1("BILLING FOR CENTER: " + af.name() + "",
-            app.displayBilling(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), conts), connectToDB);
+            app.billingMonthlyReport(begOfMonth.getYear(), begOfMonth.getMonthOfYear(), conts), connectToDB);
       }
     }
     System.out.println(//

@@ -38,7 +38,8 @@ import websays.accounting.Pricing;
 
 public class ContractDAO extends MySQLDAO {
   
-  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, free, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing";
+  
+  private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, free, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing,contract.plan";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
   
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
@@ -258,6 +259,8 @@ public class ContractDAO extends MySQLDAO {
       
       String comments_billing = rs.getString(column++);
       
+      String plan = rs.getString(column++);
+      
       ArrayList<CommissionPlan> comms = new ArrayList<CommissionPlan>();
       if (commisionLabel != null) {
         List<CommissionPlan> comm = ContractFactory.commissionFromSchema(fix, commisionLabel, mrr, commissionMonthyBase, commissionee);
@@ -296,6 +299,7 @@ public class ContractDAO extends MySQLDAO {
       if (client_type != null) {
         a.client_type = Contract.ClientType.valueOf(client_type);
       }
+      a.plan = plan;
       
       return a;
     } catch (Exception e) {

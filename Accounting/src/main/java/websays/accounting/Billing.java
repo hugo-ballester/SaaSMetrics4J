@@ -27,6 +27,7 @@ import org.joda.time.Months;
  */
 public class Billing {
   
+  
   private static final String error1 = "DONT KNOW HOW TO COMPUTE BILLING: ";
   private static final Logger logger = Logger.getLogger(Billing.class);
   
@@ -80,7 +81,7 @@ public class Billing {
         return null;
       }
       
-      BilledItem bi = new BilledItem(bp, 0.0, 0.0, c.name, c.id, c.currency);
+      BilledItem bi = new BilledItem(bp, 0.0, 0.0, c.name, c.plan, c.id, c.currency);
       
       // If this month's billing date is not this period'd billing date it means that billing was in the past already, so nothing to charge
       

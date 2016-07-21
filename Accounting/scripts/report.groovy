@@ -147,7 +147,7 @@ commands << "Contracts with 0 MRR!"
 commands << """
 SELECT $cols1 
 $FROM1
-WHERE free=0 AND pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND $TypeIsSubscriptionOrProject AND plan <> 'agencies_1'
+WHERE free=0 AND pricing IS NULL AND ( (mrr+IFNULL(fixed,0))=0 ) AND $TypeIsSubscriptionOrProject AND (plan <> 'agencies_1' AND plan <> 'presale')
 """
 // agencies_1 is MRR0 because computed per agency
 

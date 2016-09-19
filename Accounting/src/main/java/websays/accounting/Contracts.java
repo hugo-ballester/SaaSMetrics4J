@@ -35,6 +35,10 @@ public class Contracts extends ArrayList<Contract> {
   
   
   private static final long serialVersionUID = 1L;
+
+  public static final String AGENCIES_PLAN_NAME = "agencies_1";
+  
+  public static final String CLIENT_TYPE_AGENCY = "agency";
   
   static Logger logger = Logger.getLogger(Contracts.class);
   
@@ -58,9 +62,9 @@ public class Contracts extends ArrayList<Contract> {
       } else if (this == PROJECT) {
         return "contract.type='project'";
       } else if (this == CLIENT_AGENCYPLAN) {
-        return "contract.plan='agency_1'";
+        return "client.type='agency' AND contract.plan='" + AGENCIES_PLAN_NAME + "'";
       } else if (this == CLIENT_AGENCYNOTPLAN) {
-        return "client.type='agency' AND contract.plan<>'agency_1'";
+        return "client.type='agency' AND contract.plan<>'" + AGENCIES_PLAN_NAME + "'";
       } else if (this == CLIENT_DIRECT) {
         return "client.type='direct'";
       } else if (this == PAID_CONTRACT) {
@@ -83,9 +87,9 @@ public class Contracts extends ArrayList<Contract> {
       } else if (this == PAID_CONTRACT) {
         return c.type.equals(Type.subscription) || c.type.equals(Type.project);
       } else if (this == AccountFilter.CLIENT_AGENCYPLAN) {
-        return "agencies_1".equals(c.plan);
+        return CLIENT_TYPE_AGENCY.equals(c.client_type) && AGENCIES_PLAN_NAME.equals(c.plan);
       } else if (this == AccountFilter.CLIENT_AGENCYNOTPLAN) {
-        return "agency".equals(c.client_type) && !"agencies_1".equals(c.plan);
+        return CLIENT_TYPE_AGENCY.equals(c.client_type) && !AGENCIES_PLAN_NAME.equals(c.plan);
       } else if (this == AccountFilter.CLIENT_DIRECT) {
         return ClientType.direct.equals(c.client_type);
       } else if (this == PROJECT) {
@@ -336,7 +340,7 @@ public class Contracts extends ArrayList<Contract> {
   
   /**
    * Sort by client anme or by contrct name
-   * 
+   *
    * @param sort
    */
   public void sort(SortType sort) {
@@ -437,7 +441,7 @@ public class Contracts extends ArrayList<Contract> {
    * <li>SET TO "project" all contracts of less than minContractLength days
    * <li>REMOVE any projects with cost 0
    * </ul>
-   * 
+   *
    * @param con
    * @param minContractLength
    */

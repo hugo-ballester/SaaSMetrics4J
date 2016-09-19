@@ -17,7 +17,7 @@ import websays.core.utils.JodaUtils;
 
 /**
  * Represents a contract with a client (will genereate bills)
- * 
+ *
  * @author hugoz
  *
  */
@@ -50,11 +50,15 @@ public class Contract {
   }
   
   public enum ClientType {
-    agency, direct, project_only
+    agency, direct
   }
   
   public enum Type {
-    subscription, project, pilot, internal, budget, test
+    subscription, project, pilot, internal, budget, test;
+
+    public boolean countInMetrics(String plan) {
+      return (this.equals(subscription) || this.equals(project)) && (!"presale".equals(plan));
+    }
   };
   
   // =============================================
@@ -233,7 +237,7 @@ public class Contract {
   
   /**
    * Gets right monthly price, adding proportional fixed price
-   * 
+   *
    * @param d
    *          only needd for pricing schemas that depend on date, otherwise can be null
    * @return { prize, commissionBase}
@@ -308,7 +312,7 @@ public class Contract {
   
   /**
    * True if this contract is in billing period (from beginning of contract to last day of last month of contract)
-   * 
+   *
    * @param d
    * @return
    */
@@ -342,7 +346,7 @@ public class Contract {
   
   /**
    * true if d is in the last month of this contract
-   * 
+   *
    */
   public boolean isLastMonth(LocalDate d, boolean roundDate) {
     if (roundDate) {
@@ -390,7 +394,7 @@ public class Contract {
   
   /**
    * Ignores DAY_OF_MONTH 0 if contracts ends same month as d, 1 if contract ends following month, etc.
-   * 
+   *
    * @return
    */
   public int getMonthsRemaining(LocalDate d) {

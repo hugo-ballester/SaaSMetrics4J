@@ -36,8 +36,7 @@ public class Contracts extends ArrayList<Contract> {
   
   private static final long serialVersionUID = 1L;
 
-  public static final String AGENCIES_PLAN_NAME = "agencies_1";
-  
+  public static final String CONTRACT_PLAN_AGENCIES1 = "agencies_1";
   public static final String CLIENT_TYPE_AGENCY = "agency";
   
   static Logger logger = Logger.getLogger(Contracts.class);
@@ -62,9 +61,9 @@ public class Contracts extends ArrayList<Contract> {
       } else if (this == PROJECT) {
         return "contract.type='project'";
       } else if (this == CLIENT_AGENCYPLAN) {
-        return "client.type='agency' AND contract.plan='" + AGENCIES_PLAN_NAME + "'";
+        return "client.type='" + CLIENT_TYPE_AGENCY + "' AND contract.plan='" + CONTRACT_PLAN_AGENCIES1 + "'";
       } else if (this == CLIENT_AGENCYNOTPLAN) {
-        return "client.type='agency' AND contract.plan<>'" + AGENCIES_PLAN_NAME + "'";
+        return "client.type='" + CLIENT_TYPE_AGENCY + "' AND contract.plan<>'" + CONTRACT_PLAN_AGENCIES1 + "'";
       } else if (this == CLIENT_DIRECT) {
         return "client.type='direct'";
       } else if (this == PAID_CONTRACT) {
@@ -80,16 +79,20 @@ public class Contracts extends ArrayList<Contract> {
     }
     
     public Boolean accept(Contract c) {
-      if (c == null) {
+      if (c == null || c.type == null) {
         return null;
-      } else if (this == CONTRACT) {
+      } else if (!c.type.countInMetrics(c.plan)) {
+        return false;
+      }
+      
+      else if (this == CONTRACT) {
         return c.type.equals(Type.subscription);
       } else if (this == PAID_CONTRACT) {
         return c.type.equals(Type.subscription) || c.type.equals(Type.project);
       } else if (this == AccountFilter.CLIENT_AGENCYPLAN) {
-        return CLIENT_TYPE_AGENCY.equals(c.client_type) && AGENCIES_PLAN_NAME.equals(c.plan);
+        return ClientType.agency.equals(c.client_type) && CONTRACT_PLAN_AGENCIES1.equals(c.plan);
       } else if (this == AccountFilter.CLIENT_AGENCYNOTPLAN) {
-        return CLIENT_TYPE_AGENCY.equals(c.client_type) && !AGENCIES_PLAN_NAME.equals(c.plan);
+        return ClientType.agency.equals(c.client_type) && !CONTRACT_PLAN_AGENCIES1.equals(c.plan);
       } else if (this == AccountFilter.CLIENT_DIRECT) {
         return ClientType.direct.equals(c.client_type);
       } else if (this == PROJECT) {
@@ -396,9 +399,15 @@ public class Contracts extends ArrayList<Contract> {
   
   public Contracts getView(AccountFilter filter) {
     Contracts ret = new Contracts();
+    int i = 0, ok = 0;
     for (Contract c : this) {
+      i++;
       if (filter.accept(c)) {
         ret.add(c);
+        ok++;
+        logger.debug("FILTER " + filter.name() + " " + i + "," + ok + ": " + c.name + "\t" + c.client_name + "\t" + " OK");
+      } else {
+        // logger.debug("FILTER " + filter.name() + " " + i + "," + ok + ": " + c.name + "\t" + c.client_name + "\t" + " XX");
       }
     }
     return ret;
@@ -435,12 +444,7 @@ public class Contracts extends ArrayList<Contract> {
   }
   
   /**
-   * BY CONVENTION:
-   * <ul>
-   * <li>SET TO "project" all non-contracts
-   * <li>SET TO "project" all contracts of less than minContractLength days
-   * <li>REMOVE any projects with cost 0
-   * </ul>
+   * BY CONVENTION: SET TO "project" all "subscription" of less than minContractLength days
    *
    * @param con
    * @param minContractLength
@@ -449,13 +453,9 @@ public class Contracts extends ArrayList<Contract> {
     Iterator<Contract> cs = this.iterator();
     while (cs.hasNext()) {
       Contract c = cs.next();
-      // if (c.isCostZero()) {
-      // logger.warn("Ignoring contract " + c.name + " because is cost zero");
-      // cs.remove();
-      // } else {
       if (
       //
-      (!c.type.equals(Type.subscription)) //
+      (c.type.equals(Type.subscription)) //
           && //
           (c.getDays() > 0 && c.getDays() < minContractLength) //
       ) {

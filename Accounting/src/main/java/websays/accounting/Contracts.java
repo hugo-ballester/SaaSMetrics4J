@@ -32,15 +32,14 @@ import websays.core.utils.JodaUtils;
 import websays.core.utils.jodatime.LocalDateSerializer;
 
 public class Contracts extends ArrayList<Contract> {
-  
-  
+
   private static final long serialVersionUID = 1L;
 
   public static final String CONTRACT_PLAN_AGENCIES1 = "agencies_1";
   public static final String CLIENT_TYPE_AGENCY = "agency";
-  
+
   static Logger logger = Logger.getLogger(Contracts.class);
-  
+
   public enum AccountFilter {
     CONTRACT, //
     PROJECT, //
@@ -54,7 +53,7 @@ public class Contracts extends ArrayList<Contract> {
     CHANGED, //
     BILLCENTER_ES, //
     BILLCENTER_UK; // changed at a given supplied date
-    
+
     public String whereBoolean() {
       if (this == CONTRACT) {
         return "contract.type='contract'";
@@ -77,14 +76,14 @@ public class Contracts extends ArrayList<Contract> {
         return "";
       }
     }
-    
+
     public Boolean accept(Contract c) {
       if (c == null || c.type == null) {
         return null;
       } else if (!c.type.countInMetrics(c.plan)) {
         return false;
       }
-      
+
       else if (this == CONTRACT) {
         return c.type.equals(Type.subscription);
       } else if (this == PAID_CONTRACT) {
@@ -106,13 +105,13 @@ public class Contracts extends ArrayList<Contract> {
       }
       return null;
     }
-    
+
   };
-  
+
   static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-  
+
   public Contracts() {}
-  
+
   public Contract getContract(int contractID) {
     for (Contract c : this) {
       if (c.getId() == contractID) {
@@ -120,9 +119,9 @@ public class Contracts extends ArrayList<Contract> {
       }
     }
     return null;
-    
+
   }
-  
+
   public String display() {
     StringBuilder sb = new StringBuilder();
     for (Contract a : this) {
@@ -131,12 +130,12 @@ public class Contracts extends ArrayList<Contract> {
     }
     return sb.toString();
   }
-  
+
   public Contracts getActive(int year, int month, AccountFilter filter, boolean metricDate) throws ParseException {
     LocalDate date = new LocalDate(year, month, 1);
     return getActive(date, filter, metricDate);
   }
-  
+
   public Contracts getRenewThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
@@ -155,11 +154,11 @@ public class Contracts extends ArrayList<Contract> {
           ret.add(a);
         }
       }
-      
+
     }
     return ret;
   }
-  
+
   public Contracts getEndingThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
@@ -167,14 +166,14 @@ public class Contracts extends ArrayList<Contract> {
       if (metricDate) {
         d = a.endRoundDate;
       }
-      
+
       if (d != null && JodaUtils.isSameMonthAndYear(date, d)) {
         ret.add(a);
       }
     }
     return ret;
   }
-  
+
   public Contracts getStartingThisMonth(LocalDate date, boolean metricDate) {
     Contracts ret = new Contracts();
     for (Contract a : this) {
@@ -189,7 +188,7 @@ public class Contracts extends ArrayList<Contract> {
     }
     return ret;
   }
-  
+
   /**
    * @param date
    * @param filter
@@ -197,7 +196,7 @@ public class Contracts extends ArrayList<Contract> {
    */
   public Contracts getActiveBill(LocalDate date) {
     Contracts ret = new Contracts();
-    
+
     for (Contract a : this) {
       if (a.isActiveBill(date)) {
         ret.add(a);
@@ -205,7 +204,7 @@ public class Contracts extends ArrayList<Contract> {
     }
     return ret;
   }
-  
+
   /**
    * @param date
    * @param filter
@@ -217,9 +216,9 @@ public class Contracts extends ArrayList<Contract> {
     if (filter == null) {
       return (Contracts) clone();
     }
-    
+
     Contracts ret = new Contracts();
-    
+
     if (filter.equals(AccountFilter.ENDING)) {
       return getEndingThisMonth(date, metricDate);
     } else if (filter.equals(AccountFilter.STARTING)) {
@@ -227,12 +226,12 @@ public class Contracts extends ArrayList<Contract> {
     } else if (filter.equals(AccountFilter.AUTORENEW)) {
       return getRenewThisMonth(date, metricDate);
     }
-    
+
     for (Contract a : this) {
       if (!a.isActive(date, metricDate)) {
         continue;
       }
-      
+
       if (filter != null) {
         if (filter == AccountFilter.CONTRACT) {
           if (a.type != Type.subscription) {
@@ -257,9 +256,9 @@ public class Contracts extends ArrayList<Contract> {
       ret.add(a);
     }
     return ret;
-    
+
   }
-  
+
   public void remove(String clientName) {
     int r = 0;
     for (Iterator<Contract> iterator = iterator(); iterator.hasNext();) {
@@ -271,7 +270,7 @@ public class Contracts extends ArrayList<Contract> {
     }
     System.out.println("REMOVED " + r);
   }
-  
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -281,11 +280,11 @@ public class Contracts extends ArrayList<Contract> {
     }
     return sb.toString();
   }
-  
+
   public void save(File file) {
     final GsonBuilder builder = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateSerializer());
     final Gson gson = builder.create();
-    
+
     ArrayList<String> data = new ArrayList<String>(1);
     data.add(gson.toJson(this));
     try {
@@ -294,7 +293,7 @@ public class Contracts extends ArrayList<Contract> {
     } catch (IOException e) {
       logger.error(e);
     }
-    
+
     // Kryo kryo = new Kryo();
     // Output output = null;
     // try {
@@ -306,13 +305,13 @@ public class Contracts extends ArrayList<Contract> {
     // output.close();
     // }
   }
-  
+
   public static Contracts load(File file) {
     Contracts ret = null;
-    
+
     final GsonBuilder builder = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateSerializer());
     final Gson gson = builder.create();
-    
+
     String json;
     try {
       json = FileUtils.readFileToString(file);
@@ -320,7 +319,7 @@ public class Contracts extends ArrayList<Contract> {
     } catch (IOException e) {
       logger.error(e);
     }
-    
+
     // Kryo kryo = new Kryo();
     // Input input = null;
     // try {
@@ -334,30 +333,29 @@ public class Contracts extends ArrayList<Contract> {
     // input.close();
     // }
     return ret;
-    
+
   }
-  
+
   public enum SortType {
-    client, contract, date_ASC
+    client, contract, date_ASC, end_ASC
   };
-  
+
   /**
    * Sort by client anme or by contrct name
    *
    * @param sort
    */
   public void sort(SortType sort) {
-    
+
     if (sort == SortType.client) {
       Collections.sort(this, new Comparator<Contract>() {
-        
-        
+
         @Override
         public int compare(Contract o1, Contract o2) {
           if (o1 == null || o2 == null || o1.client_name == null || o2.client_name == null) {
             return 0;
           }
-          
+
           if (o1.client_name.equals(o2.client_name)) {
             return o1.name.compareTo(o2.name);
           } else {
@@ -367,8 +365,7 @@ public class Contracts extends ArrayList<Contract> {
       });
     } else if (sort == SortType.date_ASC) {
       Collections.sort(this, new Comparator<Contract>() {
-        
-        
+
         @Override
         public int compare(Contract o1, Contract o2) {
           if (o1 == null || o2 == null || o1.startContract == null || o2.startContract == null) {
@@ -383,20 +380,39 @@ public class Contracts extends ArrayList<Contract> {
           }
         }
       });
-      
+    } else if (sort == SortType.end_ASC) {
+      Collections.sort(this, new Comparator<Contract>() {
+
+        @Override
+        public int compare(Contract o1, Contract o2) {
+          if (o1 == null || o2 == null) {
+            return 0;
+          } else if (o1.endContract == null) {
+            return -1;
+          } else if (o2.endContract == null) {
+            return 1;
+          } else if (o1.endContract.isAfter(o2.endContract)) {
+            return 1;
+          } else if (o2.endContract.isAfter(o1.endContract)) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }
+      });
+
     } else if (sort == SortType.contract) {
       Collections.sort(this, new Comparator<Contract>() {
-        
-        
+
         @Override
         public int compare(Contract o1, Contract o2) {
           return o1.name.compareTo(o2.name);
         }
       });
     }
-    
+
   }
-  
+
   public Contracts getView(AccountFilter filter) {
     Contracts ret = new Contracts();
     int i = 0, ok = 0;
@@ -412,11 +428,11 @@ public class Contracts extends ArrayList<Contract> {
     }
     return ret;
   }
-  
+
   public Contracts getViewMatcingName(String string) {
     return getViewMatcingName(Pattern.compile(Pattern.quote(string)));
   }
-  
+
   public Contracts getViewMatcingName(Pattern string) {
     Contracts ret = new Contracts();
     Matcher m = string.matcher("");
@@ -428,7 +444,7 @@ public class Contracts extends ArrayList<Contract> {
     }
     return ret;
   }
-  
+
   public String[] getCommissionnees() {
     HashSet<String> ret = new HashSet<String>();
     for (Contract c : this) {
@@ -442,7 +458,7 @@ public class Contracts extends ArrayList<Contract> {
     Arrays.sort(rett);
     return rett;
   }
-  
+
   /**
    * BY CONVENTION: SET TO "project" all "subscription" of less than minContractLength days
    *
@@ -464,6 +480,6 @@ public class Contracts extends ArrayList<Contract> {
       }
       // }
     }
-    
+
   }
 }

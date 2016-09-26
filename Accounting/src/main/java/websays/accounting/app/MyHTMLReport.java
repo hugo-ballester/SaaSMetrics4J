@@ -126,6 +126,14 @@ public class MyHTMLReport extends BasicCommandLineApp {
       content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n"
           + Reporting.report_last(app.printer, true, contracts, Contracts.AccountFilter.PAID_CONTRACT);
       FileUtils.writeStringToFile(new File(htmlDir, "last_2.html"), content);
+
+      // == Build "Churned" files
+      lastTitle = "Churned Contracts";
+      indexCol.append("<a href=\"last_3.html\">" + lastTitle + "</a><br/>");
+      content = printer.header() + "<h2>" + lastTitle + "</h2><pre>\n\n" + //
+          Reporting.report_churned(app.printer, contracts, Contracts.AccountFilter.PAID_CONTRACT);
+      FileUtils.writeStringToFile(new File(htmlDir, "last_3.html"), content);
+
     }
 
     if (section_comm) {

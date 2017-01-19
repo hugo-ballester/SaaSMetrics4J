@@ -64,7 +64,7 @@ public class AgencyBilling {
           "LEFT JOIN active_contracts c ON p.contract_id=c.id " + //
           "LEFT JOIN client cl ON c.client_id=cl.id " + //
           "WHERE  " + //
-          "  p.deleted=0 " + //
+          "  p.deleted=0 AND p.schedule <> 'Frozen' " + //
           "  AND (c.type='subscription' OR c.type='project') " + //
           "  AND ( c.confirmedClosed IS NULL ) " + // WHY???
           "  AND (cl.name  IN (SELECT * FROM agencies1 )) " + //

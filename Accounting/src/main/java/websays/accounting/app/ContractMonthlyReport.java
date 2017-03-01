@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 
@@ -28,27 +29,36 @@ import websays.accounting.Reporting;
 import websays.core.utils.CurrencyUtils;
 
 public class ContractMonthlyReport extends BasicCommandLineApp {
-  
+
+  private static final Logger logger = Logger.getLogger(ContractMonthlyReport.class);
+
   final int M = Calendar.MONTH;
   final int Y = Calendar.YEAR;
   BillingReportPrinter printer = new PrinterHTML();
-  
+
   public static void main(String[] args) throws Exception {
     StringBuffer sb = new StringBuffer();
     sb.append("<head><meta charset=\"UTF-8\"></head>");
-    
+
     init(args);
     ContractMonthlyReport cmr = new ContractMonthlyReport();
     sb.append(cmr.report(contractID, fixYear));
     System.out.println(sb.toString());
-    
+
   }
-  
+
   public String report(Integer contractID, Integer year) throws Exception {
     if (year == null) {
       year = Calendar.getInstance().get(Calendar.YEAR);
     }
-    Contracts contracts = initContracts();
+    Contracts contracts = null;
+    try {
+      contracts = initContracts();
+    } catch (Exception e) {
+      logger.error(e, e);
+      return "ERROR: contracts could not be loaded form DB (see error log for info.)";
+    }
+
     if (contractID != null) {
       Contract c = contracts.getContract(contractID);
       if (c == null) {
@@ -58,9 +68,9 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     } else {
       return allContractReport(contracts, year);
     }
-    
+
   }
-  
+
   String oneContractReport(Contract c) throws ParseException, SQLException {
     LocalDate cS = c.startContract;
     int months = 12;
@@ -69,25 +79,25 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
     } else if (c.contractedMonths != null) {
       months = c.contractedMonths;
     }
-    
+
     String ret = report(c, cS, months);
     if (c.endContract == null) {
       ret += "... and continues forever ...\n";
     }
     return ret;
   }
-  
+
   public String allContractReport(Contracts contracts, int year) throws ParseException, SQLException {
     TreeSet<String> clients = new TreeSet<String>();
     ArrayList<HashMap<String,Double>> billed = new ArrayList<HashMap<String,Double>>();
     StringBuffer sb = new StringBuffer();
-    
+
     for (int i = 1; i <= 12; i++) {
       HashMap<String,Double> map = allContractReport(contracts, year, i);
       billed.add(map);
       clients.addAll(map.keySet());
     }
-    
+
     sb.append(String.format("\n\n%20s\t", "CLIENT"));
     ArrayList<Double> totCols = new ArrayList<Double>();
     for (int i = 0; i <= 11; i++) {
@@ -95,7 +105,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       totCols.add(0.0);
     }
     sb.append(String.format("%9s\n", "Tot"));
-    
+
     for (String s : clients) {
       sb.append(String.format("%20s\t", s));
       Double totRow = 0.0;
@@ -108,7 +118,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       }
       sb.append(String.format("%9.2f\n", totRow != null ? totRow : 0.0));
     }
-    
+
     sb.append(String.format("\n\n%20s\t", "Total"));
     double tott = 0.0;
     for (int i = 0; i <= 11; i++) {
@@ -116,13 +126,13 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       sb.append(String.format("%9.2f\t", totCols.get(i)));
     }
     sb.append(String.format("%9.2f\n", tott));
-    
+
     return sb.toString();
   }
-  
+
   HashMap<String,Double> allContractReport(Contracts contracts, int year, int month) throws ParseException, SQLException {
     HashMap<String,Double> map = new LinkedHashMap<String,Double>();
-    
+
     ArrayList<Bill> bs = Billing.bill(contracts, year, month);
     for (Bill b : bs) {
       String key = b.clientName;
@@ -134,7 +144,7 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
       tot = (tot == null ? 0 : tot) + fee;
       map.put(key, tot);
     }
-    
+
     // remove all at 0
     for (Iterator<Entry<String,Double>> it = map.entrySet().iterator(); it.hasNext();) {
       Entry<String,Double> entry = it.next();
@@ -142,10 +152,10 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
         it.remove();
       }
     }
-    
+
     return map;
   }
-  
+
   /**
    * @param c
    * @param yearStart
@@ -160,12 +170,12 @@ public class ContractMonthlyReport extends BasicCommandLineApp {
   public String report(Contract c, LocalDate cS, int months) throws ParseException, SQLException {
     StringBuffer sb = new StringBuffer();
     LocalDate cal = new LocalDate(cS);
-    
+
     Contracts contracts = new Contracts();
     contracts.add(c);
     Reporting r = new Reporting(printer);
     r.showInvoicesHeadlineWhenNone = false;
-    
+
     for (int m = 0; m < months; m++) {
       sb.append(r.billingMonthlyReport(cal.getYear(), cal.getMonthOfYear(), contracts) + "\n");
       cal = cal.plusMonths(1);

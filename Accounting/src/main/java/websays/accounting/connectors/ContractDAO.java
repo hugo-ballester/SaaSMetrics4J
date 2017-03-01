@@ -37,13 +37,12 @@ import websays.accounting.Contracts.AccountFilter;
 import websays.accounting.Pricing;
 
 public class ContractDAO extends MySQLDAO {
-  
-  
+
   private static final String COLUMNS_READ = "contract.id, contract.name, contract.start, contract.end, contract.contractedMonths, contract.type, contract.contract, contract.billingSchema, contract.currency_id, mrr, free, fixed, pricing, client_id, client.name, client.billingCenter, client.type, commissionMonthlyBase,commissionnee,commission_type,commissionnee2,commission_type2,comments_billing,contract.plan";
   private static final String tableName = "(contract LEFT JOIN client ON contract.client_id=client.id)";
-  
+
   private HashMap<String,Pricing> pricingSchemaNames = new HashMap<String,Pricing>(0);
-  
+
   public ContractDAO(String pricingFile) {
     super();
     HashMap<String,Pricing> p = loadPriceNames(pricingFile);
@@ -51,7 +50,7 @@ public class ContractDAO extends MySQLDAO {
       setPricing(p);
     }
   }
-  
+
   // public static void updateProfilesPerContract(Contracts cs) {
   // String cmd = "SELECT c.id, COUNT(c.name) FROM profiles p JOIN contract c ON p.contract_id=c.id GROUP BY c.id";
   // PreparedStatement p = null;
@@ -79,15 +78,15 @@ public class ContractDAO extends MySQLDAO {
   // close(connection);
   // }
   // }
-  
+
   public static String getPriceFileFromDB() {
     String table = "frontend_property";
     String key = "key";
     String value = "value";
     String orderField = "updated";
-    
+
     String st = "SELECT `" + value + "` FROM `" + table + "` WHERE `" + key + "`='accounting_pricing' ORDER BY `" + orderField + "` DESC";
-    
+
     PreparedStatement p = null;
     Connection connection = null;
     ResultSet r = null;
@@ -107,7 +106,7 @@ public class ContractDAO extends MySQLDAO {
       close(connection);
     }
   }
-  
+
   public static String getPricingFileFromFile(File priceFile) {
     String ret;
     try {
@@ -119,11 +118,11 @@ public class ContractDAO extends MySQLDAO {
       return null;
     }
   }
-  
+
   public static HashMap<String,Pricing> loadPriceNames(String priceFile) {
     HashMap<String,Pricing> pricings = new HashMap<String,Pricing>();
     DateTimeFormatter df = DateTimeFormat.forPattern("yyyy/MM/dd");
-    
+
     int n = 0;
     String[] lines = priceFile.split("\n");
     for (String line : lines) {
@@ -152,11 +151,11 @@ public class ContractDAO extends MySQLDAO {
     logger.info("Pricing names loaded: " + pricings.size());
     return pricings;
   }
-  
+
   public int getNumberOfProfiles(int contractId) throws SQLException {
-    
+
     String st = "SELECT COUNT(profile_id) FROM profiles WHERE contract_id=" + contractId + " GROUP BY contract_id";
-    
+
     PreparedStatement p = null;
     Connection connection = null;
     ResultSet r = null;
@@ -178,7 +177,7 @@ public class ContractDAO extends MySQLDAO {
       super.close(connection);
     }
   }
-  
+
   public Contracts getAccounts(AccountFilter filter, boolean getNumberOfProfiles) throws Exception {
     Contracts accs = new Contracts();
     String st = "SELECT " + COLUMNS_READ + " FROM " + tableName;
@@ -205,7 +204,7 @@ public class ContractDAO extends MySQLDAO {
     } catch (Exception e) {
       logger.error("EXCEPTION READING DB ROW: [" + p.toString() + "]", e);
       throw (e);
-      
+
     } finally {
       super.close(r);
       super.close(p);
@@ -214,11 +213,11 @@ public class ContractDAO extends MySQLDAO {
     logger.info("Accounts loaded: " + accs.size());
     return accs;
   }
-  
+
   private Contract readFromResulset(ResultSet rs) throws Exception {
     Integer id = null;
     try {
-      
+
       // READ ROW:
       int column = 1;
       id = rs.getInt(column++);
@@ -234,13 +233,13 @@ public class ContractDAO extends MySQLDAO {
       Integer contracteMonths = rs.getInt(column++);
       Contract.Type type = Contract.Type.valueOf(rs.getString(column++));
       Contract.ContractDocument contractDocument = ContractDocument.valueOf(rs.getString(column++));
-      
+
       BillingSchema bs = BillingSchema.valueOf(rs.getString(column++));
       String currency = rs.getString(column++);
-      
+
       BigDecimal mrrBD = rs.getBigDecimal(column++);
       Double mrr = rs.wasNull() ? null : mrrBD.doubleValue();
-      
+
       Boolean fee = rs.getBoolean(column++);
       Double fix = rs.getDouble(column++);
       String pricing = rs.getString(column++);
@@ -248,19 +247,19 @@ public class ContractDAO extends MySQLDAO {
       String client_name = rs.getString(column++);
       String billingCenter = rs.getString(column++);
       String client_type = rs.getString(column++);
-      
+
       BigDecimal tmp = (BigDecimal) rs.getObject(column++);
       Double commissionMonthyBase = tmp == null ? null : tmp.doubleValue();
-      
+
       String commissionee = rs.getString(column++);
       String commisionLabel = rs.getString(column++);
       String commissionee2 = rs.getString(column++);
       String commisionLabel2 = rs.getString(column++);
-      
+
       String comments_billing = rs.getString(column++);
-      
+
       String plan = rs.getString(column++);
-      
+
       ArrayList<CommissionPlan> comms = new ArrayList<CommissionPlan>();
       if (commisionLabel != null) {
         List<CommissionPlan> comm = ContractFactory.commissionFromSchema(fix, commisionLabel, mrr, commissionMonthyBase, commissionee);
@@ -270,9 +269,9 @@ public class ContractDAO extends MySQLDAO {
         List<CommissionPlan> comm = ContractFactory.commissionFromSchema(fix, commisionLabel2, mrr, null, commissionee2);
         comms.addAll(comm);
       }
-      
+
       // ----
-      
+
       // Build object
       Contract a = null;
       if (pricing == null) {
@@ -285,7 +284,7 @@ public class ContractDAO extends MySQLDAO {
         Pricing p = pricingSchemaNames.get(pricing);
         if (p == null) {
           logger.error("UNKOWN PRICING SCHEMA NAME: '" + pricing + "'");
-          System.exit(1);
+          throw new Exception("UNKOWN PRICING SCHEMA NAME: [" + pricing + "]");
         }
         a = new Contract(id, name, type, bs, client_id, startJ, endJ, p, comms);
       }
@@ -300,37 +299,37 @@ public class ContractDAO extends MySQLDAO {
         a.client_type = Contract.ClientType.valueOf(client_type);
       }
       a.plan = plan;
-      
+
       return a;
     } catch (Exception e) {
       String msg = "ERROR reading contract id=" + ((id != null) ? id : "null");
       throw new Exception(msg, e);
     }
-    
+
   }
-  
+
   // TODO: replace Queries.initContext by a stand-alone option
   public static Contracts loadAccounts(boolean connectToDB, File dumpDataFile, String pricingFile) throws Exception {
     Contracts contracts;
     if (connectToDB) {
       ContractDAO adao = new ContractDAO(pricingFile);
       contracts = adao.getAccounts(null, true);
-      
+
       if (dumpDataFile != null) { // save for future use without Internet connection.
         contracts.save(dumpDataFile);
       }
     } else {
       // load last saved
       contracts = Contracts.load(dumpDataFile);
-      
+
     }
     return contracts;
   }
-  
+
   private void setPricing(HashMap<String,Pricing> loadPriceNames) {
     pricingSchemaNames = loadPriceNames;
   }
-  
+
   static String file_read(File filename) throws IOException {
     Reader in = new InputStreamReader(new FileInputStream(filename), "UTF8");
     BufferedReader i = new BufferedReader(in);
@@ -341,5 +340,5 @@ public class ContractDAO extends MySQLDAO {
     i.close();
     return b.toString();
   }
-  
+
 }
